@@ -1,22 +1,22 @@
 ---
-name: Bug report
-about: 버그 리포트 이슈
-title: ''
+name: 🐛 Bug Report
+about: 기능 오류 또는 예외 상황 제보
+title: ""
 labels: bug
 assignees: ''
 
 ---
 
-## 버그 정의
+## 📌 버그 설명
 
-> 
+- 
 
-## 발생 배경
+## ✅ 재현 방법
 
-> 
+1.
 
-## 예상했던 결과
+## 🧩 기대 결과
 
-> 
+- 
 
-## 참고 자료(선택)
+## 🖼️ 관련 스크린샷/로그
