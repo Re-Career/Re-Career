@@ -24,7 +24,7 @@ public class User extends BaseTimeEntity {
   private String email;
 
   @Enumerated(EnumType.STRING)
-  private Role role; // MENTOR, MENTEE
+  private Role role;
 
   private LocalDateTime createdAt;
 
