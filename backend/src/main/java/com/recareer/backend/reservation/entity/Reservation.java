@@ -1,6 +1,8 @@
 package com.recareer.backend.reservation.entity;
 
 import com.recareer.backend.common.entity.BaseTimeEntity;
+import com.recareer.backend.mentor.entity.Mentor;
+import com.recareer.backend.user.entity.User;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
@@ -17,13 +19,13 @@ public class Reservation extends BaseTimeEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-//  @ManyToOne(optional = false)
-//  @JoinColumn(name = "mentor_id", nullable = false)
-//  private Mentor mentor;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "mentor_id", nullable = false)
+  private Mentor mentor;
 
-//  @ManyToOne(optional = false)
-//  @JoinColumn(name = "user_id", nullable = false)
-//  private User user;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
   @Column(nullable = false, name = "reservation_time")
   private LocalDateTime reservationTime;
