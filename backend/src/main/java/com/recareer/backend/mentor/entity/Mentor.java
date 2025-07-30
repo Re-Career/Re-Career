@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "mentors")
 public class Mentor extends BaseTimeEntity {
 
   @Id
