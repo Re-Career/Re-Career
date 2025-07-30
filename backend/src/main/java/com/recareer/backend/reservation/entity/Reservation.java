@@ -13,6 +13,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "reservations")
 public class Reservation extends BaseTimeEntity {
 
   @Id
