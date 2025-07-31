@@ -25,8 +25,4 @@ public class User extends BaseTimeEntity {
 
   @Enumerated(EnumType.STRING)
   private Role role;
-
-  private LocalDateTime createdAt;
-
-  private LocalDateTime updatedAt;
 }

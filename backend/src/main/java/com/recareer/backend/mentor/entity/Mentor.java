@@ -22,8 +22,4 @@ public class Mentor extends BaseTimeEntity {
 
   @Column(columnDefinition = "TEXT")
   private String description;
-
-  private LocalDateTime createdAt;
-
-  private LocalDateTime updatedAt;
 }
