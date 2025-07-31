@@ -11,6 +11,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,11 +21,13 @@ public class ReservationServiceImpl implements ReservationService {
   private final MentorRepository mentorRepository;
 
   @Override
+  @Transactional(readOnly = true)
   public List<Reservation> findAllReservationsByUserId(Long userId) {
     return reservationRepository.findAllByUserId(userId);
   }
 
   @Override
+  @Transactional()
   public Long createReservation(ReservationRequestDto requestDto) {
     Mentor mentor = mentorRepository.findById(requestDto.getMentorId())
         .orElseThrow(() -> new EntityNotFoundException("해당 멘토를 찾을 수 없습니다."));
