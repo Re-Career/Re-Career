@@ -6,12 +6,14 @@ const notoSans = Noto_Sans({
   variable: '--font-noto-sans',
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
+  display: 'swap',
 })
 
 const notoSansKR = Noto_Sans_KR({
   variable: '--font-noto-sans-kr',
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
