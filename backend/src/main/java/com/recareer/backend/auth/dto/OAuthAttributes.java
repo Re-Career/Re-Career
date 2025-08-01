@@ -28,6 +28,7 @@ public class OAuthAttributes {
         if ("kakao".equals(registrationId)) {
             return ofKakao(userNameAttributeName, attributes);
         }
+        throw new IllegalArgumentException("지원하지 않는 OAuth2 제공자입니다: " + registrationId);
     }
 
     private static OAuthAttributes ofKakao(String userNameAttributeName, Map<String, Object> attributes) {
