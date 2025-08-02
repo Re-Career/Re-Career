@@ -30,12 +30,12 @@ public class User extends BaseTimeEntity {
   @Column(name = "provider_id", unique = true)
   private String providerId;
 
-  @Column(name = "profile_image")
-  private String profileImage;
+  @Column(name = "profile_image_url")
+  private String profileImageUrl;
 
-  public User update(String name, String profileImage) {
+  public User update(String name, String profileImageUrl) {
     this.name = name;
-    this.profileImage = profileImage;
+    this.profileImageUrl = profileImageUrl;
     return this;
   }
 

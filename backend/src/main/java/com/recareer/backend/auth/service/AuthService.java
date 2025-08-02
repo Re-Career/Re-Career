@@ -48,7 +48,7 @@ public class AuthService {
             if (signupRequest.getDescription() == null || signupRequest.getDescription().trim().isEmpty()) {
                 throw new IllegalArgumentException("멘토는 자기소개가 필수입니다.");
             }
-            if (signupRequest.getProfileImage() == null || signupRequest.getProfileImage().trim().isEmpty()) {
+            if (signupRequest.getProfileImageUrl() == null || signupRequest.getProfileImageUrl().trim().isEmpty()) {
                 throw new IllegalArgumentException("멘토는 프로필 이미지가 필수입니다.");
             }
         }
@@ -61,7 +61,7 @@ public class AuthService {
                 .role(signupRequest.getRole())
                 .provider(user.getProvider())
                 .providerId(user.getProviderId())
-                .profileImage(signupRequest.getProfileImage() != null ? signupRequest.getProfileImage() : user.getProfileImage())
+                .profileImageUrl(signupRequest.getProfileImageUrl() != null ? signupRequest.getProfileImageUrl() : user.getProfileImageUrl())
                 .build();
 
         User savedUser = userRepository.save(updatedUser);

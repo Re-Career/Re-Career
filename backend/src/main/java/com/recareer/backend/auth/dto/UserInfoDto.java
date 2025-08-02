@@ -27,7 +27,7 @@ public class UserInfoDto {
     private Role role;
 
     @Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg")
-    private String profileImage;
+    private String profileImageUrl;
 
     @Schema(description = "가입 완료 여부", example = "true")
     private boolean isSignupCompleted;
@@ -38,7 +38,7 @@ public class UserInfoDto {
                 .name(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())
-                .profileImage(user.getProfileImage())
+                .profileImageUrl(user.getProfileImageUrl())
                 .isSignupCompleted(user.getName() != null && user.getEmail() != null && user.getRole() != null)
                 .build();
     }

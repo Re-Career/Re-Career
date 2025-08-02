@@ -30,7 +30,7 @@ public class SignupRequestDto {
     private Role role;
 
     @Schema(description = "프로필 이미지 URL (MENTOR일 때 필수)", example = "https://example.com/profile.jpg")
-    private String profileImage;
+    private String profileImageUrl;
 
     // Mentor 전용 필드들
     @Schema(description = "직무/포지션 (MENTOR일 때 필수)", example = "백엔드 개발자")

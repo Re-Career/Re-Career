@@ -32,7 +32,7 @@ public class ProfileController {
 
     @PostMapping("/upload-image")
     @Operation(summary = "프로필 이미지 업로드", description = "사용자의 프로필 이미지를 업로드합니다.")
-    public ResponseEntity<ApiResponse<String>> uploadProfileImage(
+    public ResponseEntity<ApiResponse<String>> uploadProfileImageUrl(
             @RequestHeader("Authorization") String accessToken,
             @RequestParam("file") MultipartFile file) {
         
@@ -49,7 +49,7 @@ public class ProfileController {
             String providerId = jwtTokenProvider.getEmailFromToken(token);
             String imageUrl = s3Service.uploadFile(file, "profile-images");
             
-            profileService.updateProfileImage(providerId, imageUrl);
+            profileService.updateProfileImageUrl(providerId, imageUrl);
             
             return ResponseEntity.ok(ApiResponse.success(imageUrl, "프로필 이미지가 성공적으로 업로드되었습니다."));
             
@@ -66,7 +66,7 @@ public class ProfileController {
 
     @DeleteMapping("/delete-image")
     @Operation(summary = "프로필 이미지 삭제", description = "사용자의 프로필 이미지를 삭제합니다.")
-    public ResponseEntity<ApiResponse<String>> deleteProfileImage(
+    public ResponseEntity<ApiResponse<String>> deleteProfileImageUrl(
             @RequestHeader("Authorization") String accessToken) {
         
         try {
@@ -78,7 +78,7 @@ public class ProfileController {
             }
 
             String providerId = jwtTokenProvider.getEmailFromToken(token);
-            profileService.deleteProfileImage(providerId);
+            profileService.deleteProfileImageUrl(providerId);
             
             return ResponseEntity.ok(ApiResponse.success(null, "프로필 이미지가 성공적으로 삭제되었습니다."));
             
