@@ -51,10 +51,10 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run unit tests
-        run: ./gradlew test
+        run: SPRING_PROFILES_ACTIVE=dev ./gradlew test
 
       - name: Run build
-        run: ./gradlew build
+        run: SPRING_PROFILES_ACTIVE=dev ./gradlew build
 
       - name: Check code style
         run: ./gradlew check
