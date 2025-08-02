@@ -1,6 +1,7 @@
 package com.recareer.backend.user.dto;
 
 import com.recareer.backend.mentor.entity.Mentor;
+import com.recareer.backend.personality.dto.PersonalityTagDto;
 import com.recareer.backend.user.entity.Role;
 import com.recareer.backend.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -42,6 +45,9 @@ public class UserInfoDto {
 
     @Schema(description = "멘토 이력", example = "5년차 백엔드 개발자입니다.")
     private String mentorDescription;
+
+    @Schema(description = "선택한 성향 태그 목록")
+    private List<PersonalityTagDto> personalityTags;
 
     public static UserInfoDto from(User user) {
         return UserInfoDto.builder()

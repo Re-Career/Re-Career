@@ -1,5 +1,6 @@
 package com.recareer.backend.user.controller;
 
+import com.recareer.backend.user.dto.UpdateUserPersonalityTagsDto;
 import com.recareer.backend.user.dto.UserInfoDto;
 import com.recareer.backend.user.dto.UpdateUserProfileDto;
 import com.recareer.backend.auth.service.JwtTokenProvider;
@@ -135,6 +136,33 @@ public class UserController {
         } catch (Exception e) {
             log.error("Profile image deletion failed: {}", e.getMessage());
             return ResponseEntity.internalServerError().body(ApiResponse.error("프로필 이미지 삭제에 실패했습니다."));
+        }
+    }
+
+    @PutMapping("/personality-tags")
+    @Operation(summary = "사용자 성향 태그 수정", description = "사용자의 성향 태그를 선택/수정합니다. (최대 5개)")
+    public ResponseEntity<ApiResponse<String>> updateUserPersonalityTags(
+            @RequestHeader("Authorization") String accessToken,
+            @Valid @RequestBody UpdateUserPersonalityTagsDto request) {
+        
+        try {
+            String token = accessToken.replace("Bearer ", "");
+            
+            if (!jwtTokenProvider.validateToken(token)) {
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error("Invalid access token"));
+            }
+            
+            String providerId = jwtTokenProvider.getProviderIdFromToken(token);
+            userService.updateUserPersonalityTags(providerId, request);
+            
+            return ResponseEntity.ok(ApiResponse.success("성향 태그가 성공적으로 업데이트되었습니다."));
+            
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            log.error("User personality tags update failed: {}", e.getMessage());
+            return ResponseEntity.internalServerError().body(ApiResponse.error("성향 태그 업데이트에 실패했습니다."));
         }
     }
 
