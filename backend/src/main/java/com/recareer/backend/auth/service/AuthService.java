@@ -35,6 +35,11 @@ public class AuthService {
         User user = userRepository.findByProviderId(providerId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
+        if (user.getName() != null && !user.getName().trim().isEmpty() && 
+            user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("이미 회원가입이 완료된 사용자입니다. 프로필 수정을 이용해주세요.");
+        }
+
         // 이메일 중복 검사
         if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
@@ -69,6 +74,7 @@ public class AuthService {
         // MENTOR일 때 mentors 테이블에 추가 정보 저장
         if (signupRequest.getRole() == Role.MENTOR) {
             Mentor mentor = Mentor.builder()
+                    .id(savedUser.getId())
                     .user(savedUser)
                     .position(signupRequest.getPosition())
                     .description(signupRequest.getDescription())

@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
-@EnableJpaAuditing
+// @EnableJpaAuditing  // 임시 비활성화
 public class BackendApplication {
 
 	public static void main(String[] args) {

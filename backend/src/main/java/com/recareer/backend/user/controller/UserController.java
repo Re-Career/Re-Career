@@ -44,7 +44,7 @@ public class UserController {
                         .body(ApiResponse.error("Invalid access token"));
             }
 
-            String providerId = jwtTokenProvider.getEmailFromToken(token);
+            String providerId = jwtTokenProvider.getProviderIdFromToken(token);
             UserInfoDto userInfo = userService.getUserProfile(providerId);
             
             return ResponseEntity.ok(ApiResponse.success(userInfo));
@@ -69,7 +69,7 @@ public class UserController {
                         .body(ApiResponse.error("Invalid access token"));
             }
 
-            String providerId = jwtTokenProvider.getEmailFromToken(token);
+            String providerId = jwtTokenProvider.getProviderIdFromToken(token);
             UserInfoDto userInfo = userService.updateUserProfile(providerId, request);
             
             return ResponseEntity.ok(ApiResponse.success("프로필이 성공적으로 업데이트되었습니다.", userInfo));
@@ -98,7 +98,7 @@ public class UserController {
 
             validateFile(file);
             
-            String providerId = jwtTokenProvider.getEmailFromToken(token);
+            String providerId = jwtTokenProvider.getProviderIdFromToken(token);
             String imageUrl = userService.updateProfileImage(providerId, file);
             
             return ResponseEntity.ok(ApiResponse.success(imageUrl, "프로필 이미지가 성공적으로 업로드되었습니다."));
@@ -127,7 +127,7 @@ public class UserController {
                         .body(ApiResponse.error("Invalid access token"));
             }
 
-            String providerId = jwtTokenProvider.getEmailFromToken(token);
+            String providerId = jwtTokenProvider.getProviderIdFromToken(token);
             userService.deleteProfileImage(providerId);
             
             return ResponseEntity.ok(ApiResponse.success(null, "프로필 이미지가 성공적으로 삭제되었습니다."));

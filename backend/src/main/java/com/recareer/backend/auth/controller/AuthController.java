@@ -33,7 +33,7 @@ public class AuthController {
                     .body(ApiResponse.error("Invalid refresh token"));
         }
 
-        String providerId = jwtTokenProvider.getEmailFromToken(token); // 실제로는 providerId
+        String providerId = jwtTokenProvider.getProviderIdFromToken(token);
         String newAccessToken = jwtTokenProvider.createAccessToken(providerId, "ROLE_USER");
 
         return ResponseEntity.ok(ApiResponse.success(newAccessToken));
@@ -49,7 +49,7 @@ public class AuthController {
                     .body(ApiResponse.error("Invalid access token"));
         }
 
-        String providerId = jwtTokenProvider.getEmailFromToken(token); // 실제로는 providerId
+        String providerId = jwtTokenProvider.getProviderIdFromToken(token);
         UserInfoDto userInfo = authService.getUserInfo(providerId);
 
         return ResponseEntity.ok(ApiResponse.success(userInfo));
@@ -68,9 +68,9 @@ public class AuthController {
                     .body(ApiResponse.error("Invalid access token"));
         }
 
-        String providerId = jwtTokenProvider.getEmailFromToken(token); // 실제로는 providerId
+        String providerId = jwtTokenProvider.getProviderIdFromToken(token);
         UserInfoDto userInfo = authService.signup(providerId, signupRequest);
-
+        
         return ResponseEntity.ok(ApiResponse.success(userInfo));
     }
 
