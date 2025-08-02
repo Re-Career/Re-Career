@@ -47,7 +47,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String providerId = String.valueOf(attributes.getAttributes().get("id"));
         
         User user = userRepository.findByProviderId(providerId)
-                .map(entity -> entity.update(attributes.getName(), attributes.getProfileImage()))
+                .map(entity -> entity.update(attributes.getName(), attributes.getProfileImageUrl()))
                 .orElse(attributes.toEntity());
 
         return userRepository.save(user);

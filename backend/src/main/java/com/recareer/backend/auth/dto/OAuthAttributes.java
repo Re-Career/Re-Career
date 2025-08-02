@@ -13,15 +13,15 @@ public class OAuthAttributes {
     private String nameAttributeKey;
     private String name;
     private String email;
-    private String profileImage;
+    private String profileImageUrl;
 
     @Builder
-    public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String profileImage) {
+    public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String profileImageUrl) {
         this.attributes = attributes;
         this.nameAttributeKey = nameAttributeKey;
         this.name = name;
         this.email = email;
-        this.profileImage = profileImage;
+        this.profileImageUrl = profileImageUrl;
     }
 
     public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
@@ -37,7 +37,7 @@ public class OAuthAttributes {
         return OAuthAttributes.builder()
                 .name("카카오사용자_" + kakaoId)  // 임시 이름
                 .email(null)  // 이메일은 별도 수집
-                .profileImage(null)  // 프로필 이미지는 별도 수집
+                .profileImageUrl(null)  // 프로필 이미지는 별도 수집
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .build();
@@ -47,7 +47,7 @@ public class OAuthAttributes {
         return User.builder()
                 .name(name)
                 .email(email)
-                .profileImage(profileImage)
+                .profileImageUrl(profileImageUrl)
                 .role(Role.MENTEE)
                 .provider("kakao")
                 .providerId(String.valueOf(attributes.get("id")))

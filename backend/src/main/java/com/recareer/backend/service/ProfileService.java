@@ -16,14 +16,14 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final S3Service s3Service;
 
-    public void updateProfileImage(String providerId, String imageUrl) {
+    public void updateProfileImageUrl(String providerId, String imageUrl) {
         User user = userRepository.findByProviderId(providerId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // 기존 프로필 이미지가 있다면 S3에서 삭제
-        if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+        if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
             try {
-                s3Service.deleteFile(user.getProfileImage());
+                s3Service.deleteFile(user.getProfileImageUrl());
             } catch (Exception e) {
                 log.warn("Failed to delete old profile image: {}", e.getMessage());
             }
@@ -36,13 +36,13 @@ public class ProfileService {
         log.info("Profile image updated for user: {}", providerId);
     }
 
-    public void deleteProfileImage(String providerId) {
+    public void deleteProfileImageUrl(String providerId) {
         User user = userRepository.findByProviderId(providerId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+        if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
             try {
-                s3Service.deleteFile(user.getProfileImage());
+                s3Service.deleteFile(user.getProfileImageUrl());
             } catch (Exception e) {
                 log.warn("Failed to delete profile image from S3: {}", e.getMessage());
             }
