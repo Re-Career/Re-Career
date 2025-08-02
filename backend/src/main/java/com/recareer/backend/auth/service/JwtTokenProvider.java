@@ -25,12 +25,12 @@ public class JwtTokenProvider {
         this.refreshTokenValidTime = refreshTokenValidityInSeconds * 1000;
     }
 
-    public String createAccessToken(String email, String role) {
+    public String createAccessToken(String providerId, String role) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessTokenValidTime);
 
         return Jwts.builder()
-                .subject(email)
+                .subject(providerId)
                 .claim("role", role)
                 .issuedAt(now)
                 .expiration(validity)
@@ -38,19 +38,19 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String createRefreshToken(String email) {
+    public String createRefreshToken(String providerId) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + refreshTokenValidTime);
 
         return Jwts.builder()
-                .subject(email)
+                .subject(providerId)
                 .issuedAt(now)
                 .expiration(validity)
                 .signWith(secretKey, Jwts.SIG.HS256)
                 .compact();
     }
 
-    public String getEmailFromToken(String token) {
+    public String getProviderIdFromToken(String token) {
         return getClaims(token).getSubject();
     }
 

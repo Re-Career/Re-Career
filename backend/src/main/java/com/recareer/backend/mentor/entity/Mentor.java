@@ -17,11 +17,10 @@ import lombok.NoArgsConstructor;
 public class Mentor extends BaseTimeEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
   private User user;
 
   @Column(length = 100)
