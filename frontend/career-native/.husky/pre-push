@@ -1,0 +1,15 @@
+#\!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run tests and build before push
+echo "🔍 Running pre-push checks..."
+
+# Run linting
+echo "📝 Running lint..."
+pnpm lint
+
+# Check TypeScript types
+echo "🔍 Checking TypeScript..."
+npx tsc --noEmit
+
+echo "✅ Pre-push checks completed successfully\!"
