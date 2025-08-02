@@ -1,0 +1,20 @@
+{
+  "name": "@re-career/frontend",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "career-web",
+    "career-native"
+  ],
+  "scripts": {
+    "lint": "pnpm -r lint",
+    "lint:fix": "pnpm -r lint:fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "prettier": "^3.6.2"
+  }
+}
