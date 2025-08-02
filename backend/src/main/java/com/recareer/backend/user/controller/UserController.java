@@ -1,11 +1,13 @@
-package com.recareer.backend.controller;
+package com.recareer.backend.user.controller;
 
+import com.recareer.backend.user.dto.UserInfoDto;
+import com.recareer.backend.user.dto.UpdateUserProfileDto;
 import com.recareer.backend.auth.service.JwtTokenProvider;
 import com.recareer.backend.response.ApiResponse;
-import com.recareer.backend.service.ProfileService;
-import com.recareer.backend.service.S3Service;
+import com.recareer.backend.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,21 +20,71 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/profile")
+@RequestMapping("/user")
 @RequiredArgsConstructor
-@Tag(name = "Profile", description = "프로필 관련 API")
-public class ProfileController {
+@Tag(name = "User", description = "사용자 관련 API")
+public class UserController {
 
-    private final S3Service s3Service;
-    private final ProfileService profileService;
+    private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     
     private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "gif");
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-    @PostMapping("/upload-image")
+    @GetMapping("/profile")
+    @Operation(summary = "사용자 프로필 조회", description = "현재 로그인한 사용자의 프로필 정보를 조회합니다.")
+    public ResponseEntity<ApiResponse<UserInfoDto>> getUserProfile(
+            @RequestHeader("Authorization") String accessToken) {
+        
+        try {
+            String token = accessToken.replace("Bearer ", "");
+            
+            if (!jwtTokenProvider.validateToken(token)) {
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error("Invalid access token"));
+            }
+
+            String providerId = jwtTokenProvider.getEmailFromToken(token);
+            UserInfoDto userInfo = userService.getUserProfile(providerId);
+            
+            return ResponseEntity.ok(ApiResponse.success(userInfo));
+            
+        } catch (Exception e) {
+            log.error("Get user profile failed: {}", e.getMessage());
+            return ResponseEntity.internalServerError().body(ApiResponse.error("프로필 조회에 실패했습니다."));
+        }
+    }
+
+    @PutMapping("/profile")
+    @Operation(summary = "사용자 프로필 업데이트", description = "사용자의 기본 정보와 멘토인 경우 멘토 정보를 업데이트합니다.")
+    public ResponseEntity<ApiResponse<UserInfoDto>> updateUserProfile(
+            @RequestHeader("Authorization") String accessToken,
+            @Valid @RequestBody UpdateUserProfileDto request) {
+        
+        try {
+            String token = accessToken.replace("Bearer ", "");
+            
+            if (!jwtTokenProvider.validateToken(token)) {
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error("Invalid access token"));
+            }
+
+            String providerId = jwtTokenProvider.getEmailFromToken(token);
+            UserInfoDto userInfo = userService.updateUserProfile(providerId, request);
+            
+            return ResponseEntity.ok(ApiResponse.success("프로필이 성공적으로 업데이트되었습니다.", userInfo));
+            
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Profile update failed: {}", e.getMessage());
+            return ResponseEntity.internalServerError().body(ApiResponse.error("프로필 업데이트에 실패했습니다."));
+        }
+    }
+
+    @PutMapping("/profile/image")
     @Operation(summary = "프로필 이미지 업로드", description = "사용자의 프로필 이미지를 업로드합니다.")
-    public ResponseEntity<ApiResponse<String>> uploadProfileImageUrl(
+    public ResponseEntity<ApiResponse<String>> updateProfileImage(
             @RequestHeader("Authorization") String accessToken,
             @RequestParam("file") MultipartFile file) {
         
@@ -47,9 +99,7 @@ public class ProfileController {
             validateFile(file);
             
             String providerId = jwtTokenProvider.getEmailFromToken(token);
-            String imageUrl = s3Service.uploadFile(file, "profile-images");
-            
-            profileService.updateProfileImageUrl(providerId, imageUrl);
+            String imageUrl = userService.updateProfileImage(providerId, file);
             
             return ResponseEntity.ok(ApiResponse.success(imageUrl, "프로필 이미지가 성공적으로 업로드되었습니다."));
             
@@ -64,9 +114,9 @@ public class ProfileController {
         }
     }
 
-    @DeleteMapping("/delete-image")
+    @DeleteMapping("/profile/image")
     @Operation(summary = "프로필 이미지 삭제", description = "사용자의 프로필 이미지를 삭제합니다.")
-    public ResponseEntity<ApiResponse<String>> deleteProfileImageUrl(
+    public ResponseEntity<ApiResponse<String>> deleteProfileImage(
             @RequestHeader("Authorization") String accessToken) {
         
         try {
@@ -78,7 +128,7 @@ public class ProfileController {
             }
 
             String providerId = jwtTokenProvider.getEmailFromToken(token);
-            profileService.deleteProfileImageUrl(providerId);
+            userService.deleteProfileImage(providerId);
             
             return ResponseEntity.ok(ApiResponse.success(null, "프로필 이미지가 성공적으로 삭제되었습니다."));
             
