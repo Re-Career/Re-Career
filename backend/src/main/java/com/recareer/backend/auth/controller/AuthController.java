@@ -1,7 +1,7 @@
 package com.recareer.backend.auth.controller;
 
 import com.recareer.backend.auth.dto.SignupRequestDto;
-import com.recareer.backend.auth.dto.UserInfoDto;
+import com.recareer.backend.user.dto.UserInfoDto;
 import com.recareer.backend.auth.service.AuthService;
 import com.recareer.backend.auth.service.JwtTokenProvider;
 import com.recareer.backend.response.ApiResponse;

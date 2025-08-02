@@ -29,4 +29,10 @@ public class Mentor extends BaseTimeEntity {
 
   @Column(columnDefinition = "TEXT")
   private String description;
+
+  public Mentor update(String position, String description) {
+    this.position = position;
+    this.description = description;
+    return this;
+  }
 }

@@ -1,7 +1,7 @@
 package com.recareer.backend.auth.service;
 
 import com.recareer.backend.auth.dto.SignupRequestDto;
-import com.recareer.backend.auth.dto.UserInfoDto;
+import com.recareer.backend.user.dto.UserInfoDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
 import com.recareer.backend.user.entity.Role;

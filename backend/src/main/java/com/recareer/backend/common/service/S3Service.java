@@ -1,4 +1,4 @@
-package com.recareer.backend.service;
+package com.recareer.backend.common.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
