@@ -67,6 +67,7 @@ public class AuthService {
                 .provider(user.getProvider())
                 .providerId(user.getProviderId())
                 .profileImageUrl(signupRequest.getProfileImageUrl() != null ? signupRequest.getProfileImageUrl() : user.getProfileImageUrl())
+                .region(signupRequest.getRegion())
                 .build();
 
         User savedUser = userRepository.save(updatedUser);

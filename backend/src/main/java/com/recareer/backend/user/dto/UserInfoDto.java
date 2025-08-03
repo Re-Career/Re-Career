@@ -36,6 +36,9 @@ public class UserInfoDto {
     @Schema(description = "가입 완료 여부", example = "true")
     private boolean isSignupCompleted;
 
+    @Schema(description = "지역", example = "경기도 하남시")
+    private String region;
+
     // 멘토 정보 (역할이 MENTOR일 때만)
     @Schema(description = "멘토 ID", example = "1")
     private Long mentorId;

@@ -32,6 +32,10 @@ public class SignupRequestDto {
     @Schema(description = "프로필 이미지 URL (MENTOR일 때 필수)", example = "https://example.com/profile.jpg")
     private String profileImageUrl;
 
+    @Schema(description = "지역", example = "경기도 하남시")
+    @NotBlank(message = "지역은 필수입니다.")
+    private String region;
+
     // Mentor 전용 필드들
     @Schema(description = "직무/포지션 (MENTOR일 때 필수)", example = "백엔드 개발자")
     private String position;

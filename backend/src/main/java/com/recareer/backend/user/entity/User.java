@@ -33,6 +33,9 @@ public class User extends BaseTimeEntity {
   @Column(name = "profile_image_url")
   private String profileImageUrl;
 
+  @Column(name = "region")
+  private String region;
+
   public User update(String name, String profileImageUrl) {
     this.name = name;
     this.profileImageUrl = profileImageUrl;
@@ -43,6 +46,14 @@ public class User extends BaseTimeEntity {
     this.name = name;
     this.email = email;
     this.profileImageUrl = profileImageUrl;
+    return this;
+  }
+
+  public User updateProfile(String name, String email, String profileImageUrl, String region) {
+    this.name = name;
+    this.email = email;
+    this.profileImageUrl = profileImageUrl;
+    this.region = region;
     return this;
   }
 
