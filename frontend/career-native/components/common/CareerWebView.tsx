@@ -1,6 +1,9 @@
 import React from 'react'
 import WebView, { WebViewProps } from 'react-native-webview'
 
+const DEFAULT_WEB_APP_IP = '0.0.0.0:3000'
+const DEFAULT_WEB_APP_URL = 'http://localhost:3000'
+
 interface CareerWebViewProps extends WebViewProps {
   path?: string
 }
@@ -16,7 +19,16 @@ const CareerWebView = (props: CareerWebViewProps) => {
     ...restProps
   } = props
 
-  const uri = `${process.env.EXPO_PUBLIC_WEB_APP_URL ?? 'http://localhost:3000'}/${path}`
+  // 개발 환경에서 실제 IP 주소 사용
+  const getBaseUrl = () => {
+    if (__DEV__) {
+      return process.env.EXPO_PUBLIC_WEB_APP_IP ?? DEFAULT_WEB_APP_IP
+    }
+
+    return process.env.EXPO_PUBLIC_WEB_APP_URL ?? DEFAULT_WEB_APP_URL
+  }
+
+  const uri = `${getBaseUrl()}/${path}`
 
   return (
     <WebView
