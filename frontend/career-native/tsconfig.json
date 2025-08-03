@@ -14,19 +14,32 @@
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "paths": {
-      "@/*": ["./*"],
-      "@/components/*": ["./components/*"],
-      "@/constants/*": ["./constants/*"],
-      "@/hooks/*": ["./hooks/*"],
-      "@/app/*": ["./app/*"],
-      "@/assets/*": ["./assets/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/constants/*": [
+        "./constants/*"
+      ],
+      "@/hooks/*": [
+        "./hooks/*"
+      ],
+      "@/app/*": [
+        "./app/*"
+      ],
+      "@/assets/*": [
+        "./assets/*"
+      ]
     }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "expo-env.d.ts",
+    "nativewind-env.d.ts"
   ],
   "exclude": [
     "node_modules",
