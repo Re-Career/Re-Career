@@ -9,14 +9,14 @@ export type ThemedTextProps = TextProps & {
   className?: string
 }
 
-export function ThemedText({
+const ThemedText = ({
   style,
   lightColor,
   darkColor,
   type = 'default',
   className,
   ...rest
-}: ThemedTextProps) {
+}: ThemedTextProps) => {
   const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text')
 
   const getTypeClassName = () => {
@@ -49,3 +49,5 @@ export function ThemedText({
     />
   )
 }
+
+export default ThemedText
