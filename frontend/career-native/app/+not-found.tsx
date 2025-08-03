@@ -1,7 +1,6 @@
-import { Link, Stack } from 'expo-router';
+import { Link, Stack } from 'expo-router'
 
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { ThemedText, ThemedView } from '../components'
 
 export default function NotFoundScreen() {
   return (
@@ -14,5 +13,5 @@ export default function NotFoundScreen() {
         </Link>
       </ThemedView>
     </>
-  );
+  )
 }
