@@ -60,6 +60,7 @@ public class UserService {
                     .mentorId(userInfo.getMentorId())
                     .mentorPosition(userInfo.getMentorPosition())
                     .mentorDescription(userInfo.getMentorDescription())
+                    .mentorIsVerified(userInfo.getMentorIsVerified())
                     .personalityTags(personalityTags)
                     .build();
         }
