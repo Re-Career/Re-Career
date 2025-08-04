@@ -32,6 +32,12 @@ const RootLayout = () => {
             }}
           >
             <Stack.Screen name="(tabs)" />
+            <Stack.Screen
+              name="(modal)/login"
+              options={{
+                presentation: 'modal',
+              }}
+            />
             <Stack.Screen name="+not-found" />
           </Stack>
         </SafeAreaView>
