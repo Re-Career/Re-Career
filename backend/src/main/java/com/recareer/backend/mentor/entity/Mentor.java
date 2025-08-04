@@ -29,10 +29,6 @@ public class Mentor extends BaseTimeEntity {
   @Column(columnDefinition = "TEXT")
   private String description;
 
-  @Builder.Default
-  @Column(name = "is_verified", nullable = false)
-  private Boolean isVerified = false;
-
   public Mentor update(String position, String description) {
     this.position = position;
     this.description = description;
