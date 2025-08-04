@@ -78,7 +78,7 @@ public class UserInfoDto {
         if (mentor != null) {
             builder.mentorId(mentor.getId())
                    .mentorPosition(mentor.getPosition())
-                   .mentorDescription(mentor.getIsVerified());
+                   .mentorDescription(mentor.getIsVerified())
                    .mentorDescription(mentor.getDescription());
         }
 
