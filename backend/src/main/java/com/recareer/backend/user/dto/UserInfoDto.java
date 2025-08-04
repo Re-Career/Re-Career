@@ -49,6 +49,9 @@ public class UserInfoDto {
     @Schema(description = "멘토 이력", example = "5년차 백엔드 개발자입니다.")
     private String mentorDescription;
 
+    @Schema(description = "멘토 인증 여부", example = "true")
+    private Boolean mentorIsVerified;
+    
     @Schema(description = "선택한 성향 태그 목록")
     private List<PersonalityTagDto> personalityTags;
 
@@ -75,6 +78,7 @@ public class UserInfoDto {
         if (mentor != null) {
             builder.mentorId(mentor.getId())
                    .mentorPosition(mentor.getPosition())
+                   .mentorDescription(mentor.getIsVerified());
                    .mentorDescription(mentor.getDescription());
         }
 
