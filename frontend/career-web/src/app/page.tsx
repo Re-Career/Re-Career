@@ -16,7 +16,7 @@ export default function Home() {
   return (
     <div>
       <main>
-        <button onClick={handleLogin} className="bg-blue-300 px-4 py-2 border">
+        <button onClick={handleLogin} className="border bg-blue-300 px-4 py-2">
           로그인 테스트
         </button>
       </main>

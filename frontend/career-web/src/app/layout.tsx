@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body
-        className={`${notoSans.variable} ${notoSansKR.variable} w-full max-w-[600px] mx-auto min-h-screen`}
+        className={`${notoSans.variable} ${notoSansKR.variable} mx-auto min-h-screen w-full max-w-[600px]`}
       >
         {children}
       </body>
