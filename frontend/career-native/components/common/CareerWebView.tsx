@@ -1,7 +1,7 @@
 import React from 'react'
 import WebView, { WebViewProps } from 'react-native-webview'
 
-const DEFAULT_WEB_APP_IP = '0.0.0.0:3000'
+const DEFAULT_WEB_APP_IP = 'http://0.0.0.0:3000'
 const DEFAULT_WEB_APP_URL = 'http://localhost:3000'
 
 interface CareerWebViewProps extends WebViewProps {
