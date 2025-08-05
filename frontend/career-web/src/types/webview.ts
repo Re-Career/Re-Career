@@ -6,4 +6,6 @@ declare global {
   }
 }
 
-export {}
+export interface WebViewMessage {
+  type: string
+}
