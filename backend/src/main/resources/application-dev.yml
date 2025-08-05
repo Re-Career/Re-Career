@@ -50,7 +50,7 @@ app:
     authorized-redirect-uri: http://localhost:8080/oauth2/redirect
 
 cors:
-  allowed-origins: http://localhost:8080
+  allowed-origins: "*"
 
 aws:
   s3:
