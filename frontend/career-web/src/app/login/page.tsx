@@ -5,17 +5,14 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
 export default function Login() {
-  const router = useRouter()
-
   const handleOAuthLogin = () => {
-    // if (window) {
-    //   const oauthUrl = `${process.env.NEXT_PUBLIC_API_URL}/oauth2/authorization/kakao`
+    if (window) {
+      const oauthUrl = `${process.env.NEXT_PUBLIC_API_URL}/oauth2/authorization/kakao`
 
-    //   if (window && oauthUrl) {
-    //     window.location.href = oauthUrl
-    //   }
-    // }
-    router.push('/sign-up')
+      if (window && oauthUrl) {
+        return (window.location.href = oauthUrl)
+      }
+    }
   }
 
   return (
@@ -27,11 +24,11 @@ export default function Login() {
           <p>일을 넘어 삶을 설계하는 </p>
           <p>진짜 커리어 탐색 Re:Career</p>
         </div>
-        <Image 
-          src="/kakao_login.png" 
-          alt="kakao_login" 
-          width={300} 
-          height={45} 
+        <Image
+          src="/kakao_login.png"
+          alt="kakao_login"
+          width={300}
+          height={45}
           onClick={handleOAuthLogin}
           className="cursor-pointer"
         />
