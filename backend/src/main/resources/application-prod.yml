@@ -59,7 +59,7 @@ app:
     authorized-redirect-uri: https://re-career.onrender.com/oauth2/redirect
 
 cors:
-  allowed-origins: "*" #TODO: 프론트엔드 배포 후 변경
+  allowed-origins: "http://localhost:3000,https://localhost:3000,http://localhost:8081,https://localhost:8081,https://re-career.onrender.com"
 
 aws:
   s3:
