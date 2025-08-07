@@ -26,12 +26,13 @@ public class MentorController {
     private final MentorService mentorService;
 
     @GetMapping("/region")
-    @Operation(summary = "지역별 인증된 멘토 조회", description = "지정된 지역의 멘토들을 조회합니다. 지역이 없으면 기본값은 서울시입니다.")
+    @Operation(summary = "지역, 성향별 인증된 멘토 조회", description = "사용자와 동일한 지역에 거주하며, 같은 성향을 가진 멘토 리스트를 조회합니다.")
     public ResponseEntity<ApiResponse<List<MentorListResponseDto>>> getMentorsByRegion(
-            @RequestParam(required = false, defaultValue = "서울시") String region) {
+            @RequestParam(required = false, defaultValue = "서울시") String region,
+            @RequestParam(required = false) List<Long> personalityTags) {
         
         try {
-            List<Mentor> mentors = mentorService.getMentorsByRegion(region);
+            List<Mentor> mentors = mentorService.getMentorsByRegionAndPersonalityTags(region, personalityTags);
             List<MentorListResponseDto> mentorDtos = mentors.stream()
                     .map(MentorListResponseDto::from)
                     .toList();
@@ -58,8 +59,8 @@ public class MentorController {
             @RequestParam String position,
             @RequestParam String description) {
         return mentorService.updateMentor(id, position, description)
-                .map(mentor -> ResponseEntity.ok(ApiResponse.success(mentor)))
-                .orElse(ResponseEntity.notFound().build());
+                .map(mentor -> ResponseEntity.ok(ApiResponse.success("멘토 정보가 성공적으로 수정되었습니다.", mentor)))
+                .orElse(ResponseEntity.status(404).body(ApiResponse.error("해당 멘토를 찾을 수 없습니다.")));
     }
 
     @GetMapping("/{id}/reservations")
@@ -83,10 +84,19 @@ public class MentorController {
     public ResponseEntity<ApiResponse<AvailableTime>> createMentorAvailableTime(
             @PathVariable Long id,
             @RequestParam String availableTime) {
+        try {
+            LocalDateTime dateTime = LocalDateTime.parse(availableTime);
+            AvailableTime newAvailableTime = mentorService.createMentorAvailableTime(id, dateTime);
 
-        LocalDateTime dateTime = LocalDateTime.parse(availableTime);
-        AvailableTime newAvailableTime = mentorService.createMentorAvailableTime(id, dateTime);
+            return ResponseEntity.ok(ApiResponse.success("멘토 가능 시간이 성공적으로 추가되었습니다.", newAvailableTime));
+        } catch (IllegalArgumentException e) {
+            log.error("Create mentor available time failed: {}", e.getMessage());
 
-        return ResponseEntity.ok(ApiResponse.success(newAvailableTime));
+            return ResponseEntity.badRequest().body(ApiResponse.error("멘토를 찾을 수 없거나 잘못된 시간 형식입니다."));
+        } catch (Exception e) {
+            log.error("Create mentor available time failed: {}", e.getMessage());
+
+            return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 가능 시간 추가에 실패했습니다."));
+        }
     }
 }

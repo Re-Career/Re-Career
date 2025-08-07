@@ -17,4 +17,5 @@ public interface MentorRepository extends JpaRepository<Mentor, Long> {
     
     @Query("SELECT m FROM Mentor m JOIN m.user u WHERE m.isVerified = true AND u.role = 'MENTOR' AND (u.region LIKE %:region% OR :region LIKE CONCAT('%', u.region, '%'))")
     List<Mentor> findByIsVerifiedTrueAndUserRegionContains(@Param("region") String region);
+    
 }
