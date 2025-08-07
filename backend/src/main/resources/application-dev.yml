@@ -45,12 +45,12 @@ jwt:
   access-token-validity-in-seconds: 10800
   refresh-token-validity-in-seconds: 604800
 
+cors:
+  allowed-origins: "http://localhost:3000,http://localhost:8081,https://localhost:3000"
+
 app:
   oauth2:
-    authorized-redirect-uri: http://localhost:8080/oauth2/redirect
-
-cors:
-  allowed-origins: http://localhost:8080
+    authorized-redirect-uri: http://localhost:3000/oauth2/redirect
 
 aws:
   s3:
