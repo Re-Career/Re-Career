@@ -34,7 +34,7 @@ const Header: React.FC<HeaderProps> = ({
   }
 
   return (
-    <header className="sticky top-0 bg-white">
+    <header className="sticky top-0 z-100 bg-white">
       <div className="relative flex h-14 items-center justify-between px-4">
         <div className="flex flex-1 items-start">
           {showBackButton && (

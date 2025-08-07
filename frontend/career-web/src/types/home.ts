@@ -19,6 +19,11 @@ export interface Mentor {
   name: string
   job: string
   profileImage: string
+  company?: string
+  experience?: number
+  location?: string
+  meetingType?: 'online' | 'offline' | 'both'
+  personality?: string
 }
 
 export interface IndustryNews {
@@ -27,4 +32,24 @@ export interface IndustryNews {
   title: string
   summary: string
   imageUrl: string
+}
+
+export interface JobResponsibility {
+  icon: string
+  title: string
+  description: string
+}
+
+export interface JobDetail {
+  id: number
+  name: string
+  category: string
+  description: string
+  famousPerson: {
+    name: string
+    image: string
+    title: string
+  }
+  responsibilities: JobResponsibility[]
+  industryTrends: string[]
 }
