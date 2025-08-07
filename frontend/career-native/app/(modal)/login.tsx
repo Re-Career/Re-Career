@@ -1,8 +1,8 @@
-import { CareerWebView } from '@/components/common'
+import { AppWebView } from '@/components/common'
 import React from 'react'
 
 const Login = () => {
-  return <CareerWebView path="login" />
+  return <AppWebView path="login" />
 }
 
 export default Login
