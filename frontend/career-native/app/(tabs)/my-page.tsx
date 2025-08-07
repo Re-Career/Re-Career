@@ -1,5 +1,5 @@
-import { CareerWebView } from '../../components'
+import { AppWebView } from '../../components'
 
 export default function MyPageScreen() {
-  return <CareerWebView path="my-page" />
+  return <AppWebView path="my-page" />
 }
