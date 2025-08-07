@@ -1,31 +1,19 @@
-import { sendMessageToNative, WebViewMessageTypes } from '@/utils/webview'
-import { redirect } from 'next/navigation'
+'use client'
 
-const AuthRedirectPage = async ({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined }
-}) => {
-  const { accessToken, refreshToken } = await searchParams
+import { sendAuthTokensToNative } from '@/utils/webview'
+import { useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
 
-  try {
-    const data = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    })
+const AuthRedirectPage = () => {
+  const searchParams = useSearchParams()
+  const accessToken = searchParams.get('accessToken')
+  const refreshToken = searchParams.get('refreshToken')
 
-    const auth = await data.json()
+  useEffect(() => {
+    sendAuthTokensToNative(accessToken as string, refreshToken as string)
+  }, [])
 
-    if (!auth.signupCompleted) {
-      redirect('/sign-up')
-    } else {
-      sendMessageToNative({ type: WebViewMessageTypes.CLOSE_WEBVIEW })
-    }
-  } catch (error) {
-    throw new Error('Authentication failed')
-  }
+  return <></>
 }
 
 export default AuthRedirectPage

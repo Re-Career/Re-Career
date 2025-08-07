@@ -2,7 +2,6 @@
 
 import Header from '@/components/common/Header'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 
 export default function Login() {
   const handleOAuthLogin = () => {

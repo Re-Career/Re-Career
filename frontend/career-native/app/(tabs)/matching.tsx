@@ -1,5 +1,5 @@
-import { CareerWebView } from '../../components'
+import { AppWebView } from '../../components'
 
 export default function MatchingScreen() {
-  return <CareerWebView path="matching" />
+  return <AppWebView path="matching" />
 }
