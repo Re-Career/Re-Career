@@ -11,7 +11,7 @@ const LoginButton = () => {
 
   const handleLogin = () => {
     if (window.ReactNativeWebView) {
-      sendMessageToNative({ type: WebViewMessageTypes.LOGIN })
+      sendMessageToNative({ type: WebViewMessageTypes.LOGIN_MODAL })
     } else {
       router.push('/login')
     }
