@@ -1,4 +1,4 @@
-export { default as CareerWebView } from './CareerWebView'
+export { default as AppWebView } from './AppWebView'
 export { default as ExternalLink } from './ExternalLink'
 export { default as HapticTab } from './HapticTab'
 export { default as ThemedText } from './ThemedText'
