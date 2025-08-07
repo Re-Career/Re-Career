@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+@theme {
+  --color-primary: #a8cce8;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -9,6 +13,5 @@ html {
 }
 
 body {
-  overflow-x: hidden;
   min-height: 100vh;
 }
