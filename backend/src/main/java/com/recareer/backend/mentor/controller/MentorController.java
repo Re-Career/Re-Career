@@ -1,6 +1,7 @@
 package com.recareer.backend.mentor.controller;
 
 import com.recareer.backend.availableTime.entity.AvailableTime;
+import com.recareer.backend.mentor.dto.MentorListResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.service.MentorService;
 import com.recareer.backend.reservation.entity.Reservation;
@@ -24,21 +25,17 @@ public class MentorController {
 
     private final MentorService mentorService;
 
-    @GetMapping("/verified")
-    @Operation(summary = "인증된 멘토만 조회", description = "당신을 위한 멘토들 섹션에 보입니다")
-    public ResponseEntity<ApiResponse<List<Mentor>>> getVerifiedMentors() {
-        List<Mentor> mentors = mentorService.getVerifiedMentors();
-        return ResponseEntity.ok(ApiResponse.success(mentors));
-    }
-
     @GetMapping("/region")
     @Operation(summary = "지역별 인증된 멘토 조회", description = "지정된 지역의 멘토들을 조회합니다. 지역이 없으면 기본값은 서울시입니다.")
-    public ResponseEntity<ApiResponse<List<Mentor>>> getMentorsByRegion(
+    public ResponseEntity<ApiResponse<List<MentorListResponseDto>>> getMentorsByRegion(
             @RequestParam(required = false, defaultValue = "서울시") String region) {
         
         try {
             List<Mentor> mentors = mentorService.getMentorsByRegion(region);
-            return ResponseEntity.ok(ApiResponse.success(mentors));
+            List<MentorListResponseDto> mentorDtos = mentors.stream()
+                    .map(MentorListResponseDto::from)
+                    .toList();
+            return ResponseEntity.ok(ApiResponse.success(mentorDtos));
             
         } catch (Exception e) {
             log.error("Get mentors by region failed: {}", e.getMessage());
@@ -48,9 +45,9 @@ public class MentorController {
 
     @GetMapping("/{id}")
     @Operation(summary = "ID로 인증된 멘토 조회", description = "멘토를 검색합니다")
-    public ResponseEntity<ApiResponse<Mentor>> getMentorById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<MentorListResponseDto>> getMentorById(@PathVariable Long id) {
         return mentorService.getVerifiedMentorById(id)
-                .map(mentor -> ResponseEntity.ok(ApiResponse.success(mentor)))
+                .map(mentor -> ResponseEntity.ok(ApiResponse.success(MentorListResponseDto.from(mentor))))
                 .orElse(ResponseEntity.notFound().build());
     }
 
