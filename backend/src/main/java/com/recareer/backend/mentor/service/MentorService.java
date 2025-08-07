@@ -12,8 +12,6 @@ public interface MentorService {
     
     Optional<Mentor> getVerifiedMentorById(Long id);
 
-    List<Mentor> getVerifiedMentors();
-    
     List<Mentor> getMentorsByRegion(String region);
     
     Optional<Mentor> updateMentor(Long id, String position, String description);
