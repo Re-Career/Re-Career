@@ -93,13 +93,18 @@ const CareerWebView = (props: CareerWebViewProps) => {
         return clearTokens()
 
       case 'CLOSE_WEBVIEW':
-      case 'NAVAGATE_BACK':
+      case 'NAVIGATE_BACK':
         return router.back()
 
       case 'SEARCH_MENTOR':
         const { jobId } = data
 
         return router.push(`/matching?jobId=${jobId}`)
+
+      case 'MENTOR_PROFILE':
+        const { mentorId } = data
+
+        return router.push(`/mentor/${mentorId}`)
 
       default:
         return

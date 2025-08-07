@@ -24,6 +24,21 @@ export interface Mentor {
   location?: string
   meetingType?: 'online' | 'offline' | 'both'
   personality?: string
+  shortDescription?: string
+  introduction?: string
+  skills?: string[]
+  career?: string[]
+  feedback?: {
+    rating: number
+    count: number
+    comments: {
+      id: number
+      user: string
+      rating: number
+      comment: string
+      date: string
+    }[]
+  }
 }
 
 export interface IndustryNews {

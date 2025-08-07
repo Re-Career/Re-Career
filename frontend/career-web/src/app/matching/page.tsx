@@ -4,8 +4,7 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Header from '@/components/common/Header'
 import { searchMentors } from '@/mocks/home/mentors-search'
-import { Mentor } from '@/types/home'
-import Link from 'next/link'
+import MentorProfileButton from '@/components/matching/MentorProfileButton'
 
 const MatchingPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -104,10 +103,26 @@ const MatchingPage = () => {
           <div className="overflow-x-auto">
             <div className="flex gap-4">
               {recommendedMentors.map((mentor) => (
-                <Link
-                  href={`/profile/mentor/${mentor.id}`}
+                <div
                   key={mentor.id}
-                  className="flex-shrink-0 rounded-lg bg-white"
+                  className="flex-shrink-0 cursor-pointer rounded-lg bg-white"
+                  onClick={() => {
+                    // React Native WebView로 메시지 전송
+                    if (
+                      typeof window !== 'undefined' &&
+                      (window as any).ReactNativeWebView
+                    ) {
+                      ;(window as any).ReactNativeWebView.postMessage(
+                        JSON.stringify({
+                          type: 'MENTOR_PROFILE',
+                          data: { mentorId: mentor.id },
+                        })
+                      )
+                    } else {
+                      // 일반 웹 브라우저에서는 일반적인 링크로 이동
+                      window.location.href = `/profile/mentor/${mentor.id}`
+                    }
+                  }}
                 >
                   <div className="mb-3 h-40 w-40">
                     <Image
@@ -127,7 +142,7 @@ const MatchingPage = () => {
                       {mentor.company} • {mentor.experience}년
                     </p>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
@@ -168,12 +183,7 @@ const MatchingPage = () => {
                         </p>
                       </div>
 
-                      <Link
-                        href={`/profile/mentor/${mentor.id}`}
-                        className="flex-shrink-0 rounded-xl bg-gray-200 px-4 py-1.5 text-sm hover:bg-blue-600"
-                      >
-                        1:1 예약
-                      </Link>
+                      <MentorProfileButton id={mentor.id} />
                     </div>
                   </div>
                 </div>
