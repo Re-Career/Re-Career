@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
+const AUTH_KEY = 'authTokens'
+
 export const useAuth = () => {
   // 토큰 저장
   const saveTokens = async (accessToken: string, refreshToken: string) => {
@@ -10,7 +12,7 @@ export const useAuth = () => {
         savedAt: new Date().toISOString(),
       }
 
-      await AsyncStorage.setItem('authTokens', JSON.stringify(tokenData))
+      await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(tokenData))
     } catch (error) {
       console.error('토큰 저장 오류:', error)
     }
@@ -19,7 +21,7 @@ export const useAuth = () => {
   // 토큰 불러오기
   const loadTokens = async () => {
     try {
-      const storedTokens = await AsyncStorage.getItem('authTokens')
+      const storedTokens = await AsyncStorage.getItem(AUTH_KEY)
 
       if (storedTokens) {
         const tokenData = JSON.parse(storedTokens)
@@ -34,7 +36,7 @@ export const useAuth = () => {
   // 토큰 삭제 (로그아웃)
   const clearTokens = async () => {
     try {
-      await AsyncStorage.removeItem('authTokens')
+      await AsyncStorage.removeItem(AUTH_KEY)
     } catch (error) {
       console.error('토큰 삭제 오류:', error)
     }
