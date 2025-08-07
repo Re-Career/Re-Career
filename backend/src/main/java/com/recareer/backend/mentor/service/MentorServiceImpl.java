@@ -34,12 +34,6 @@ public class MentorServiceImpl implements MentorService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Mentor> getVerifiedMentors() {
-        return mentorRepository.findByIsVerifiedTrue();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public List<Mentor> getMentorsByRegion(String region) {
         if (region == null || region.trim().isEmpty()) {
             region = DEFAULT_REGION;

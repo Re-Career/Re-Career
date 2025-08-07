@@ -12,9 +12,6 @@ import java.util.Optional;
 public interface MentorRepository extends JpaRepository<Mentor, Long> {
     Optional<Mentor> findByUser(User user);
     
-    @Query("SELECT m FROM Mentor m JOIN m.user u WHERE m.isVerified = true AND u.role = 'MENTOR'")
-    List<Mentor> findByIsVerifiedTrue();
-    
     @Query("SELECT m FROM Mentor m JOIN m.user u WHERE m.id = :id AND m.isVerified = true AND u.role = 'MENTOR'")
     Optional<Mentor> findByIdAndIsVerifiedTrueAndUserRole(@Param("id") Long id);
     
