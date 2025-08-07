@@ -5,6 +5,8 @@ export const personalityUrls = {
   tags: () => '/personality-tags' as const,
 }
 export const getPersonalityTags = async (): Promise<PersonalityTag[]> => {
-  const { data } = await api.get(personalityUrls.tags())
+  const {
+    data: { data },
+  } = await api.get(personalityUrls.tags())
   return data
 }

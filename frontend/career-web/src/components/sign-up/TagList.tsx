@@ -16,6 +16,7 @@ interface TagListProps {
 const TagList = ({ selectedTags, toggleTag }: TagListProps) => {
   const { data: tags } = useSWR(personalityUrls.tags(), getPersonalityTags)
 
+  console.log(tags)
   if (!tags || tags.length === 0) {
     return <></>
   }
