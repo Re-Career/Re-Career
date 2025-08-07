@@ -38,6 +38,12 @@ const RootLayout = () => {
                 presentation: 'modal',
               }}
             />
+            <Stack.Screen
+              name="mentor/[id]"
+              options={{
+                headerShown: false,
+              }}
+            />
             <Stack.Screen name="+not-found" />
           </Stack>
         </SafeAreaView>
