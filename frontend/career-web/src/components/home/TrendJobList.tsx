@@ -1,6 +1,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { trendJobs } from '@/mocks/home/trend-job-list'
+import Link from 'next/link'
 
 const TrendJobList = () => {
   return (
@@ -14,7 +15,11 @@ const TrendJobList = () => {
           <div className="overflow-x-auto p-4">
             <div className="flex gap-3">
               {trendJobs.map((job) => (
-                <div key={job.id} className="flex flex-col gap-3">
+                <Link
+                  key={job.id}
+                  className="flex flex-col gap-3"
+                  href={`/job-description/${job.id}`}
+                >
                   <div className="w-40">
                     <Image
                       src={job.illustration}
@@ -31,7 +36,7 @@ const TrendJobList = () => {
                       {job.category}
                     </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
