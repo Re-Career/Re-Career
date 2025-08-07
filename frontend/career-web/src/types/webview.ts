@@ -6,4 +6,12 @@ declare global {
   }
 }
 
-export {}
+export interface SaveAuthData {
+  accessToken: string
+  refreshToken: string
+}
+
+export interface WebViewMessage {
+  type: string
+  data?: SaveAuthData | string
+}
