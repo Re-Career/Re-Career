@@ -1,4 +1,5 @@
-import { WebViewMessage } from '../types/webview'
+import { WebViewMessageTypes } from '@/lib/constants/global'
+import { WebViewMessage } from '@/types/global'
 
 export const sendMessageToNative = ({ type, data }: WebViewMessage) => {
   const message: WebViewMessage = { type, data }
@@ -18,10 +19,3 @@ export const sendAuthTokensToNative = (
     },
   })
 }
-
-export const WebViewMessageTypes = {
-  LOGIN: 'LOGIN',
-  CLOSE_WEBVIEW: 'CLOSE_WEBVIEW',
-  NAVIGATE_BACK: 'NAVIGATE_BACK',
-  SAVE_AUTH: 'SAVE_AUTH',
-} as const

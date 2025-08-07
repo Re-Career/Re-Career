@@ -1,6 +1,9 @@
+'use client'
+
 import React from 'react'
-import { sendMessageToNative, WebViewMessageTypes } from '../../utils/webview'
+import { sendMessageToNative } from '../../utils/webview'
 import { useRouter } from 'next/navigation'
+import { WebViewMessageTypes } from '@/lib/constants/global'
 
 interface HeaderProps {
   title?: string
