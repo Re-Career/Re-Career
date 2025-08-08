@@ -212,13 +212,13 @@ class MentorControllerTest {
     void getMentorsByRegionWithPersonalityMatching() throws Exception {
         // PersonalityTag 생성
         PersonalityTag tag1 = PersonalityTag.builder()
-                .name("적극적")
+                .name("논리적")
                 .build();
         PersonalityTag tag2 = PersonalityTag.builder()
-                .name("분석적")
+                .name("감성적")
                 .build();
         PersonalityTag tag3 = PersonalityTag.builder()
-                .name("창의적")
+                .name("분석적인")
                 .build();
         personalityTagRepository.save(tag1);
         personalityTagRepository.save(tag2);
@@ -235,20 +235,20 @@ class MentorControllerTest {
                 .build();
         userRepository.save(testUser);
 
-        // 사용자 성향 태그 설정 (적극적, 분석적)
+        // 사용자 성향 태그 설정 (논리적, 분석적인)
         UserPersonalityTag userTag1 = UserPersonalityTag.builder()
                 .user(testUser)
                 .personalityTag(tag1)
                 .build();
-        UserPersonalityTag userTag2 = UserPersonalityTag.builder()
+        UserPersonalityTag userTag3 = UserPersonalityTag.builder()
                 .user(testUser)
-                .personalityTag(tag2)
+                .personalityTag(tag3)
                 .build();
         userPersonalityTagRepository.save(userTag1);
-        userPersonalityTagRepository.save(userTag2);
+        userPersonalityTagRepository.save(userTag3);
 
         // 기존 멘토들에게 성향 태그 추가
-        // 테스트 멘토: 적극적 (1개 매칭)
+        // 테스트 멘토: 논리적 (1개 매칭)
         UserPersonalityTag mentorTag1 = UserPersonalityTag.builder()
                 .user(mentorUser)
                 .personalityTag(tag1)
@@ -256,7 +256,7 @@ class MentorControllerTest {
         userPersonalityTagRepository.save(mentorTag1);
 
         // 추가 멘토 생성 (다양한 매칭 수준)
-        // 김마케팅: 적극적, 분석적 (2개 매칭) - 최우선
+        // 김마케팅: 논리적, 분석적 (2개 매칭) - 최우선
         User mentor2User = User.builder()
                 .name("김마케팅")
                 .email("kim.marketing@test.com")
@@ -280,14 +280,14 @@ class MentorControllerTest {
                 .user(mentor2User)
                 .personalityTag(tag1)
                 .build();
-        UserPersonalityTag mentor2Tag2 = UserPersonalityTag.builder()
+        UserPersonalityTag mentor2Tag3 = UserPersonalityTag.builder()
                 .user(mentor2User)
-                .personalityTag(tag2)
+                .personalityTag(tag3)
                 .build();
         userPersonalityTagRepository.save(mentor2Tag1);
-        userPersonalityTagRepository.save(mentor2Tag2);
+        userPersonalityTagRepository.save(mentor2Tag3);
 
-        // 박디자인: 창의적만 (0개 매칭) - 후순위
+        // 박디자인: 분석적만 (1개 매칭) - 중간 순위
         User mentor3User = User.builder()
                 .name("박디자인")
                 .email("park.design@test.com")
@@ -326,8 +326,8 @@ class MentorControllerTest {
                     System.out.println("\n=== 성향 매칭 기반 멘토 정렬 결과 ===");
                     String jsonResponse = result.getResponse().getContentAsString();
                     System.out.println(jsonResponse);
-                    System.out.println("성향 매칭 순서: 김마케팅(2개) > 테스트 멘토(1개) > 박디자인(0개)");
-                    System.out.println("personalityTags: [" + tag1.getId() + ", " + tag2.getId() + "] (적극적, 분석적)");
+                    System.out.println("성향 매칭 순서: 김마케팅(2개) > 테스트 멘토(1개) = 박디자인(1개)");
+                    System.out.println("personalityTags: [" + tag1.getId() + ", " + tag2.getId() + "] (논리적, 감성적)");
                     System.out.println("=========================================\n");
                 });
 
