@@ -33,7 +33,7 @@ public class MentorServiceImpl implements MentorService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Mentor> getVerifiedMentorById(Long id) {
-        return mentorRepository.findByIdAndIsVerifiedTrueAndUserRole(id);
+        return mentorRepository.findById(id);
     }
 
     @Override
