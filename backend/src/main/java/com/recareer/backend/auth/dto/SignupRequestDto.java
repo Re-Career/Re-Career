@@ -5,10 +5,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -35,6 +38,10 @@ public class SignupRequestDto {
     @Schema(description = "지역", example = "경기도 하남시")
     @NotBlank(message = "지역은 필수입니다.")
     private String region;
+
+    @Schema(description = "선택한 성향 태그 ID 목록 (최대 5개)", example = "[1, 2, 3]")
+    @Size(max = 5, message = "성향 태그는 최대 5개까지 선택할 수 있습니다.")
+    private List<Long> personalityTagIds;
 
     // Mentor 전용 필드들
     @Schema(description = "직무/포지션 (MENTOR일 때 필수)", example = "백엔드 개발자")

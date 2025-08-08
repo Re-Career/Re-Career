@@ -6,12 +6,19 @@ import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
 import com.recareer.backend.user.entity.Role;
 import com.recareer.backend.user.entity.User;
+import com.recareer.backend.user.entity.UserPersonalityTag;
 import com.recareer.backend.user.repository.UserRepository;
+import com.recareer.backend.user.repository.UserPersonalityTagRepository;
+import com.recareer.backend.personality.entity.PersonalityTag;
+import com.recareer.backend.personality.repository.PersonalityTagRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -20,6 +27,8 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final MentorRepository mentorRepository;
+    private final UserPersonalityTagRepository userPersonalityTagRepository;
+    private final PersonalityTagRepository personalityTagRepository;
 
     @Transactional(readOnly = true)
     public UserInfoDto getUserInfo(String providerId) {
@@ -84,7 +93,26 @@ public class AuthService {
             mentorRepository.save(mentor);
         }
 
+        // 성향 태그 저장
+        if (!CollectionUtils.isEmpty(signupRequest.getPersonalityTagIds())) {
+            saveUserPersonalityTags(savedUser, signupRequest.getPersonalityTagIds());
+        }
+
         log.info("회원가입 완료 - email: {}, role: {}", signupRequest.getEmail(), signupRequest.getRole());
         return UserInfoDto.from(savedUser);
+    }
+
+    private void saveUserPersonalityTags(User user, List<Long> personalityTagIds) {
+        for (Long personalityTagId : personalityTagIds) {
+            PersonalityTag personalityTag = personalityTagRepository.findById(personalityTagId)
+                    .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 성향 태그입니다: " + personalityTagId));
+            
+            UserPersonalityTag userPersonalityTag = UserPersonalityTag.builder()
+                    .user(user)
+                    .personalityTag(personalityTag)
+                    .build();
+            
+            userPersonalityTagRepository.save(userPersonalityTag);
+        }
     }
 }
