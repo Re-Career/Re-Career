@@ -26,6 +26,9 @@ public class S3Service {
     @Value("${aws.s3.region}")
     private String region;
 
+    @Value("${aws.s3.audio-folder}")
+    private String audioFolder;
+
     public String uploadFile(MultipartFile file, String folder) throws IOException {
         String fileName = generateFileName(file.getOriginalFilename());
         String key = folder + "/" + fileName;
@@ -39,7 +42,7 @@ public class S3Service {
 
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-            String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, key);
+      String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, key);
             log.info("File uploaded successfully: {}", fileUrl);
             
             return fileUrl;
@@ -47,6 +50,10 @@ public class S3Service {
             log.error("File upload failed: {}", e.getMessage());
             throw new RuntimeException("File upload failed", e);
         }
+    }
+
+    public String uploadAudioFile(MultipartFile audioFile) throws IOException {
+        return uploadFile(audioFile, audioFolder);
     }
 
     public void deleteFile(String fileUrl) {
