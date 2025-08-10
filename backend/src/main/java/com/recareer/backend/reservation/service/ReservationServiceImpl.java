@@ -3,6 +3,7 @@ package com.recareer.backend.reservation.service;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
 import com.recareer.backend.reservation.dto.ReservationRequestDto;
+import com.recareer.backend.reservation.dto.ReservationResponseDto;
 import com.recareer.backend.reservation.entity.Reservation;
 import com.recareer.backend.reservation.repository.ReservationRepository;
 import com.recareer.backend.user.entity.User;
@@ -22,8 +23,11 @@ public class ReservationServiceImpl implements ReservationService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<Reservation> findAllReservationsByUserId(Long userId) {
-    return reservationRepository.findAllByUserId(userId);
+  public List<ReservationResponseDto> findAllReservationsByUserId(Long userId) {
+    List<Reservation> reservations = reservationRepository.findAllByUserId(userId);
+    return reservations.stream()
+            .map(ReservationResponseDto::from)
+            .toList();
   }
 
   @Override
