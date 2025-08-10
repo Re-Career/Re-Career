@@ -1,7 +1,7 @@
 package com.recareer.backend.reservation.controller;
 
 import com.recareer.backend.reservation.dto.ReservationRequestDto;
-import com.recareer.backend.reservation.entity.Reservation;
+import com.recareer.backend.reservation.dto.ReservationResponseDto;
 import com.recareer.backend.reservation.service.ReservationService;
 import com.recareer.backend.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,9 +21,9 @@ public class ReservationController {
   private final ReservationService reservationService;
 
   @GetMapping("/user/{userId}")
-  @Operation(summary = "유저 별 멘토링 예약 리스트 조회")
-  public ResponseEntity<ApiResponse<List<Reservation>>> getReservationsByUserId(@PathVariable Long userId) {
-    List<Reservation> reservations = reservationService.findAllReservationsByUserId(userId);
+  @Operation(summary = "유저 별 멘토링 예약 리스트 조회", description = "특정 유저의 모든 멘토링 예약 목록을 조회합니다.")
+  public ResponseEntity<ApiResponse<List<ReservationResponseDto>>> getReservationsByUserId(@PathVariable Long userId) {
+    List<ReservationResponseDto> reservations = reservationService.findAllReservationsByUserId(userId);
 
     return ResponseEntity.ok(ApiResponse.success(reservations));
   }
