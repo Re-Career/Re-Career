@@ -1,9 +1,9 @@
-package com.recareer.backend.sessionRecord.controller;
+package com.recareer.backend.mentoringRecord.controller;
 
+import com.recareer.backend.mentoringRecord.dto.MentoringRecordRequestDto;
+import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
+import com.recareer.backend.mentoringRecord.service.MentoringRecordService;
 import com.recareer.backend.response.ApiResponse;
-import com.recareer.backend.sessionRecord.dto.SessionRecordRequestDto;
-import com.recareer.backend.sessionRecord.entity.SessionRecord;
-import com.recareer.backend.sessionRecord.service.SessionRecordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -13,29 +13,29 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/session_records")
+@RequestMapping("/mentoring_records")
 @RequiredArgsConstructor
-@Tag(name = "SessionRecord", description = " 기록 관련 API")
-public class SessionRecordController {
+@Tag(name = "MentoringRecord", description = "멘토링 기록 관련 API")
+public class MentoringRecordController {
 
-    private final SessionRecordService sessionRecordService;
+    private final MentoringRecordService mentoringRecordService;
 
     @GetMapping("/{id}")
-    @Operation(summary = "세션 기록 조회")
-    public ResponseEntity<ApiResponse<SessionRecord>> getSessionRecord(@PathVariable Long id) {
-        SessionRecord sessionRecord = sessionRecordService.findSessionRecordById(id);
+    @Operation(summary = "멘토링 기록 조회")
+    public ResponseEntity<ApiResponse<MentoringRecord>> getMentoringRecord(@PathVariable Long id) {
+        MentoringRecord mentoringRecord = mentoringRecordService.findMentoringRecordById(id);
 
-        return ResponseEntity.ok(ApiResponse.success(sessionRecord));
+        return ResponseEntity.ok(ApiResponse.success(mentoringRecord));
     }
 
     @PostMapping("/{reservationId}/mentee-feedback")
     @Operation(summary = "멘티 피드백 작성", description = "멘티가 멘토링 후 상담에 대한 피드백을 작성합니다.")
     public ResponseEntity<ApiResponse<Long>> addMenteeFeedback(
             @PathVariable Long reservationId,
-            @Valid @RequestBody SessionRecordRequestDto requestDto) {
-        Long sessionRecordId = sessionRecordService.createOrUpdateSessionRecord(reservationId, requestDto);
+            @Valid @RequestBody MentoringRecordRequestDto requestDto) {
+        Long mentoringRecordId = mentoringRecordService.createOrUpdateMentoringRecord(reservationId, requestDto);
 
-        return ResponseEntity.ok(ApiResponse.success(sessionRecordId));
+        return ResponseEntity.ok(ApiResponse.success(mentoringRecordId));
     }
 
     @PostMapping("/{reservationId}/audio-upload")
@@ -45,7 +45,7 @@ public class SessionRecordController {
     public ResponseEntity<ApiResponse<Long>> uploadConsultationAudio(
             @PathVariable Long reservationId,
             @RequestParam("audioFile") MultipartFile audioFile) {
-        Long sessionRecordId = sessionRecordService.uploadAudioAndProcess(reservationId, audioFile);
-        return ResponseEntity.ok(ApiResponse.success(sessionRecordId));
+        Long mentoringRecordId = mentoringRecordService.uploadAudioAndProcess(reservationId, audioFile);
+        return ResponseEntity.ok(ApiResponse.success(mentoringRecordId));
     }
 }

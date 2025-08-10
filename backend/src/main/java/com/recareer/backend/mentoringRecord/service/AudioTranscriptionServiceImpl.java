@@ -1,4 +1,4 @@
-package com.recareer.backend.sessionRecord.service;
+package com.recareer.backend.mentoringRecord.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

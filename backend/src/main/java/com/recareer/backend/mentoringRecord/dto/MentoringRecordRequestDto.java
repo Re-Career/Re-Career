@@ -1,4 +1,4 @@
-package com.recareer.backend.sessionRecord.dto;
+package com.recareer.backend.mentoringRecord.dto;
 
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SessionRecordRequestDto {
+public class MentoringRecordRequestDto {
 
     // 멘티가 남기는 상담 후 피드백
     @Size(max = 5000, message = "멘티 피드백은 5000자를 초과할 수 없습니다.")
