@@ -47,7 +47,15 @@ public class ReservationServiceImpl implements ReservationService {
     Reservation newReservation = reservationRepository.save(reservation);
 
     return newReservation.getId();
-    // 예약 생성 성공 시, status REQUESTED로 수정
-    // 이메일 알람 전송 후, emailNotification true로 수정
+    // TODO: 멘토링 생성 성공 시, status REQUESTED로 수정
+    // TODO: 멘토링 확정 시, email로 멘토링 알람 구현
+    // TODO: 이메일 알람 전송 후, emailNotification true로 수정
     }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Reservation findById(Long reservationId) {
+    return reservationRepository.findById(reservationId)
+            .orElseThrow(() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다."));
+  }
 }

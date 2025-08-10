@@ -10,4 +10,6 @@ public interface ReservationService {
   List<ReservationResponseDto> findAllReservationsByUserId(Long userId);
 
   Long createReservation(ReservationRequestDto requestDto);
+
+  Reservation findById(Long reservationId);
 }
