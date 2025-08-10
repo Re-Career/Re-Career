@@ -1,4 +1,4 @@
-package com.recareer.backend.sessionRecord.service;
+package com.recareer.backend.mentoringRecord.service;
 
 import org.springframework.web.multipart.MultipartFile;
 

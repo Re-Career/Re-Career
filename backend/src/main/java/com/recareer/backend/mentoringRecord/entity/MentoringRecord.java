@@ -1,4 +1,4 @@
-package com.recareer.backend.sessionRecord.entity;
+package com.recareer.backend.mentoringRecord.entity;
 
 import com.recareer.backend.common.entity.BaseTimeEntity;
 import com.recareer.backend.reservation.entity.Reservation;
@@ -11,8 +11,8 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "session_records")
-public class SessionRecord extends BaseTimeEntity {
+@Table(name = "mentoring_records")
+public class MentoringRecord extends BaseTimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
