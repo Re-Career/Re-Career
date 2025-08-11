@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface MentoringRecordRepository extends JpaRepository<MentoringRecord, Long> {
     Optional<MentoringRecord> findByReservationId(Long reservationId);
+    
+    boolean existsByReservationId(Long reservationId);
 }

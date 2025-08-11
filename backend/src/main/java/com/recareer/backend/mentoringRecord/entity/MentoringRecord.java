@@ -37,4 +37,10 @@ public class MentoringRecord extends BaseTimeEntity {
   // AI가 상담 내용을 분석하여 생성한 요약
   @Column(name = "summary", columnDefinition = "TEXT")
   private String summary;
+
+  // 멘토링 후속 처리 상태
+  @Builder.Default
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private MentoringRecordStatus status = MentoringRecordStatus.RECORD_PENDING;
 }
