@@ -35,10 +35,6 @@ public class ReservationResponseDto {
     
     // 유저 정보 
     private UserInfo user;
-    
-    // 생성/수정 시간
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     @Getter
     @Builder
@@ -88,8 +84,6 @@ public class ReservationResponseDto {
                         .profileImageUrl(reservation.getUser().getProfileImageUrl())
                         .region(reservation.getUser().getRegion())
                         .build())
-                .createdAt(reservation.getCreatedDate())
-                .updatedAt(reservation.getModifiedDate())
                 .build();
     }
 }

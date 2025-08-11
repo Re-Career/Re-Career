@@ -1,6 +1,7 @@
 package com.recareer.backend.mentoringRecord.controller;
 
 import com.recareer.backend.mentoringRecord.dto.MentoringRecordRequestDto;
+import com.recareer.backend.mentoringRecord.dto.MentoringRecordResponseDto;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
 import com.recareer.backend.mentoringRecord.service.MentoringRecordService;
 import com.recareer.backend.response.ApiResponse;
@@ -29,11 +30,12 @@ public class MentoringRecordController {
     private final UserService userService;
 
     @GetMapping("/{id}")
-    @Operation(summary = "완료된 상담 목록 조회")
-    public ResponseEntity<ApiResponse<MentoringRecord>> getMentoringRecord(@PathVariable Long id) {
+    @Operation(summary = "완료된 상담 조회")
+    public ResponseEntity<ApiResponse<MentoringRecordResponseDto>> getMentoringRecord(@PathVariable Long id) {
         MentoringRecord mentoringRecord = mentoringRecordService.findMentoringRecordById(id);
+        MentoringRecordResponseDto responseDto = MentoringRecordResponseDto.from(mentoringRecord);
 
-        return ResponseEntity.ok(ApiResponse.success(mentoringRecord));
+        return ResponseEntity.ok(ApiResponse.success(responseDto));
     }
 
     private Long validateTokenAndGetUserId(String accessToken) {
