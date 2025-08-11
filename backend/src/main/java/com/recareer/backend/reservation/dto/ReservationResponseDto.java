@@ -58,7 +58,6 @@ public class ReservationResponseDto {
         private String name;
         private String email;
         private String profileImageUrl;
-        private String region;
     }
 
     // Entity를 DTO로 변환하는 정적 메소드
@@ -82,7 +81,6 @@ public class ReservationResponseDto {
                         .name(reservation.getUser().getName())
                         .email(reservation.getUser().getEmail())
                         .profileImageUrl(reservation.getUser().getProfileImageUrl())
-                        .region(reservation.getUser().getRegion())
                         .build())
                 .build();
     }
