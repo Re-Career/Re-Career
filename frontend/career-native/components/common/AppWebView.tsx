@@ -76,7 +76,7 @@ const CareerWebView = (props: CareerWebViewProps) => {
     const { type, data } = JSON.parse(event.nativeEvent.data)
 
     switch (type) {
-      case 'LOGIN':
+      case 'LOGIN_MODAL':
         return router.push('/(modal)/login')
 
       case 'SAVE_AUTH':
@@ -89,14 +89,22 @@ const CareerWebView = (props: CareerWebViewProps) => {
 
         return router.back()
 
+      case 'CLEAR_TOKEN':
+        return clearTokens()
+
       case 'CLOSE_WEBVIEW':
-      case 'NAVAGATE_BACK':
+      case 'NAVIGATE_BACK':
         return router.back()
 
-      case 'CLEAR_TOKEN':
-        clearTokens()
+      case 'SEARCH_MENTOR':
+        const { jobId } = data
 
-        return
+        return router.push(`/matching?jobId=${jobId}`)
+
+      case 'MENTOR_PROFILE':
+        const { mentorId } = data
+
+        return router.push(`/mentor/${mentorId}`)
 
       default:
         return

@@ -1,3 +1,5 @@
+import { RoleTypes } from '@/lib/constants/global'
+
 declare global {
   interface Window {
     ReactNativeWebView?: {
@@ -11,7 +13,13 @@ export interface SaveAuthData {
   refreshToken: string
 }
 
+export interface SearchMentorData {
+  jobId: string
+}
+
 export interface WebViewMessage {
   type: string
-  data?: SaveAuthData | string
+  data?: SaveAuthData | SearchMentorData | string
 }
+
+export type RoleType = (typeof RoleTypes)[keyof typeof RoleTypes]
