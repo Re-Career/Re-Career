@@ -5,10 +5,9 @@ import com.recareer.backend.mentoringRecord.dto.MentoringRecordResponseDto;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
 import com.recareer.backend.mentoringRecord.service.MentoringRecordService;
 import com.recareer.backend.response.ApiResponse;
-import com.recareer.backend.auth.service.JwtTokenProvider;
+import com.recareer.backend.auth.util.AuthUtil;
 import com.recareer.backend.reservation.entity.Reservation;
 import com.recareer.backend.reservation.service.ReservationService;
-import com.recareer.backend.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -17,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
 
 @RestController
 @RequestMapping("/mentoring_records")
@@ -25,28 +25,58 @@ import org.springframework.web.multipart.MultipartFile;
 public class MentoringRecordController {
 
     private final MentoringRecordService mentoringRecordService;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthUtil authUtil;
     private final ReservationService reservationService;
-    private final UserService userService;
 
-    @GetMapping("/{id}")
-    @Operation(summary = "완료된 상담 조회")
-    public ResponseEntity<ApiResponse<MentoringRecordResponseDto>> getMentoringRecord(@PathVariable Long id) {
-        MentoringRecord mentoringRecord = mentoringRecordService.findMentoringRecordById(id);
-        MentoringRecordResponseDto responseDto = MentoringRecordResponseDto.from(mentoringRecord);
-
-        return ResponseEntity.ok(ApiResponse.success(responseDto));
+    @GetMapping("/user/{userId}")
+    @Operation(summary = "완료된 상담 리스트 조회", description = "특정 유저의 완료된 멘토링 기록 목록을 조회합니다.")
+    public ResponseEntity<ApiResponse<List<MentoringRecordResponseDto>>> getCompletedMentoringRecordsByUserId(
+            @RequestHeader("Authorization") String accessToken,
+            @PathVariable Long userId) {
+        
+        try {
+            Long requestUserId = authUtil.validateTokenAndGetUserId(accessToken);
+            
+            // 자신의 완료된 상담 기록만 조회 가능
+            if (!requestUserId.equals(userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(ApiResponse.error("본인의 완료된 상담 기록만 조회할 수 있습니다"));
+            }
+            
+            List<MentoringRecordResponseDto> mentoringRecords = mentoringRecordService.findCompletedMentoringRecordsByUserId(userId);
+            return ResponseEntity.ok(ApiResponse.success(mentoringRecords));
+            
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(e.getMessage()));
+        }
     }
 
-    private Long validateTokenAndGetUserId(String accessToken) {
-        String token = accessToken.replace("Bearer ", "");
+    @GetMapping("/{id}")
+    @Operation(summary = "완료된 상담 상세 조회")
+    public ResponseEntity<ApiResponse<MentoringRecordResponseDto>> getMentoringRecord(
+            @RequestHeader("Authorization") String accessToken,
+            @PathVariable Long id) {
         
-        if (!jwtTokenProvider.validateToken(token)) {
-            throw new IllegalArgumentException("유효하지 않은 액세스 토큰입니다");
-        }
+        try {
+            Long userId = authUtil.validateTokenAndGetUserId(accessToken);
+            MentoringRecord mentoringRecord = mentoringRecordService.findMentoringRecordById(id);
+            
+            // 해당 멘토링의 참여자만 조회 가능
+            if (!mentoringRecord.getReservation().isMentorParticipant(userId) && 
+                !mentoringRecord.getReservation().isMenteeParticipant(userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(ApiResponse.error("해당 멘토링 참여자만 조회할 수 있습니다"));
+            }
+            
+            MentoringRecordResponseDto responseDto = MentoringRecordResponseDto.from(mentoringRecord);
 
-        String providerId = jwtTokenProvider.getProviderIdFromToken(token);
-        return userService.findByProviderId(providerId).getId();
+            return ResponseEntity.ok(ApiResponse.success(responseDto));
+            
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(e.getMessage()));
+        }
     }
 
     @PostMapping("/{reservationId}/mento-feedback")
@@ -57,7 +87,7 @@ public class MentoringRecordController {
             @Valid @RequestBody MentoringRecordRequestDto requestDto) {
         
         try {
-            Long userId = validateTokenAndGetUserId(accessToken);
+            Long userId = authUtil.validateTokenAndGetUserId(accessToken);
             Reservation reservation = reservationService.findById(reservationId);
             
             if (!reservation.isMenteeParticipant(userId)) {
@@ -84,7 +114,7 @@ public class MentoringRecordController {
             @RequestParam("audioFile") MultipartFile audioFile) {
         
         try {
-            Long userId = validateTokenAndGetUserId(accessToken);
+            Long userId = authUtil.validateTokenAndGetUserId(accessToken);
             Reservation reservation = reservationService.findById(reservationId);
             
             if (!reservation.isMentorParticipant(userId)) {
