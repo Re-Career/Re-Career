@@ -38,7 +38,11 @@ public class Reservation extends BaseTimeEntity {
   @Builder.Default
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private Status status = Status.REQUESTED;
+  private ReservationStatus status = ReservationStatus.REQUESTED;
+
+  // 취소 사유 (취소 시에만 사용)
+  @Column(name = "cancel_reason", columnDefinition = "TEXT")
+  private String cancelReason;
 
   /**
    * 주어진 사용자 ID가 해당 예약의 멘토인지 확인합니다.
