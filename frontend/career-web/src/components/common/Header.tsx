@@ -1,6 +1,9 @@
+'use client'
+
 import React from 'react'
-import { sendMessageToNative, WebViewMessageTypes } from '../../utils/webview'
+import { sendMessageToNative } from '../../utils/webview'
 import { useRouter } from 'next/navigation'
+import { WebViewMessageTypes } from '@/lib/constants/global'
 
 interface HeaderProps {
   title?: string
@@ -8,6 +11,7 @@ interface HeaderProps {
   showCancelButton?: boolean
   onBackPress?: () => void
   rightElement?: React.ReactNode
+  isNativeBackPress?: boolean
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -16,6 +20,7 @@ const Header: React.FC<HeaderProps> = ({
   showCancelButton = false,
   onBackPress,
   rightElement,
+  isNativeBackPress = false,
 }) => {
   const router = useRouter()
   const onCancelPress = () => {
@@ -23,18 +28,24 @@ const Header: React.FC<HeaderProps> = ({
   }
 
   const handleBackPress = () => {
-    if (onBackPress) {
-      return onBackPress()
+    if (isNativeBackPress) {
+      if (window.ReactNativeWebView) {
+        sendMessageToNative({ type: WebViewMessageTypes.NAVIGATE_BACK })
+      }
     } else {
-      router.back()
+      if (onBackPress) {
+        return onBackPress()
+      } else {
+        router.back()
+      }
     }
   }
 
   return (
-    <header className="sticky top-0 bg-white">
+    <header className="sticky top-0 z-100 bg-white">
       <div className="relative flex h-14 items-center justify-between px-4">
         <div className="flex flex-1 items-start">
-          {showBackButton && (
+          {(showBackButton || isNativeBackPress) && (
             <button onClick={handleBackPress} className="p-2">
               <span className="text-2xl text-neutral-900">{'<'}</span>
             </button>

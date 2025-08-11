@@ -1,16 +1,19 @@
-'use client'
-
 import Header from '@/components/common/Header'
-import { useRouter } from 'next/navigation'
+import { TrendJobList, ReginalJobList } from '@/components/home'
+import MentorList from '@/components/home/MentorList'
+import IndustryNews from '@/components/home/IndustryNews'
 
-export default function Home() {
-  const router = useRouter()
-
+const HomePage = async () => {
   return (
     <>
       <Header title="Re:Career" />
-      <button onClick={() => router.push('/sign-up')}> 회원가입</button>
-      <main className="flex-1"></main>
+      <main className="flex-1">
+        <TrendJobList />
+        <ReginalJobList />
+        <MentorList />
+        <IndustryNews />
+      </main>
     </>
   )
 }
+export default HomePage
