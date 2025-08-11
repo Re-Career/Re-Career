@@ -1,7 +1,7 @@
 package com.recareer.backend.reservation.dto;
 
 import com.recareer.backend.reservation.entity.Reservation;
-import com.recareer.backend.reservation.entity.Status;
+import com.recareer.backend.reservation.entity.ReservationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,10 +22,13 @@ public class ReservationResponseDto {
     private LocalDateTime reservationTime;
     
     // 예약 상태
-    private Status status;
+    private ReservationStatus status;
     
     // 이메일 알림 여부
     private boolean emailNotification;
+    
+    // 취소 사유 (취소된 경우에만)
+    private String cancelReason;
     
     // 멘토 정보
     private MentorInfo mentor;
@@ -69,6 +72,7 @@ public class ReservationResponseDto {
                 .reservationTime(reservation.getReservationTime())
                 .status(reservation.getStatus())
                 .emailNotification(reservation.isEmailNotification())
+                .cancelReason(reservation.getCancelReason())
                 .mentor(MentorInfo.builder()
                         .mentorId(reservation.getMentor().getId())
                         .name(reservation.getMentor().getUser().getName())
