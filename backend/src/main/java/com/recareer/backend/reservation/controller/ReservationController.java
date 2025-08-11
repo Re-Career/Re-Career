@@ -1,8 +1,8 @@
 package com.recareer.backend.reservation.controller;
 
-import com.recareer.backend.reservation.dto.ReservationCancelRequestDto;
 import com.recareer.backend.reservation.dto.ReservationRequestDto;
 import com.recareer.backend.reservation.dto.ReservationResponseDto;
+import com.recareer.backend.reservation.dto.ReservationUpdateRequestDto;
 import com.recareer.backend.reservation.entity.Reservation;
 import com.recareer.backend.reservation.service.ReservationService;
 import com.recareer.backend.response.ApiResponse;
@@ -73,75 +73,33 @@ public class ReservationController {
     }
   }
   
-  @PostMapping("/{reservationId}/accept")
-  @Operation(summary = "멘토링 수락", description = "멘토가 멘토링 요청을 수락합니다. 상태가 CONFIRMED로 변경됩니다.")
-  public ResponseEntity<ApiResponse<String>> acceptReservation(
-      @RequestHeader("Authorization") String accessToken,
-      @PathVariable Long reservationId) {
-    
-    try {
-      Long userId = authUtil.validateTokenAndGetUserId(accessToken);
-      Reservation reservation = reservationService.findById(reservationId);
-      
-      // 해당 멘토링의 멘토만 수락 가능
-      if (!reservation.isMentorParticipant(userId)) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-            .body(ApiResponse.error("해당 멘토링의 멘토만 수락할 수 있습니다"));
-      }
-      
-      reservationService.acceptReservation(reservationId);
-      return ResponseEntity.ok(ApiResponse.success("멘토링이 수락되었습니다."));
-      
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-          .body(ApiResponse.error(e.getMessage()));
-    }
-  }
-  
-  @PostMapping("/{reservationId}/complete")
-  @Operation(summary = "멘토링 완료", description = "멘토링을 완료 처리합니다. 상태가 COMPLETED로 변경되고 멘토링 기록이 생성됩니다.")
-  public ResponseEntity<ApiResponse<String>> completeReservation(
-      @RequestHeader("Authorization") String accessToken,
-      @PathVariable Long reservationId) {
-    
-    try {
-      Long userId = authUtil.validateTokenAndGetUserId(accessToken);
-      Reservation reservation = reservationService.findById(reservationId);
-      
-      // 해당 멘토링의 멘토만 완료 처리 가능
-      if (!reservation.isMentorParticipant(userId)) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-            .body(ApiResponse.error("해당 멘토링의 멘토만 완료 처리할 수 있습니다"));
-      }
-      
-      reservationService.completeReservation(reservationId);
-      return ResponseEntity.ok(ApiResponse.success("멘토링이 완료되었습니다."));
-      
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-          .body(ApiResponse.error(e.getMessage()));
-    }
-  }
-  
-  @PostMapping("/{reservationId}/cancel")
-  @Operation(summary = "멘토링 취소", description = "멘토링을 취소합니다. 상태가 CANCELED로 변경되고 취소 사유가 저장됩니다.")
-  public ResponseEntity<ApiResponse<String>> cancelReservation(
+  @PostMapping("/{reservationId}")
+  @Operation(summary = "멘토링 상태 업데이트", description = "멘토링 상태를 업데이트합니다")
+  public ResponseEntity<ApiResponse<String>> updateReservationStatus(
       @RequestHeader("Authorization") String accessToken,
       @PathVariable Long reservationId,
-      @Valid @RequestBody ReservationCancelRequestDto cancelRequestDto) {
+      @Valid @RequestBody ReservationUpdateRequestDto updateRequestDto) {
     
     try {
       Long userId = authUtil.validateTokenAndGetUserId(accessToken);
       Reservation reservation = reservationService.findById(reservationId);
       
-      // 해당 멘토링의 멘토만 취소 가능
+      // 해당 멘토링의 멘토만 상태 변경 가능
       if (!reservation.isMentorParticipant(userId)) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-            .body(ApiResponse.error("해당 멘토링의 멘토만 취소할 수 있습니다"));
+            .body(ApiResponse.error("해당 멘토링의 멘토만 상태를 변경할 수 있습니다"));
       }
       
-      reservationService.cancelReservation(reservationId, cancelRequestDto);
-      return ResponseEntity.ok(ApiResponse.success("멘토링이 취소되었습니다."));
+      reservationService.updateReservationStatus(reservationId, updateRequestDto);
+      
+      String message = switch (updateRequestDto.getStatus()) {
+        case CONFIRMED -> "멘토링이 수락되었습니다.";
+        case COMPLETED -> "멘토링이 완료되었습니다.";
+        case CANCELED -> "멘토링이 취소되었습니다.";
+        default -> "멘토링 상태가 업데이트되었습니다.";
+      };
+      
+      return ResponseEntity.ok(ApiResponse.success(message));
       
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

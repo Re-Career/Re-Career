@@ -28,7 +28,7 @@ public class MentoringRecordController {
     private final AuthUtil authUtil;
     private final ReservationService reservationService;
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/users/{userId}")
     @Operation(summary = "완료된 상담 리스트 조회", description = "특정 유저의 완료된 멘토링 기록 목록을 조회합니다.")
     public ResponseEntity<ApiResponse<List<MentoringRecordResponseDto>>> getCompletedMentoringRecordsByUserId(
             @RequestHeader("Authorization") String accessToken,
