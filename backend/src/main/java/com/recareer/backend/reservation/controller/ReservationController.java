@@ -23,7 +23,7 @@ public class ReservationController {
   private final ReservationService reservationService;
 
   @GetMapping("/user/{userId}")
-  @Operation(summary = "유저 별 멘토링 예약 리스트 조회", description = "특정 유저의 모든 멘토링 예약 목록을 조회합니다.")
+  @Operation(summary = "예정된 상담 리스트 조회", description = "특정 유저의 모든 멘토링 예약 목록을 조회합니다.")
   public ResponseEntity<ApiResponse<List<ReservationResponseDto>>> getReservationsByUserId(@PathVariable Long userId) {
     List<ReservationResponseDto> reservations = reservationService.findAllReservationsByUserId(userId);
 
