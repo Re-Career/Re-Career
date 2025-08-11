@@ -2,6 +2,7 @@ package com.recareer.backend.mentoringRecord.service;
 
 import com.recareer.backend.common.service.S3Service;
 import com.recareer.backend.mentoringRecord.dto.MentoringRecordRequestDto;
+import com.recareer.backend.mentoringRecord.dto.MentoringRecordResponseDto;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecordStatus;
 import com.recareer.backend.mentoringRecord.repository.MentoringRecordRepository;
@@ -13,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -129,5 +132,15 @@ public class MentoringRecordServiceImpl implements MentoringRecordService {
     public MentoringRecord findByReservationId(Long reservationId) {
         return mentoringRecordRepository.findByReservationId(reservationId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 예약에 대한 멘토링 기록을 찾을 수 없습니다."));
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<MentoringRecordResponseDto> findCompletedMentoringRecordsByUserId(Long userId) {
+        List<MentoringRecord> mentoringRecords = mentoringRecordRepository.findCompletedMentoringRecordsByUserId(userId);
+
+        return mentoringRecords.stream()
+                .map(MentoringRecordResponseDto::from)
+                .collect(Collectors.toList());
     }
 }
