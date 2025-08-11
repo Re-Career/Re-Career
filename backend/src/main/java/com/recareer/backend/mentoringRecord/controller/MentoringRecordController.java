@@ -29,7 +29,7 @@ public class MentoringRecordController {
     private final UserService userService;
 
     @GetMapping("/{id}")
-    @Operation(summary = "멘토링 기록 조회")
+    @Operation(summary = "완료된 상담 목록 조회")
     public ResponseEntity<ApiResponse<MentoringRecord>> getMentoringRecord(@PathVariable Long id) {
         MentoringRecord mentoringRecord = mentoringRecordService.findMentoringRecordById(id);
 
