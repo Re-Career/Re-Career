@@ -3,10 +3,10 @@ package com.recareer.backend.mentoringRecord.service;
 import com.recareer.backend.common.service.S3Service;
 import com.recareer.backend.mentoringRecord.dto.MentoringRecordRequestDto;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
+import com.recareer.backend.mentoringRecord.entity.MentoringRecordStatus;
 import com.recareer.backend.mentoringRecord.repository.MentoringRecordRepository;
 import com.recareer.backend.reservation.entity.Reservation;
 import com.recareer.backend.reservation.repository.ReservationRepository;
-import com.recareer.backend.mentoringRecord.service.AudioTranscriptionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +37,13 @@ public class MentoringRecordServiceImpl implements MentoringRecordService {
         MentoringRecord mentoringRecord = findOrCreateMentoringRecord(reservationId);
         mentoringRecord.setMenteeFeedback(requestDto.getMenteeFeedback());
         
+        // 피드백 작성 완료 시 상태 업데이트
+        if (mentoringRecord.getAudioFileUrl() != null) {
+            mentoringRecord.setStatus(MentoringRecordStatus.ALL_COMPLETED);
+        } else {
+            mentoringRecord.setStatus(MentoringRecordStatus.FEEDBACK_PENDING);
+        }
+        
         MentoringRecord savedMentoringRecord = mentoringRecordRepository.save(mentoringRecord);
         return savedMentoringRecord.getId();
     }
@@ -50,6 +57,12 @@ public class MentoringRecordServiceImpl implements MentoringRecordService {
             // 1. S3에 오디오 파일 업로드
             String audioFileUrl = s3Service.uploadAudioFile(audioFile);
             log.info("S3 업로드 완료: {}", audioFileUrl);
+            
+            // 상태를 AUDIO_PROCESSING으로 변경
+            MentoringRecord mentoringRecord = findOrCreateMentoringRecord(reservationId);
+            mentoringRecord.setStatus(MentoringRecordStatus.AUDIO_PROCESSING);
+
+            mentoringRecordRepository.save(mentoringRecord);
 
             // 2. 음성을 텍스트로 전사
             String transcribedText = audioTranscriptionService.transcribeAudio(audioFile);
@@ -59,9 +72,15 @@ public class MentoringRecordServiceImpl implements MentoringRecordService {
             String summary = audioTranscriptionService.summarizeText(transcribedText);
             log.info("텍스트 요약 완료");
 
-            // 4. 멘토링 기록 생성 또는 업데이트
-            MentoringRecord mentoringRecord = findOrCreateMentoringRecord(reservationId);
+            // 4. 멘토링 기록 업데이트
             updateMentoringRecordWithAudioData(mentoringRecord, audioFileUrl, transcribedText, summary);
+            
+            // 오디오 처리 완료 상태로 업데이트
+            if (mentoringRecord.getMenteeFeedback() != null) {
+                mentoringRecord.setStatus(MentoringRecordStatus.ALL_COMPLETED);
+            } else {
+                mentoringRecord.setStatus(MentoringRecordStatus.FEEDBACK_PENDING);
+            }
 
             MentoringRecord savedMentoringRecord = mentoringRecordRepository.save(mentoringRecord);
             log.info("멘토링 기록 저장 완료 - ID: {}", savedMentoringRecord.getId());
@@ -82,6 +101,7 @@ public class MentoringRecordServiceImpl implements MentoringRecordService {
         return mentoringRecordRepository.findByReservationId(reservationId)
                 .orElse(MentoringRecord.builder()
                         .reservation(reservation)
+                        .status(MentoringRecordStatus.AUDIO_PENDING)
                         .build());
     }
 
@@ -93,5 +113,21 @@ public class MentoringRecordServiceImpl implements MentoringRecordService {
         mentoringRecord.setAudioFileUrl(audioFileUrl);
         mentoringRecord.setTranscribedText(transcribedText);
         mentoringRecord.setSummary(summary);
+    }
+    
+    @Override
+    @Transactional
+    public void updateMentoringRecordStatus(Long mentoringRecordId, MentoringRecordStatus status) {
+        MentoringRecord mentoringRecord = findMentoringRecordById(mentoringRecordId);
+        mentoringRecord.setStatus(status);
+
+        mentoringRecordRepository.save(mentoringRecord);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public MentoringRecord findByReservationId(Long reservationId) {
+        return mentoringRecordRepository.findByReservationId(reservationId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 예약에 대한 멘토링 기록을 찾을 수 없습니다."));
     }
 }
