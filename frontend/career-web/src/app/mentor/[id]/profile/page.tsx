@@ -3,6 +3,7 @@ import React from 'react'
 import Image from 'next/image'
 import { mentorDetails } from '@/mocks/home/mentor-details'
 import { notFound } from 'next/navigation'
+import MentorReservationButton from '@/components/mentor/MentorReservationButton'
 
 const MentorProfilePage = async ({
   params,
@@ -29,8 +30,7 @@ const MentorProfilePage = async ({
 
   return (
     <>
-      <Header title="멘토 프로필" isNativeBackPress />
-
+      <Header title="멘토 프로필" showBackButton />
       <div>
         {/* 프로필 상단 */}
         <div className="bg-white p-6 text-center">
@@ -161,9 +161,7 @@ const MentorProfilePage = async ({
 
         {/* 하단 상담 예약 버튼 */}
         <div className="sticky bottom-0 border-t border-gray-100 bg-white p-4">
-          <button className="bg-primary w-full rounded-lg py-3 font-bold">
-            상담 예약하기
-          </button>
+          <MentorReservationButton id={mentor.id} />
         </div>
       </div>
     </>

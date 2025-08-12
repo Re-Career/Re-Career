@@ -17,9 +17,13 @@ export interface SearchMentorData {
   jobId: string
 }
 
+export interface MentorProfileData {
+  mentorId: number
+}
+
 export interface WebViewMessage {
   type: string
-  data?: SaveAuthData | SearchMentorData | string
+  data?: SaveAuthData | SearchMentorData | MentorProfileData | string
 }
 
 export type RoleType = (typeof RoleTypes)[keyof typeof RoleTypes]

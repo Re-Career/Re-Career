@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Header from '@/components/common/Header'
 import { searchMentors } from '@/mocks/home/mentors-search'
-import MentorProfileButton from '@/components/matching/MentorProfileButton'
+import MentorProfileButton from '@/components/mentor/MentorProfileButton'
 
 const MatchingPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -120,7 +120,7 @@ const MatchingPage = () => {
                       )
                     } else {
                       // 일반 웹 브라우저에서는 일반적인 링크로 이동
-                      window.location.href = `/profile/mentor/${mentor.id}`
+                      window.location.href = `mentor/${mentor.id}/profile`
                     }
                   }}
                 >

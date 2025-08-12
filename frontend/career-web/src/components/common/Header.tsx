@@ -1,9 +1,10 @@
 'use client'
 
 import React from 'react'
-import { sendMessageToNative } from '../../utils/webview'
+import { isWebView, sendMessageToNative } from '../../utils/webview'
 import { useRouter } from 'next/navigation'
 import { WebViewMessageTypes } from '@/lib/constants/global'
+import { IoArrowBack } from 'react-icons/io5'
 
 interface HeaderProps {
   title?: string
@@ -11,7 +12,6 @@ interface HeaderProps {
   showCancelButton?: boolean
   onBackPress?: () => void
   rightElement?: React.ReactNode
-  isNativeBackPress?: boolean
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -20,7 +20,6 @@ const Header: React.FC<HeaderProps> = ({
   showCancelButton = false,
   onBackPress,
   rightElement,
-  isNativeBackPress = false,
 }) => {
   const router = useRouter()
   const onCancelPress = () => {
@@ -28,26 +27,22 @@ const Header: React.FC<HeaderProps> = ({
   }
 
   const handleBackPress = () => {
-    if (isNativeBackPress) {
-      if (window.ReactNativeWebView) {
-        sendMessageToNative({ type: WebViewMessageTypes.NAVIGATE_BACK })
-      }
+    if (isWebView()) {
+      sendMessageToNative({ type: WebViewMessageTypes.NAVIGATE_BACK })
     } else {
-      if (onBackPress) {
-        return onBackPress()
-      } else {
-        router.back()
-      }
+      router.back()
     }
+
+    onBackPress && onBackPress()
   }
 
   return (
     <header className="sticky top-0 z-100 bg-white">
       <div className="relative flex h-14 items-center justify-between px-4">
         <div className="flex flex-1 items-start">
-          {(showBackButton || isNativeBackPress) && (
+          {showBackButton && (
             <button onClick={handleBackPress} className="p-2">
-              <span className="text-2xl text-neutral-900">{'<'}</span>
+              <IoArrowBack />
             </button>
           )}
         </div>

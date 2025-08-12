@@ -5,6 +5,7 @@ export const WebViewMessageTypes = {
   SAVE_AUTH: 'SAVE_AUTH',
   CLEAR_TOKEN: 'CLEAR_TOKEN',
   SEARCH_MENTOR: 'SEARCH_MENTOR',
+  MENTOR_PROFILE: 'MENTOR_PROFILE',
 } as const
 
 export const RoleTypes = {

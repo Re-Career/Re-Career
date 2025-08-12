@@ -39,7 +39,13 @@ const RootLayout = () => {
               }}
             />
             <Stack.Screen
-              name="mentor/[id]"
+              name="mentor/[id]/profile"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="mentor/[id]/reservation"
               options={{
                 headerShown: false,
               }}

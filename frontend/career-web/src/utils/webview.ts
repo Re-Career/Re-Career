@@ -19,3 +19,7 @@ export const sendAuthTokensToNative = (
     },
   })
 }
+
+export const isWebView = (): boolean => {
+  return typeof window !== 'undefined' && !!(window as any).ReactNativeWebView
+}
