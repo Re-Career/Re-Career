@@ -30,6 +30,7 @@ public class NewsService {
                 .description(news.getDescription())
                 .url(news.getUrl())
                 .category(news.getCategory())
+                .imageUrl(news.getImageUrl())
                 .build();
     }
 }

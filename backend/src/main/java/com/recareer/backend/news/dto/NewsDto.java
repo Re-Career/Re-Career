@@ -13,4 +13,5 @@ public class NewsDto {
     private String description;
     private String url;
     private String category;
+    private String imageUrl;
 }
