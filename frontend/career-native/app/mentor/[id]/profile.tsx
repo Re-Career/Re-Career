@@ -5,7 +5,7 @@ import { AppWebView } from '@/components'
 const MentorProfileScreen = () => {
   const { id } = useLocalSearchParams()
 
-  return <AppWebView path={`/profile/mentor/${id}`} />
+  return <AppWebView path={`mentor/${id}/profile`} />
 }
 
 export default MentorProfileScreen

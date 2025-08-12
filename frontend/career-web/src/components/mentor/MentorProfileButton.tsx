@@ -1,5 +1,7 @@
 'use client'
 
+import { WebViewMessageTypes } from '@/lib/constants/global'
+import { isWebView, sendMessageToNative } from '@/utils/webview'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
@@ -7,15 +9,13 @@ const MentorProfileButton = ({ id }: { id: number }) => {
   const router = useRouter()
 
   const handleMentorProfile = () => {
-    if (window.ReactNativeWebView) {
-      window.ReactNativeWebView.postMessage(
-        JSON.stringify({
-          type: 'MENTOR_PROFILE',
-          data: { mentorId: id },
-        })
-      )
+    if (isWebView()) {
+      sendMessageToNative({
+        type: WebViewMessageTypes.MENTOR_PROFILE,
+        data: { mentorId: id },
+      })
     } else {
-      router.push(`/profile/mentor/${id}`)
+      router.push(`mentor/${id}/profile`)
     }
   }
 

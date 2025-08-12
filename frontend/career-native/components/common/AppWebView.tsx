@@ -11,6 +11,13 @@ interface CareerWebViewProps extends WebViewProps {
   path?: string
 }
 
+interface WebviewData {
+  mentorId?: number
+  jobId?: number
+  accessToken?: string
+  refreshToken?: string
+}
+
 const CareerWebView = (props: CareerWebViewProps) => {
   const router = useRouter()
   const { loadTokens, saveTokens, clearTokens } = useAuth()
@@ -30,13 +37,20 @@ const CareerWebView = (props: CareerWebViewProps) => {
 
   useEffect(() => {
     const setupTokens = async () => {
-      const script = await injectTokensFromStorage()
+      try {
+        const script = await injectTokensFromStorage()
 
-      setInjectedJS(script)
-      setIsTokensReady(true)
+        setInjectedJS(script)
+        setIsTokensReady(true)
+      } catch (error) {
+        console.error('토큰 설정 실패:', error)
+        setIsTokensReady(true) // 토큰 없어도 웹뷰 로드
+      }
     }
 
     setupTokens()
+
+    return () => {}
   }, [])
 
   // 앱 시작시 토큰을 쿠키로 설정
@@ -73,41 +87,49 @@ const CareerWebView = (props: CareerWebViewProps) => {
   }, [])
 
   const onMessage = useCallback(async (event: WebViewMessageEvent) => {
-    const { type, data } = JSON.parse(event.nativeEvent.data)
+    try {
+      const { type, data } = JSON.parse(event.nativeEvent.data)
 
-    switch (type) {
-      case 'LOGIN_MODAL':
-        return router.push('/(modal)/login')
+      const {
+        mentorId = 0,
+        jobId = 0,
+        accessToken = '',
+        refreshToken = '',
+      } = (data || {}) as WebviewData
 
-      case 'SAVE_AUTH':
-        const { accessToken, refreshToken } = data
+      switch (type) {
+        case 'LOGIN_MODAL':
+          return router.push('/(modal)/login')
 
-        //TODO: 저장시 에러 처리 추가
-        if (accessToken && refreshToken) {
-          saveTokens(accessToken, refreshToken)
-        }
+        case 'SAVE_AUTH':
+          //TODO: 저장시 에러 처리 추가
+          if (accessToken && refreshToken) {
+            saveTokens(accessToken, refreshToken)
+          }
 
-        return router.back()
+          return router.back()
 
-      case 'CLEAR_TOKEN':
-        return clearTokens()
+        case 'CLEAR_TOKEN':
+          return clearTokens()
 
-      case 'CLOSE_WEBVIEW':
-      case 'NAVIGATE_BACK':
-        return router.back()
+        case 'CLOSE_WEBVIEW':
+        case 'NAVIGATE_BACK':
+          return router.back()
 
-      case 'SEARCH_MENTOR':
-        const { jobId } = data
+        case 'SEARCH_MENTOR':
+          return router.push(`/matching?jobId=${jobId}`)
 
-        return router.push(`/matching?jobId=${jobId}`)
+        case 'MENTOR_PROFILE':
+          return router.push(`/mentor/${mentorId}/profile`)
 
-      case 'MENTOR_PROFILE':
-        const { mentorId } = data
+        case 'MENTOR_RESERVATION':
+          return router.push(`/mentor/${mentorId}/reservation`)
 
-        return router.push(`/mentor/${mentorId}`)
-
-      default:
-        return
+        default:
+          return
+      }
+    } catch (error) {
+      console.error(error)
     }
   }, [])
 
