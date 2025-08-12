@@ -24,8 +24,6 @@ public class ReservationResponseDto {
     // 예약 상태
     private ReservationStatus status;
     
-    // 이메일 알림 여부
-    private boolean emailNotification;
     
     // 취소 사유 (취소된 경우에만)
     private String cancelReason;
@@ -66,7 +64,6 @@ public class ReservationResponseDto {
                 .reservationId(reservation.getId())
                 .reservationTime(reservation.getReservationTime())
                 .status(reservation.getStatus())
-                .emailNotification(reservation.isEmailNotification())
                 .cancelReason(reservation.getCancelReason())
                 .mentor(MentorInfo.builder()
                         .mentorId(reservation.getMentor().getId())

@@ -1,6 +1,5 @@
 package com.recareer.backend.reservation.service;
 
-import com.recareer.backend.email.service.EmailService;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
@@ -39,7 +38,6 @@ import static org.mockito.BDDMockito.*;
  * 멘토링 예약 서비스의 핵심 기능들을 테스트합니다.
  * - 예약 생성, 조회, 상태 변경 등의 정상 케이스
  * - 존재하지 않는 엔티티, 잘못된 상태 전환 등의 예외 케이스
- * - 이메일 전송 연동 테스트
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ReservationService 테스트")
@@ -57,8 +55,6 @@ class ReservationServiceImplTest {
     @Mock
     private MentoringRecordRepository mentoringRecordRepository;
 
-    @Mock
-    private EmailService emailService;
 
     @InjectMocks
     private ReservationServiceImpl reservationService;
@@ -102,7 +98,6 @@ class ReservationServiceImplTest {
             .mentor(testMentor)
             .reservationTime(testDateTime)
             .status(ReservationStatus.REQUESTED)
-            .emailNotification(false)
             .build();
         
         // 테스트용 예약 요청 DTO
@@ -241,7 +236,7 @@ class ReservationServiceImplTest {
     class UpdateReservationStatusTest {
 
         @Test
-        @DisplayName("예약 승인(CONFIRMED) 성공 - 이메일 전송 포함")
+        @DisplayName("예약 승인(CONFIRMED) 성공")
         void updateReservationStatus_ToConfirmed_Success() {
             // Given
             Long reservationId = 1L;
@@ -250,43 +245,17 @@ class ReservationServiceImplTest {
             
             given(reservationRepository.findById(reservationId)).willReturn(Optional.of(testReservation));
             given(reservationRepository.save(any(Reservation.class))).willReturn(testReservation);
-            doNothing().when(emailService).sendMentoringConfirmationEmail(any(Reservation.class));
 
             // When
             reservationService.updateReservationStatus(reservationId, updateDto);
 
             // Then
             assertThat(testReservation.getStatus()).isEqualTo(ReservationStatus.CONFIRMED);
-            assertThat(testReservation.isEmailNotification()).isTrue();
             
             verify(reservationRepository).findById(reservationId);
-            verify(emailService).sendMentoringConfirmationEmail(testReservation);
             verify(reservationRepository).save(testReservation);
         }
 
-        @Test
-        @DisplayName("예약 승인 시 이메일 전송 실패해도 예약 상태는 변경됨")
-        void updateReservationStatus_ToConfirmed_EmailFailure_ReservationStillUpdated() {
-            // Given
-            Long reservationId = 1L;
-            ReservationUpdateRequestDto updateDto = new ReservationUpdateRequestDto();
-            updateDto.setStatus(ReservationStatus.CONFIRMED);
-            
-            given(reservationRepository.findById(reservationId)).willReturn(Optional.of(testReservation));
-            given(reservationRepository.save(any(Reservation.class))).willReturn(testReservation);
-            doThrow(new RuntimeException("이메일 서버 오류")).when(emailService).sendMentoringConfirmationEmail(any(Reservation.class));
-
-            // When
-            reservationService.updateReservationStatus(reservationId, updateDto);
-
-            // Then
-            assertThat(testReservation.getStatus()).isEqualTo(ReservationStatus.CONFIRMED);
-            assertThat(testReservation.isEmailNotification()).isFalse(); // 이메일 전송 실패로 false 유지
-            
-            verify(reservationRepository).findById(reservationId);
-            verify(emailService).sendMentoringConfirmationEmail(testReservation);
-            verify(reservationRepository).save(testReservation);
-        }
 
         @Test
         @DisplayName("이미 승인된 예약을 다시 승인하려 할 때 예외 발생")
@@ -305,7 +274,6 @@ class ReservationServiceImplTest {
                 .hasMessage("요청된 상태의 예약만 수락할 수 있습니다.");
             
             verify(reservationRepository).findById(reservationId);
-            verify(emailService, never()).sendMentoringConfirmationEmail(any());
             verify(reservationRepository, never()).save(any());
         }
 

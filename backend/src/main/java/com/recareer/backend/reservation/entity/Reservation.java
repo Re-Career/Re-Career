@@ -31,9 +31,6 @@ public class Reservation extends BaseTimeEntity {
   @Column(nullable = false, name = "reservation_time")
   private LocalDateTime reservationTime;
 
-  @Builder.Default
-  @Column(nullable = false, name = "email_notification")
-  private boolean emailNotification = false;
 
   @Builder.Default
   @Column(nullable = false)

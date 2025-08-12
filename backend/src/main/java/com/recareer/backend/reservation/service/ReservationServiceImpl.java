@@ -13,7 +13,6 @@ import com.recareer.backend.user.repository.UserRepository;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecordStatus;
 import com.recareer.backend.mentoringRecord.repository.MentoringRecordRepository;
-import com.recareer.backend.email.service.EmailService;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,6 @@ public class ReservationServiceImpl implements ReservationService {
   private final UserRepository userRepository;
   private final MentorRepository mentorRepository;
   private final MentoringRecordRepository mentoringRecordRepository;
-  private final EmailService emailService;
 
   @Override
   @Transactional(readOnly = true)
@@ -95,13 +93,6 @@ public class ReservationServiceImpl implements ReservationService {
           throw new IllegalStateException("요청된 상태의 예약만 수락할 수 있습니다.");
         }
         reservation.setStatus(ReservationStatus.CONFIRMED);
-        
-        try {
-          emailService.sendMentoringConfirmationEmail(reservation);
-          reservation.setEmailNotification(true);
-        } catch (Exception e) {
-          log.warn("멘토링 확정 이메일 큐잉 실패: 예약 ID={}, 오류={}", reservationId, e.getMessage());
-        }
       }
       case COMPLETED -> {
         if (reservation.getStatus() != ReservationStatus.CONFIRMED) {
