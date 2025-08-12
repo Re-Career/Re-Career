@@ -28,4 +28,7 @@ public class News extends BaseTimeEntity {
 
     @Column(name = "category", length = 50)
     private String category;
+
+    @Column(name = "image_url", length = 256)
+    private String imageUrl;
 }
