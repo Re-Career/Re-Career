@@ -16,3 +16,91 @@ html {
 body {
   min-height: 100vh;
 }
+
+.react-calendar {
+  width: 100%;
+  padding: 0px 16px 16px 16px;
+}
+
+.react-calendar__navigation {
+  width: 100%;
+  display: flex;
+}
+
+.react-calendar__navigation__prev-button,
+.react-calendar__navigation__next-button {
+  flex: 1 !important;
+  aspect-ratio: 1;
+  font-size: 32px;
+  font-weight: 100;
+}
+
+.react-calendar__navigation__label {
+  flex: 5 !important;
+  text-align: center;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.react-calendar__month-view__weekdays,
+.react-calendar__month-view__days {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  font-size: 14px;
+}
+
+.react-calendar__month-view__weekdays {
+  font-weight: 600;
+}
+
+.react-calendar__month-view__days {
+  font-weight: 400;
+}
+
+.react-calendar__month-view__weekdays__weekday,
+.react-calendar__month-view__days__day {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  aspect-ratio: 1;
+}
+
+.weekend-tile {
+  color: #d0021b;
+}
+
+.react-calendar__month-view__weekdays abbr {
+  text-decoration: none;
+  border-bottom: none;
+  cursor: default;
+}
+
+.react-calendar__tile--now {
+  background: transparent;
+}
+
+.react-calendar__tile--now:enabled:hover,
+.react-calendar__tile--now:enabled:focus {
+  background: #f3f4f6;
+}
+
+.react-calendar__tile--active {
+  background-color: #abcced;
+  border-radius: 50%;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: #bdc4cc;
+}
+
+/* 스크롤바 숨기기 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

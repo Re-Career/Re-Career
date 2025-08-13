@@ -3,7 +3,7 @@ import React from 'react'
 import Image from 'next/image'
 import { mentorDetails } from '@/mocks/home/mentor-details'
 import { notFound } from 'next/navigation'
-import MentorReservationButton from '@/components/mentor/MentorReservationButton'
+import MentorReservationButton from '@/components/mentor/profile/ReservationButton'
 
 const MentorProfilePage = async ({
   params,
