@@ -4,10 +4,10 @@ import React, { useState } from 'react'
 import Calendar from 'react-calendar'
 import { ko } from 'date-fns/locale'
 import { format } from 'date-fns'
-import { DateType } from '@/types/global'
+import { DatePiece, DateType } from '@/types/global'
 
 interface CustomCalendarProps {
-  value: DateType
+  value: DatePiece
   onChange: (date: DateType) => void
 }
 

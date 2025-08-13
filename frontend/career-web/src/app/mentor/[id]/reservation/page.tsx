@@ -32,7 +32,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
           </div>
         </div>
       </section>
-      <ReservationForm />
+      <ReservationForm mentorId={id} />
     </>
   )
 }
