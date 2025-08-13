@@ -27,3 +27,6 @@ export interface WebViewMessage {
 }
 
 export type RoleType = (typeof RoleTypes)[keyof typeof RoleTypes]
+
+export type DatePiece = Date | null
+export type DateType = DatePiece | [DatePiece, DatePiece]

@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Header from '@/components/common/Header'
 import { searchMentors } from '@/mocks/home/mentors-search'
-import MentorProfileButton from '@/components/mentor/MentorProfileButton'
+import MentorProfileButton from '@/components/matching/MentorProfileButton'
 
 const MatchingPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
