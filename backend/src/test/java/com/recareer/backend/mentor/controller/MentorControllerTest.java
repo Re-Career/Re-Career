@@ -354,6 +354,7 @@ class MentorControllerTest {
         mockMvc.perform(get("/mentors/{id}", mentor.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(mentor.getId()))
                 .andExpect(jsonPath("$.data.name").value("테스트 멘토"))
                 .andExpect(jsonPath("$.data.position").value("시니어 백엔드 개발자"));
     }
@@ -370,6 +371,7 @@ class MentorControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("멘토 정보가 성공적으로 수정되었습니다."))
+                .andExpect(jsonPath("$.data.id").value(mentor.getId()))
                 .andExpect(jsonPath("$.data.position").value(newPosition))
                 .andExpect(jsonPath("$.data.description").value(newDescription));
 
@@ -390,7 +392,8 @@ class MentorControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("멘토 가능 시간이 성공적으로 추가되었습니다."))
-                .andExpect(jsonPath("$.data.availableTime").value(availableTime));
+                .andExpect(jsonPath("$.data.availableTime").value(availableTime))
+                .andExpect(jsonPath("$.data.book").value(false));
 
         // 데이터베이스에 실제로 저장되었는지 확인
         long availableTimeCount = availableTimeRepository.findByMentor(mentor).size();

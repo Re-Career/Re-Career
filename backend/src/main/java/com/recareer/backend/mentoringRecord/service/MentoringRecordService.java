@@ -1,5 +1,6 @@
 package com.recareer.backend.mentoringRecord.service;
 
+import com.recareer.backend.mentoringRecord.dto.MentoringRecordListResponseDto;
 import com.recareer.backend.mentoringRecord.dto.MentoringRecordRequestDto;
 import com.recareer.backend.mentoringRecord.dto.MentoringRecordResponseDto;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
@@ -20,4 +21,6 @@ public interface MentoringRecordService {
     MentoringRecord findByReservationId(Long reservationId);
     
     List<MentoringRecordResponseDto> findCompletedMentoringRecordsByUserId(Long userId);
+    
+    List<MentoringRecordListResponseDto> findCompletedMentoringRecordsListByUserId(Long userId);
 }

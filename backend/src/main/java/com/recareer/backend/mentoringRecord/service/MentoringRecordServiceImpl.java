@@ -1,6 +1,7 @@
 package com.recareer.backend.mentoringRecord.service;
 
 import com.recareer.backend.common.service.S3Service;
+import com.recareer.backend.mentoringRecord.dto.MentoringRecordListResponseDto;
 import com.recareer.backend.mentoringRecord.dto.MentoringRecordRequestDto;
 import com.recareer.backend.mentoringRecord.dto.MentoringRecordResponseDto;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
@@ -141,6 +142,16 @@ public class MentoringRecordServiceImpl implements MentoringRecordService {
 
         return mentoringRecords.stream()
                 .map(MentoringRecordResponseDto::from)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<MentoringRecordListResponseDto> findCompletedMentoringRecordsListByUserId(Long userId) {
+        List<MentoringRecord> mentoringRecords = mentoringRecordRepository.findCompletedMentoringRecordsByUserId(userId);
+
+        return mentoringRecords.stream()
+                .map(MentoringRecordListResponseDto::from)
                 .collect(Collectors.toList());
     }
 }
