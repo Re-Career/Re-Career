@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { jobDetails } from '@/mocks/home/job-details'
 import { notFound } from 'next/navigation'
 import Header from '@/components/common/Header'
-import SearchMentorButton from '@/components/job-description/SearchMentorButton'
+import Link from 'next/link'
 
 const JobDescriptionPage = async ({
   params,
@@ -92,8 +92,14 @@ const JobDescriptionPage = async ({
           ))}
         </div>
       </section>
-      <div className="flex items-center justify-center p-4">
-        <SearchMentorButton jobId={id} />
+
+      <div className="flex w-full items-center justify-center px-4">
+        <Link
+          className="bg-primary w-full rounded-xl py-3 text-center font-bold"
+          href={`/matching?jobId=${id}`}
+        >
+          멘토 찾기
+        </Link>
       </div>
     </>
   )

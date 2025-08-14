@@ -1,5 +1,4 @@
 import { DEFAULT_WEB_APP_IP, DEFAULT_WEB_APP_URL } from '@/constants/constants'
-import { useRouter } from 'expo-router'
 import React, { useCallback, useEffect, useState } from 'react'
 import WebView, {
   WebViewMessageEvent,
@@ -19,7 +18,6 @@ interface WebviewData {
 }
 
 const CareerWebView = (props: CareerWebViewProps) => {
-  const router = useRouter()
   const { loadTokens, saveTokens, clearTokens } = useAuth()
 
   const {
@@ -91,39 +89,20 @@ const CareerWebView = (props: CareerWebViewProps) => {
       const { type, data } = JSON.parse(event.nativeEvent.data)
 
       const {
-        mentorId = 0,
-        jobId = 0,
         accessToken = '',
         refreshToken = '',
       } = (data || {}) as WebviewData
 
       switch (type) {
-        case 'LOGIN_MODAL':
-          return router.push('/(modal)/login')
-
         case 'SAVE_AUTH':
           //TODO: 저장시 에러 처리 추가
           if (accessToken && refreshToken) {
             saveTokens(accessToken, refreshToken)
           }
-
-          return router.back()
+          break
 
         case 'CLEAR_TOKEN':
           return clearTokens()
-
-        case 'CLOSE_WEBVIEW':
-        case 'NAVIGATE_BACK':
-          return router.back()
-
-        case 'SEARCH_MENTOR':
-          return router.push(`/matching?jobId=${jobId}`)
-
-        case 'MENTOR_PROFILE':
-          return router.push(`/mentor/${mentorId}/profile`)
-
-        case 'MENTOR_RESERVATION':
-          return router.push(`/mentor/${mentorId}/reservation`)
 
         default:
           return
@@ -131,7 +110,7 @@ const CareerWebView = (props: CareerWebViewProps) => {
     } catch (error) {
       console.error(error)
     }
-  }, [])
+  }, [saveTokens, clearTokens])
 
   if (!isTokensReady) {
     return <></>

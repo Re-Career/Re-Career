@@ -10,7 +10,7 @@ const IndustryNews = () => {
       <div>
         <h2 className="section-title">최신 산업뉴스</h2>
 
-        <div className="flex flex-col gap-4 px-4">
+        <div className="scrollbar-hide-x flex flex-col gap-4 px-4">
           {industryNews.map((news) => (
             <div key={news.id} className="rounded-lg">
               <div className="flex gap-4">

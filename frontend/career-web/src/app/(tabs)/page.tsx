@@ -1,4 +1,5 @@
 import Header from '@/components/common/Header'
+import Tabs from '@/components/common/Tabs'
 import {
   ReginalJobList,
   TrendJobList,
@@ -16,6 +17,7 @@ const HomePage = async () => {
         <MentorList />
         <IndustryNews />
       </main>
+      <Tabs />
     </>
   )
 }
