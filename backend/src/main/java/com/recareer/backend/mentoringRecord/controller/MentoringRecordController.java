@@ -1,5 +1,6 @@
 package com.recareer.backend.mentoringRecord.controller;
 
+import com.recareer.backend.mentoringRecord.dto.MentoringRecordListResponseDto;
 import com.recareer.backend.mentoringRecord.dto.MentoringRecordRequestDto;
 import com.recareer.backend.mentoringRecord.dto.MentoringRecordResponseDto;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
@@ -30,7 +31,7 @@ public class MentoringRecordController {
 
     @GetMapping("/users/{userId}")
     @Operation(summary = "완료된 상담 리스트 조회", description = "특정 유저의 완료된 멘토링 기록 목록을 조회합니다.")
-    public ResponseEntity<ApiResponse<List<MentoringRecordResponseDto>>> getCompletedMentoringRecordsByUserId(
+    public ResponseEntity<ApiResponse<List<MentoringRecordListResponseDto>>> getCompletedMentoringRecordsByUserId(
             @RequestHeader("Authorization") String accessToken,
             @PathVariable Long userId) {
         
@@ -43,8 +44,8 @@ public class MentoringRecordController {
                         .body(ApiResponse.error("본인의 완료된 상담 기록만 조회할 수 있습니다"));
             }
             
-            List<MentoringRecordResponseDto> mentoringRecords = mentoringRecordService.findCompletedMentoringRecordsByUserId(userId);
-            return ResponseEntity.ok(ApiResponse.success(mentoringRecords));
+            List<MentoringRecordListResponseDto> response = mentoringRecordService.findCompletedMentoringRecordsListByUserId(userId);
+            return ResponseEntity.ok(ApiResponse.success(response));
             
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
