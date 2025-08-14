@@ -8,9 +8,7 @@ const RegionalJobList = () => {
   return (
     <section>
       <div>
-        <h2 className="px-4 pt-5 pb-3 text-xl font-bold text-neutral-900">
-          {region}의 주요 직업 TOP 3
-        </h2>
+        <h2 className="section-title">{region}의 주요 직업 TOP 3</h2>
 
         {jobs.map((job) => (
           <RegionalJob key={`job_list_${job.id}`} job={job} />

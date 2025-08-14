@@ -17,7 +17,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
     <>
       <Header showBackButton title="멘토와 상담 예약하기" />
       <section className="px-4">
-        <h4 className="py-4 text-lg font-bold">멘토 정보</h4>
+        <h4 className="section-title">멘토 정보</h4>
         <div className="flex gap-4">
           <Image
             src={mentor.profileImage}
