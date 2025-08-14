@@ -25,11 +25,11 @@ public class ReservationController {
   private final ReservationService reservationService;
   private final AuthUtil authUtil;
 
-  @GetMapping("/user/{userId}")
-  @Operation(summary = "예정된 상담 리스트 조회", description = "특정 유저의 모든 멘토링 예약 목록을 조회합니다.")
-  public ResponseEntity<ApiResponse<List<ReservationResponseDto>>> getReservationsByUserId(
+  @GetMapping
+  @Operation(summary = "예약 목록 조회", description = "특정 유저의 모든 멘토링 예약 목록을 조회합니다.")
+  public ResponseEntity<ApiResponse<List<ReservationResponseDto>>> getReservations(
       @RequestHeader("Authorization") String accessToken,
-      @PathVariable Long userId) {
+      @RequestParam Long userId) {
     
     try {
       Long requestUserId = authUtil.validateTokenAndGetUserId(accessToken);

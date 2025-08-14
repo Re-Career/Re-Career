@@ -125,7 +125,7 @@ class ReservationControllerTest {
 
             // When
             ResponseEntity<ApiResponse<List<ReservationResponseDto>>> response = 
-                reservationController.getReservationsByUserId(validToken, userId);
+                reservationController.getReservations(validToken, userId);
 
             // Then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -146,7 +146,7 @@ class ReservationControllerTest {
 
             // When
             ResponseEntity<ApiResponse<List<ReservationResponseDto>>> response = 
-                reservationController.getReservationsByUserId(validToken, otherUserId);
+                reservationController.getReservations(validToken, otherUserId);
 
             // Then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
@@ -166,7 +166,7 @@ class ReservationControllerTest {
 
             // When
             ResponseEntity<ApiResponse<List<ReservationResponseDto>>> response = 
-                reservationController.getReservationsByUserId(invalidToken, userId);
+                reservationController.getReservations(invalidToken, userId);
 
             // Then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);

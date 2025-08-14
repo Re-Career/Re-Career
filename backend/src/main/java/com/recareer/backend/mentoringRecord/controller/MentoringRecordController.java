@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/mentoring_records")
+@RequestMapping("/mentoring-records")
 @RequiredArgsConstructor
 @Tag(name = "MentoringRecord", description = "멘토링 기록 관련 API")
 public class MentoringRecordController {
@@ -29,11 +29,11 @@ public class MentoringRecordController {
     private final AuthUtil authUtil;
     private final ReservationService reservationService;
 
-    @GetMapping("/users/{userId}")
+    @GetMapping
     @Operation(summary = "완료된 상담 리스트 조회", description = "특정 유저의 완료된 멘토링 기록 목록을 조회합니다.")
-    public ResponseEntity<ApiResponse<List<MentoringRecordListResponseDto>>> getCompletedMentoringRecordsByUserId(
+    public ResponseEntity<ApiResponse<List<MentoringRecordListResponseDto>>> getCompletedMentoringRecords(
             @RequestHeader("Authorization") String accessToken,
-            @PathVariable Long userId) {
+            @RequestParam Long userId) {
         
         try {
             Long requestUserId = authUtil.validateTokenAndGetUserId(accessToken);
@@ -80,7 +80,7 @@ public class MentoringRecordController {
         }
     }
 
-    @PostMapping("/{reservationId}/mento-feedback")
+    @PostMapping("/{reservationId}/feedback")
     @Operation(summary = "멘토 피드백 작성", description = "멘티가 멘토링 후 멘토에 대한 피드백을 작성합니다.")
     public ResponseEntity<ApiResponse<Long>> addMenteeFeedback(
             @RequestHeader("Authorization") String accessToken,
@@ -105,7 +105,7 @@ public class MentoringRecordController {
         }
     }
 
-    @PostMapping("/{reservationId}/audio-upload")
+    @PostMapping("/{reservationId}/audio")
     @Operation(summary = "멘토링 녹음 파일 업로드",
                description = "멘토가 멘토링 녹음 파일을 업로드하면 S3에 저장하고, " +
                            "AI를 통해 음성을 텍스트로 전사하고 상담 내용을 요약합니다.")
