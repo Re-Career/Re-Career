@@ -1,6 +1,7 @@
 package com.recareer.backend.mentoringRecord.controller;
 
 import com.recareer.backend.auth.util.AuthUtil;
+import com.recareer.backend.mentoringRecord.dto.MentoringRecordListResponseDto;
 import com.recareer.backend.mentoringRecord.dto.MentoringRecordRequestDto;
 import com.recareer.backend.mentoringRecord.dto.MentoringRecordResponseDto;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
@@ -116,14 +117,24 @@ class MentoringRecordControllerTest {
         void success() {
             // given
             String accessToken = "Bearer valid-token";
-            List<MentoringRecordResponseDto> mockRecords = Arrays.asList(responseDto);
+            MentoringRecordListResponseDto listResponseDto = MentoringRecordListResponseDto.builder()
+                    .mentoringRecordId(1L)
+                    .reservationTime(LocalDateTime.of(2025, 8, 10, 14, 0))
+                    .status(MentoringRecordStatus.ALL_COMPLETED)
+                    .mentorName("멘토 김민주")
+                    .mentorPosition("시니어 백엔드 개발자")
+                    .menteeName("멘티 이영희")
+                    .hasAudioFile(true)
+                    .hasFeedback(false)
+                    .build();
+            List<MentoringRecordListResponseDto> mockListRecords = Arrays.asList(listResponseDto);
 
             given(authUtil.validateTokenAndGetUserId(accessToken)).willReturn(2L);
-            given(mentoringRecordService.findCompletedMentoringRecordsByUserId(2L)).willReturn(mockRecords);
+            given(mentoringRecordService.findCompletedMentoringRecordsListByUserId(2L)).willReturn(mockListRecords);
 
             // when
-            ResponseEntity<ApiResponse<List<MentoringRecordResponseDto>>> response = 
-                    mentoringRecordController.getCompletedMentoringRecordsByUserId(accessToken, 2L);
+            ResponseEntity<ApiResponse<List<MentoringRecordListResponseDto>>> response = 
+                    mentoringRecordController.getCompletedMentoringRecords(accessToken, 2L);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -131,7 +142,7 @@ class MentoringRecordControllerTest {
             assertThat(response.getBody().getData().get(0).getMentoringRecordId()).isEqualTo(1L);
             
             verify(authUtil).validateTokenAndGetUserId(accessToken);
-            verify(mentoringRecordService).findCompletedMentoringRecordsByUserId(2L);
+            verify(mentoringRecordService).findCompletedMentoringRecordsListByUserId(2L);
         }
 
         @Test
@@ -143,15 +154,15 @@ class MentoringRecordControllerTest {
             given(authUtil.validateTokenAndGetUserId(accessToken)).willReturn(1L);
 
             // when
-            ResponseEntity<ApiResponse<List<MentoringRecordResponseDto>>> response = 
-                    mentoringRecordController.getCompletedMentoringRecordsByUserId(accessToken, 2L);
+            ResponseEntity<ApiResponse<List<MentoringRecordListResponseDto>>> response = 
+                    mentoringRecordController.getCompletedMentoringRecords(accessToken, 2L);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
             assertThat(response.getBody().getMessage()).isEqualTo("본인의 완료된 상담 기록만 조회할 수 있습니다");
             
             verify(authUtil).validateTokenAndGetUserId(accessToken);
-            verify(mentoringRecordService, never()).findCompletedMentoringRecordsByUserId(anyLong());
+            verify(mentoringRecordService, never()).findCompletedMentoringRecordsListByUserId(anyLong());
         }
 
         @Test
@@ -164,8 +175,8 @@ class MentoringRecordControllerTest {
                     .willThrow(new IllegalArgumentException("유효하지 않은 토큰입니다."));
 
             // when
-            ResponseEntity<ApiResponse<List<MentoringRecordResponseDto>>> response = 
-                    mentoringRecordController.getCompletedMentoringRecordsByUserId(accessToken, 2L);
+            ResponseEntity<ApiResponse<List<MentoringRecordListResponseDto>>> response = 
+                    mentoringRecordController.getCompletedMentoringRecords(accessToken, 2L);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
