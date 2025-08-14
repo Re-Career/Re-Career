@@ -8,9 +8,7 @@ const TrendJobList = () => {
     <>
       <section className="">
         <div>
-          <h2 className="px-4 pt-5 pb-3 text-xl font-bold text-neutral-900">
-            최고의 20개 트렌드 직업
-          </h2>
+          <h2 className="section-title">최고의 20개 트렌드 직업</h2>
 
           <div className="overflow-x-auto p-4">
             <div className="flex gap-3">

@@ -8,9 +8,7 @@ const IndustryNews = () => {
   return (
     <section className="">
       <div>
-        <h2 className="px-4 pt-5 pb-3 text-xl font-bold text-neutral-900">
-          최신 산업뉴스
-        </h2>
+        <h2 className="section-title">최신 산업뉴스</h2>
 
         <div className="flex flex-col gap-4 px-4">
           {industryNews.map((news) => (

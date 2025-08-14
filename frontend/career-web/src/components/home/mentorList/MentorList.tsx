@@ -6,9 +6,7 @@ const MentorList = () => {
   return (
     <section className="">
       <div>
-        <h2 className="px-4 pt-5 pb-3 text-xl font-bold text-neutral-900">
-          당신을 위한 멘토들
-        </h2>
+        <h2 className="section-title">당신을 위한 멘토들</h2>
 
         <div className="flex gap-4 overflow-x-auto p-4">
           {mentors.map((mentor) => (
