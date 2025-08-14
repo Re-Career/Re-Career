@@ -5,6 +5,22 @@
   --color-secondary: #fac39f;
 }
 
+@layer utilities {
+  .scrollbar-hide-x {
+    overflow-x: auto;
+  }
+
+  /* 크롬, 사파리, 엣지 */
+  .scrollbar-hide-x::-webkit-scrollbar:horizontal {
+    display: none;
+  }
+
+  /* 파이어폭스 */
+  .scrollbar-hide-x {
+    scrollbar-width: none;
+  }
+}
+
 .section-title {
   @apply p-4 text-xl font-bold text-neutral-900;
 }
@@ -19,6 +35,11 @@ html {
 
 body {
   min-height: 100vh;
+}
+
+a,
+button {
+  cursor: pointer;
 }
 
 .react-calendar {

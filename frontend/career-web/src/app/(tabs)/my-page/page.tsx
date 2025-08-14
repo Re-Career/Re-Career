@@ -14,7 +14,7 @@ const MyPagePage = async () => {
   }
 
   return (
-    <>
+    <div className="flex h-screen flex-col">
       <Header title="마이페이지" />
       <main className="flex-1">
         <section className="flex flex-col items-center gap-4 p-4">
@@ -41,7 +41,7 @@ const MyPagePage = async () => {
           </div>
         </section>
       </main>
-    </>
+    </div>
   )
 }
 
