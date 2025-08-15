@@ -2,7 +2,6 @@ package com.recareer.backend.position.controller;
 
 import com.recareer.backend.position.dto.PositionDto;
 import com.recareer.backend.position.dto.PositionSimpleDto;
-import com.recareer.backend.position.dto.RegionPositionRequestDto;
 import com.recareer.backend.position.dto.RegionPositionResponseDto;
 import com.recareer.backend.position.service.PositionService;
 import com.recareer.backend.response.ApiResponse;
@@ -22,6 +21,13 @@ public class PositionController {
 
     private final PositionService positionService;
 
+    @GetMapping("/by-region")
+    @Operation(summary = "지역별 직무 조회", description = "특정 지역의 멘토가 많은 직무 4개 또는 랜덤 직무 4개를 조회합니다.")
+    public ResponseEntity<ApiResponse<RegionPositionResponseDto>> getPositionsByRegion(@RequestParam String region) {
+        RegionPositionResponseDto response = positionService.getPositionsByRegion(region);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
     @GetMapping("/trend-20")
     @Operation(summary = "트렌드 TOP 20 직무 조회", description = "최근 트렌드 20 직무 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<List<PositionSimpleDto>>> getTrand20Positions() {
@@ -34,13 +40,6 @@ public class PositionController {
     public ResponseEntity<ApiResponse<PositionDto>> getPositionById(@PathVariable Long id) {
         PositionDto position = positionService.getPositionById(id);
         return ResponseEntity.ok(ApiResponse.success(position));
-    }
-
-    @GetMapping("/by-region")
-    @Operation(summary = "지역별 직무 조회", description = "특정 지역의 멘토가 많은 직무 4개 또는 랜덤 직무 4개를 조회합니다.")
-    public ResponseEntity<ApiResponse<RegionPositionResponseDto>> getPositionsByRegion(@RequestBody RegionPositionRequestDto request) {
-        RegionPositionResponseDto response = positionService.getPositionsByRegion(request.getRegion());
-        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
 }
