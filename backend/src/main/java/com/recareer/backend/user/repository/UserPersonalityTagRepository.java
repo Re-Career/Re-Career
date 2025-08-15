@@ -19,4 +19,7 @@ public interface UserPersonalityTagRepository extends JpaRepository<UserPersonal
     void deleteByUserId(@Param("userId") Long userId);
     
     int countByUserId(Long userId);
+    
+    @Query("SELECT upt FROM UserPersonalityTag upt JOIN FETCH upt.personalityTag WHERE upt.user.id IN :userIds")
+    List<UserPersonalityTag> findByUserIdInWithPersonalityTag(@Param("userIds") List<Long> userIds);
 }
