@@ -23,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const router = useRouter()
   const onCancelPress = () => {
-    sendMessageToNative({ type: WebViewMessageTypes.CLOSE_WEBVIEW })
+    router.back()
   }
 
   const handleBackPress = () => {

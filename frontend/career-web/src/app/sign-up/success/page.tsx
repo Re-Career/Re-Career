@@ -11,7 +11,6 @@ export default function SignUpSuccessPage() {
       const accessToken = await getToken()
 
       sendAuthTokensToNative(accessToken, '')
-      sendMessageToNative({ type: WebViewMessageTypes.CLOSE_WEBVIEW })
     }
 
     handleSuccess()
