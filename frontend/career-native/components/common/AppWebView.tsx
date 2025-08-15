@@ -84,33 +84,34 @@ const CareerWebView = (props: CareerWebViewProps) => {
     return process.env.EXPO_PUBLIC_WEB_APP_URL ?? DEFAULT_WEB_APP_URL
   }, [])
 
-  const onMessage = useCallback(async (event: WebViewMessageEvent) => {
-    try {
-      const { type, data } = JSON.parse(event.nativeEvent.data)
+  const onMessage = useCallback(
+    async (event: WebViewMessageEvent) => {
+      try {
+        const { type, data } = JSON.parse(event.nativeEvent.data)
 
-      const {
-        accessToken = '',
-        refreshToken = '',
-      } = (data || {}) as WebviewData
+        const { accessToken = '', refreshToken = '' } = (data ||
+          {}) as WebviewData
 
-      switch (type) {
-        case 'SAVE_AUTH':
-          //TODO: 저장시 에러 처리 추가
-          if (accessToken && refreshToken) {
-            saveTokens(accessToken, refreshToken)
-          }
-          break
+        switch (type) {
+          case 'SAVE_AUTH':
+            //TODO: 저장시 에러 처리 추가
+            if (accessToken && refreshToken) {
+              saveTokens(accessToken, refreshToken)
+            }
+            break
 
-        case 'CLEAR_TOKEN':
-          return clearTokens()
+          case 'CLEAR_TOKEN':
+            return clearTokens()
 
-        default:
-          return
+          default:
+            return
+        }
+      } catch (error) {
+        console.error(error)
       }
-    } catch (error) {
-      console.error(error)
-    }
-  }, [saveTokens, clearTokens])
+    },
+    [saveTokens, clearTokens]
+  )
 
   if (!isTokensReady) {
     return <></>

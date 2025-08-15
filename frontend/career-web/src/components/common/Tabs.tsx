@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useMemo } from 'react'
 import { GoHome, GoHomeFill, GoPerson, GoPersonFill } from 'react-icons/go'
 import { BsPeople, BsPeopleFill } from 'react-icons/bs'
 import Link from 'next/link'
@@ -33,20 +33,20 @@ const DEFAULT_TABS = [
 type TabsKey = (typeof DEFAULT_TABS)[number]['key']
 
 export default function Tabs() {
+  console.log('here')
   const pathname = usePathname()
 
-  const [activeTab, setActiveTab] = useState<TabsKey>('home')
-
-  useEffect(() => {
+  const activeTab: TabsKey = useMemo(() => {
     const currentPage = pathname.split('/')[1]
 
-    const tabKeys = DEFAULT_TABS.map((tab) => tab.key)
-
     if (pathname === '/') {
-      setActiveTab('home')
-    } else if (tabKeys.includes(currentPage)) {
-      setActiveTab(currentPage)
+      return 'home'
+    } else if (currentPage === 'matching') {
+      return 'matching'
+    } else if (currentPage === 'my-page') {
+      return 'my-page'
     }
+    return 'home'
   }, [pathname])
 
   return (
