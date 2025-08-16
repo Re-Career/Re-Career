@@ -9,7 +9,7 @@ export const getTrendJobs = async (): Promise<DefaultJob[]> => {
   return data
 }
 
-export const getJobDetail = async (id: number): Promise<JobDetail> => {
+export const getJobDetail = async (id: string): Promise<JobDetail> => {
   const { data } = await fetchUrl(`/positions/${id}`)
 
   return data

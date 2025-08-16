@@ -6,7 +6,7 @@ export const searchMentors: Mentor[] = [
     name: '김지연',
     job: '시니어 소프트웨어 엔지니어',
     email: 'example@gmail.com',
-    profileImage:
+    profileImageUrl:
       'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&h=120&fit=crop&crop=face',
     company: '카카오',
     experience: 8,
@@ -19,7 +19,7 @@ export const searchMentors: Mentor[] = [
     name: '박서영',
     job: '프로덕트 매니저',
     email: 'example@gmail.com',
-    profileImage:
+    profileImageUrl:
       'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&h=120&fit=crop&crop=face',
     company: '네이버',
     experience: 6,
@@ -32,7 +32,7 @@ export const searchMentors: Mentor[] = [
     name: '이서연',
     job: 'UX/UI 디자이너',
     email: 'example@gmail.com',
-    profileImage:
+    profileImageUrl:
       'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&h=120&fit=crop&crop=face',
     company: '당근마켓',
     experience: 5,
@@ -45,7 +45,7 @@ export const searchMentors: Mentor[] = [
     name: '정수민',
     job: '데이터 사이언티스트',
     email: 'example@gmail.com',
-    profileImage:
+    profileImageUrl:
       'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&h=120&fit=crop&crop=face',
     company: '토스',
     experience: 4,
@@ -58,7 +58,7 @@ export const searchMentors: Mentor[] = [
     name: '최예린',
     job: '마케팅 매니저',
     email: 'example@gmail.com',
-    profileImage:
+    profileImageUrl:
       'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&fit=crop&crop=face',
     company: '배달의민족',
     experience: 7,
@@ -71,7 +71,7 @@ export const searchMentors: Mentor[] = [
     name: '강수현',
     job: '스타트업 CEO',
     email: 'example@gmail.com',
-    profileImage:
+    profileImageUrl:
       'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&h=120&fit=crop&crop=face',
     company: '자체 창업',
     experience: 10,
@@ -84,7 +84,7 @@ export const searchMentors: Mentor[] = [
     name: '윤하영',
     job: '백엔드 개발자',
     email: 'example@gmail.com',
-    profileImage:
+    profileImageUrl:
       'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&h=120&fit=crop&crop=face',
     company: '라인',
     experience: 5,
@@ -97,7 +97,7 @@ export const searchMentors: Mentor[] = [
     name: '송미영',
     job: '프론트엔드 개발자',
     email: 'example@gmail.com',
-    profileImage:
+    profileImageUrl:
       'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&h=120&fit=crop&crop=face',
     company: '쿠팡',
     experience: 6,
