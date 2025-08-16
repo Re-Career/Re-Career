@@ -19,8 +19,8 @@ const MentorList = () => {
             >
               <div className="h-32 w-32 flex-shrink-0 overflow-hidden rounded-full">
                 <Image
-                  src={mentor.profileImage}
-                  alt={mentor.name}
+                  src={mentor.profileImageUrl}
+                  alt={`mentor_by_region_${mentor.id}`}
                   width={128}
                   height={128}
                   className="h-full w-full object-cover"

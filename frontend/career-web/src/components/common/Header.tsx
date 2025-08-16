@@ -33,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white">
+    <header className="fixed top-0 left-0 right-0 z-70 mx-auto max-w-[450px] bg-white">
       <div className="relative flex h-14 items-center justify-between px-4">
         <div className="flex flex-1 items-start">
           {showBackButton && (

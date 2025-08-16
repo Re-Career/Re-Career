@@ -19,7 +19,7 @@ export interface Mentor {
   name: string
   job: string
   email: string
-  profileImage: string
+  profileImageUrl: string
   company?: string
   experience?: number
   location?: string
