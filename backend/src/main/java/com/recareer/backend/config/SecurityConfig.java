@@ -14,8 +14,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 
 @Configuration
@@ -54,15 +54,32 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L); // preflight 요청 캐시 시간 (1시간)
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
+        return new CorsConfigurationSource() {
+            @Override
+            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                CorsConfiguration configuration = new CorsConfiguration();
+                
+                String userAgent = request.getHeader("User-Agent");
+                if (userAgent != null && userAgent.contains("CareerApp-WebView")) {
+                    // CareerApp-WebView인 경우 Origin 헤더에서 동적으로 설정
+                    String origin = request.getHeader("Origin");
+                    if (origin != null) {
+                        configuration.setAllowedOrigins(Arrays.asList(origin));
+                    } else {
+                        configuration.setAllowedOrigins(Arrays.asList("*"));
+                    }
+                } else {
+                    // 일반적인 경우 설정된 allowed-origins 사용
+                    configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+                }
+                
+                configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+                configuration.setAllowedHeaders(Arrays.asList("*"));
+                configuration.setAllowCredentials(true);
+                configuration.setMaxAge(3600L); // preflight 요청 캐시 시간 (1시간)
+                
+                return configuration;
+            }
+        };
     }
 }
