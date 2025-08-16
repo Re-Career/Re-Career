@@ -37,7 +37,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserInfoDto getUserProfile(String providerId) {
         User user = userRepository.findByProviderId(providerId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
         
         // 사용자의 성향 태그 조회
         List<PersonalityTagDto> personalityTags = userPersonalityTagRepository.findByUserId(user.getId())
@@ -80,7 +80,7 @@ public class UserService {
 
     public String updateProfileImage(String providerId, MultipartFile file) throws IOException {
         User user = userRepository.findByProviderId(providerId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
         // 기존 프로필 이미지가 있다면 S3에서 삭제
         if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
@@ -104,7 +104,7 @@ public class UserService {
 
     public void deleteProfileImage(String providerId) {
         User user = userRepository.findByProviderId(providerId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
         if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
             try {
@@ -123,7 +123,7 @@ public class UserService {
 
     public UserInfoDto updateUserProfile(String providerId, UpdateUserProfileDto request) {
         User user = userRepository.findByProviderId(providerId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
         // 이메일 중복 검사 (현재 사용자 제외)
         if (!request.getEmail().equals(user.getEmail()) && 
@@ -160,7 +160,7 @@ public class UserService {
 
     public void updateUserPersonalityTags(String providerId, UpdateUserPersonalityTagsDto request) {
         User user = userRepository.findByProviderId(providerId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
         // 5개 초과 체크
         if (request.getPersonalityTagIds().size() > 5) {
@@ -192,5 +192,11 @@ public class UserService {
         userPersonalityTagRepository.saveAll(userPersonalityTags);
         
         log.info("User personality tags updated for user: {} with {} tags", providerId, request.getPersonalityTagIds().size());
+    }
+
+    @Transactional(readOnly = true)
+    public User findByProviderId(String providerId) {
+        return userRepository.findByProviderId(providerId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
     }
 }

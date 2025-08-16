@@ -1,9 +1,12 @@
 package com.recareer.backend.mentor.controller;
 
+import com.recareer.backend.availableTime.dto.AvailableTimeResponseDto;
 import com.recareer.backend.availableTime.entity.AvailableTime;
 import com.recareer.backend.mentor.dto.MentorListResponseDto;
+import com.recareer.backend.mentor.dto.MentorUpdateResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.service.MentorService;
+import com.recareer.backend.reservation.dto.ReservationListResponseDto;
 import com.recareer.backend.reservation.entity.Reservation;
 import com.recareer.backend.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,41 +57,47 @@ public class MentorController {
 
     @PutMapping("/{id}")
     @Operation(summary = "멘토 정보 수정", description = "멘토의 마이 페이지에서 개인정보를 수정합니다 ")
-    public ResponseEntity<ApiResponse<Mentor>> updateMentor(
+    public ResponseEntity<ApiResponse<MentorUpdateResponseDto>> updateMentor(
             @PathVariable Long id,
             @RequestParam String position,
             @RequestParam String description) {
         return mentorService.updateMentor(id, position, description)
-                .map(mentor -> ResponseEntity.ok(ApiResponse.success("멘토 정보가 성공적으로 수정되었습니다.", mentor)))
+                .map(mentor -> ResponseEntity.ok(ApiResponse.success("멘토 정보가 성공적으로 수정되었습니다.", MentorUpdateResponseDto.from(mentor))))
                 .orElse(ResponseEntity.status(404).body(ApiResponse.error("해당 멘토를 찾을 수 없습니다.")));
     }
 
     @GetMapping("/{id}/reservations")
     @Operation(summary = "멘토별 예약 목록 조회", description = "멘토별 예정된 상담을 조회합니다")
-    public ResponseEntity<ApiResponse<List<Reservation>>> getMentorReservations(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<List<ReservationListResponseDto>>> getMentorReservations(@PathVariable Long id) {
         List<Reservation> reservations = mentorService.getMentorReservations(id);
+        List<ReservationListResponseDto> reservationDtos = reservations.stream()
+                .map(ReservationListResponseDto::from)
+                .toList();
 
-        return ResponseEntity.ok(ApiResponse.success(reservations));
+        return ResponseEntity.ok(ApiResponse.success(reservationDtos));
     }
 
     @GetMapping("/{id}/available-times")
     @Operation(summary = "멘토별 가능 시간 조회", description = "각 멘토 별 멘토링이 가능한 시간대를 조회합니다")
-    public ResponseEntity<ApiResponse<List<AvailableTime>>> getMentorAvailableTimes(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<List<AvailableTimeResponseDto>>> getMentorAvailableTimes(@PathVariable Long id) {
         List<AvailableTime> availableTimes = mentorService.getMentorAvailableTimes(id);
+        List<AvailableTimeResponseDto> availableTimeDtos = availableTimes.stream()
+                .map(AvailableTimeResponseDto::from)
+                .toList();
 
-        return ResponseEntity.ok(ApiResponse.success(availableTimes));
+        return ResponseEntity.ok(ApiResponse.success(availableTimeDtos));
     }
 
     @PostMapping("/{id}/available-times")
     @Operation(summary = "멘토 가능 시간 생성", description = "각 멘토 별 멘토링이 가능한 시간대를 추가합니다")
-    public ResponseEntity<ApiResponse<AvailableTime>> createMentorAvailableTime(
+    public ResponseEntity<ApiResponse<AvailableTimeResponseDto>> createMentorAvailableTime(
             @PathVariable Long id,
             @RequestParam String availableTime) {
         try {
             LocalDateTime dateTime = LocalDateTime.parse(availableTime);
             AvailableTime newAvailableTime = mentorService.createMentorAvailableTime(id, dateTime);
 
-            return ResponseEntity.ok(ApiResponse.success("멘토 가능 시간이 성공적으로 추가되었습니다.", newAvailableTime));
+            return ResponseEntity.ok(ApiResponse.success("멘토 가능 시간이 성공적으로 추가되었습니다.", AvailableTimeResponseDto.from(newAvailableTime)));
         } catch (IllegalArgumentException e) {
             log.error("Create mentor available time failed: {}", e.getMessage());
 

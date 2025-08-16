@@ -10,17 +10,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MentorListResponseDto {
+public class MentorUpdateResponseDto {
 
     private Long id;
-    private String name;
     private String position;
     private String description;
 
-    public static MentorListResponseDto from(Mentor mentor) {
-        return MentorListResponseDto.builder()
+    public static MentorUpdateResponseDto from(Mentor mentor) {
+        return MentorUpdateResponseDto.builder()
                 .id(mentor.getId())
-                .name(mentor.getUser().getName())
                 .position(mentor.getPosition())
                 .description(mentor.getDescription())
                 .build();
