@@ -2,7 +2,9 @@ package com.recareer.backend.mentor.controller;
 
 import com.recareer.backend.availableTime.repository.AvailableTimeRepository;
 import com.recareer.backend.mentor.entity.Mentor;
+import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.repository.MentorRepository;
+import com.recareer.backend.auth.service.JwtTokenProvider;
 import com.recareer.backend.user.entity.Role;
 import com.recareer.backend.user.entity.User;
 import com.recareer.backend.user.entity.UserPersonalityTag;
@@ -56,6 +58,9 @@ class MentorControllerTest {
     @Autowired
     private UserPersonalityTagRepository userPersonalityTagRepository;
 
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
     private User mentorUser;
     private Mentor mentor;
 
@@ -80,6 +85,8 @@ class MentorControllerTest {
                 .user(mentorUser)
                 .position("시니어 백엔드 개발자")
                 .description("5년차 백엔드 개발자입니다.")
+                .experience(5)
+                .mentoringType(MentoringType.BOTH)
                 .isVerified(true)
                 .build();
 
@@ -174,8 +181,8 @@ class MentorControllerTest {
                 .build();
         mentorRepository.save(mentor5);
 
-        // API 테스트
-        mockMvc.perform(get("/mentors/region")
+        // API 테스트 (변경된 엔드포인트)
+        mockMvc.perform(get("/mentors/filter")
                         .param("region", "강남")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -314,7 +321,7 @@ class MentorControllerTest {
         userPersonalityTagRepository.save(mentor3Tag);
 
         // 성향 매칭이 적용된 API 테스트
-        mockMvc.perform(get("/mentors/region")
+        mockMvc.perform(get("/mentors/filter")
                         .param("region", "강남")
                         .param("personalityTags", tag1.getId().toString(), tag2.getId().toString())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -332,7 +339,7 @@ class MentorControllerTest {
                 });
 
         // 성향 매칭 없이 호출 (기존 방식)
-        mockMvc.perform(get("/mentors/region")
+        mockMvc.perform(get("/mentors/filter")
                         .param("region", "강남")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -465,5 +472,290 @@ class MentorControllerTest {
                 .andExpect(jsonPath("$.message").value("요청이 성공적으로 처리되었습니다."))
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    @DisplayName("필터 조건으로 멘토 조회 - 모든 필터 적용")
+    void getMentorsByFilter_AllFilters() throws Exception {
+        // 추가 멘토 생성 (다른 조건들)
+        User mentor2User = User.builder()
+                .name("김프론트")
+                .email("frontend@test.com")
+                .role(Role.MENTOR)
+                .provider("google")
+                .providerId("frontend123")
+                .region("서울시 강남구")
+                .build();
+        userRepository.save(mentor2User);
+
+        Mentor mentor2 = Mentor.builder()
+                .id(mentor2User.getId())
+                .user(mentor2User)
+                .position("프론트엔드 개발자")
+                .description("React 전문가입니다.")
+                .experience(3)
+                .mentoringType(MentoringType.ONLINE)
+                .isVerified(true)
+                .build();
+        mentorRepository.save(mentor2);
+
+        // 모든 필터 적용 테스트
+        mockMvc.perform(get("/mentors/filter")
+                        .param("region", "강남")
+                        .param("position", "백엔드")
+                        .param("experience", "4-6년")
+                        .param("mentoringType", "BOTH")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].name").value("테스트 멘토"))
+                .andExpect(jsonPath("$.data[0].position").value("시니어 백엔드 개발자"));
+    }
+
+    @Test
+    @DisplayName("필터 조건으로 멘토 조회 - 직업 필터만")
+    void getMentorsByFilter_PositionOnly() throws Exception {
+        mockMvc.perform(get("/mentors/filter")
+                        .param("region", "강남")
+                        .param("position", "백엔드")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].position").value("시니어 백엔드 개발자"));
+    }
+
+    @Test
+    @DisplayName("필터 조건으로 멘토 조회 - 경력 필터만")
+    void getMentorsByFilter_ExperienceOnly() throws Exception {
+        mockMvc.perform(get("/mentors/filter")
+                        .param("region", "강남")
+                        .param("experience", "4-6년")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].name").value("테스트 멘토"));
+    }
+
+    @Test
+    @DisplayName("필터 조건으로 멘토 조회 - 멘토링 타입 필터만")
+    void getMentorsByFilter_MentoringTypeOnly() throws Exception {
+        mockMvc.perform(get("/mentors/filter")
+                        .param("region", "강남")
+                        .param("mentoringType", "ONLINE")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1))); // BOTH는 ONLINE 요청에 매칭됨
+    }
+
+    @Test
+    @DisplayName("필터 조건으로 멘토 조회 - 매칭되지 않는 경우")
+    void getMentorsByFilter_NoMatch() throws Exception {
+        mockMvc.perform(get("/mentors/filter")
+                        .param("region", "강남")
+                        .param("position", "데이터과학자")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+
+    @Test
+    @DisplayName("필터 조건으로 멘토 조회 - 경력 범위 테스트")
+    void getMentorsByFilter_ExperienceRanges() throws Exception {
+        // 다양한 경력의 멘토들 생성
+        User mentor3YearsUser = User.builder()
+                .name("3년차멘토")
+                .email("3years@test.com")
+                .role(Role.MENTOR)
+                .provider("google")
+                .providerId("3years123")
+                .region("서울시 강남구")
+                .build();
+        userRepository.save(mentor3YearsUser);
+
+        Mentor mentor3Years = Mentor.builder()
+                .id(mentor3YearsUser.getId())
+                .user(mentor3YearsUser)
+                .position("주니어 개발자")
+                .description("3년차 개발자입니다.")
+                .experience(3)
+                .mentoringType(MentoringType.ONLINE)
+                .isVerified(true)
+                .build();
+        mentorRepository.save(mentor3Years);
+
+        User mentor10YearsUser = User.builder()
+                .name("10년차멘토")
+                .email("10years@test.com")
+                .role(Role.MENTOR)
+                .provider("google")
+                .providerId("10years123")
+                .region("서울시 강남구")
+                .build();
+        userRepository.save(mentor10YearsUser);
+
+        Mentor mentor10Years = Mentor.builder()
+                .id(mentor10YearsUser.getId())
+                .user(mentor10YearsUser)
+                .position("시니어 개발자")
+                .description("10년차 개발자입니다.")
+                .experience(10)
+                .mentoringType(MentoringType.OFFLINE)
+                .isVerified(true)
+                .build();
+        mentorRepository.save(mentor10Years);
+
+        // 1-3년 경력 필터 테스트
+        mockMvc.perform(get("/mentors/filter")
+                        .param("region", "강남")
+                        .param("experience", "1-3년")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].name").value("3년차멘토"));
+
+        // 7년 이상 경력 필터 테스트
+        mockMvc.perform(get("/mentors/filter")
+                        .param("region", "강남")
+                        .param("experience", "7년 이상")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].name").value("10년차멘토"));
+    }
+
+    @Test
+    @DisplayName("필터 조건으로 멘토 조회 - personalityTags 포함")
+    void getMentorsByFilter_WithPersonalityTags() throws Exception {
+        // PersonalityTag 생성
+        PersonalityTag tag1 = PersonalityTag.builder()
+                .name("적극적")
+                .build();
+        personalityTagRepository.save(tag1);
+
+        // 멘토에게 성향 태그 추가
+        UserPersonalityTag mentorTag = UserPersonalityTag.builder()
+                .user(mentorUser)
+                .personalityTag(tag1)
+                .build();
+        userPersonalityTagRepository.save(mentorTag);
+
+        mockMvc.perform(get("/mentors/filter")
+                        .param("region", "강남")
+                        .param("position", "백엔드")
+                        .param("personalityTags", tag1.getId().toString())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].name").value("테스트 멘토"))
+                .andExpect(jsonPath("$.data[0].position").value("시니어 백엔드 개발자"));
+    }
+
+    @Test
+    @DisplayName("필터 조건으로 멘토 조회 - 복합 필터 (경력 + 멘토링타입 + 성향태그)")
+    void getMentorsByFilter_ComplexFilters() throws Exception {
+        // PersonalityTag 생성
+        PersonalityTag tag1 = PersonalityTag.builder()
+                .name("분석적")
+                .build();
+        personalityTagRepository.save(tag1);
+
+        // 멘토에게 성향 태그 추가
+        UserPersonalityTag mentorTag = UserPersonalityTag.builder()
+                .user(mentorUser)
+                .personalityTag(tag1)
+                .build();
+        userPersonalityTagRepository.save(mentorTag);
+
+        mockMvc.perform(get("/mentors/filter")
+                        .param("region", "강남")
+                        .param("experience", "4-6년")
+                        .param("mentoringType", "ONLINE")  // BOTH는 ONLINE 요청에 매칭됨
+                        .param("personalityTags", tag1.getId().toString())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].name").value("테스트 멘토"));
+    }
+
+    @Test
+    @DisplayName("추천 멘토 조회 API 테스트 - 유효한 토큰")
+    void getRecommendedMentors_ValidToken() throws Exception {
+        // PersonalityTag 생성
+        PersonalityTag tag1 = PersonalityTag.builder()
+                .name("적극적")
+                .build();
+        personalityTagRepository.save(tag1);
+
+        // 테스트 사용자 생성
+        User testUser = User.builder()
+                .name("테스트 유저")
+                .email("testuser@test.com")
+                .role(Role.USER)
+                .provider("google")
+                .providerId("testuser123")
+                .region("서울시 강남구")
+                .build();
+        userRepository.save(testUser);
+
+        // 사용자에게 성향 태그 추가
+        UserPersonalityTag userTag = UserPersonalityTag.builder()
+                .user(testUser)
+                .personalityTag(tag1)
+                .build();
+        userPersonalityTagRepository.save(userTag);
+
+        // 멘토에게도 같은 성향 태그 추가
+        UserPersonalityTag mentorTag = UserPersonalityTag.builder()
+                .user(mentorUser)
+                .personalityTag(tag1)
+                .build();
+        userPersonalityTagRepository.save(mentorTag);
+
+        // JWT 토큰 생성
+        String accessToken = jwtTokenProvider.createAccessToken("testuser123", "ROLE_USER");
+
+        mockMvc.perform(get("/mentors/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .param("region", "강남")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].name").value("테스트 멘토"));
+    }
+
+    @Test
+    @DisplayName("추천 멘토 조회 API 테스트 - 유효하지 않은 토큰")
+    void getRecommendedMentors_InvalidToken() throws Exception {
+        mockMvc.perform(get("/mentors/recommended")
+                        .header("Authorization", "Bearer invalid_token")
+                        .param("region", "강남")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Invalid access token"));
+    }
+
+    @Test
+    @DisplayName("추천 멘토 조회 API 테스트 - 존재하지 않는 사용자")
+    void getRecommendedMentors_UserNotFound() throws Exception {
+        // 존재하지 않는 providerId로 토큰 생성
+        String accessToken = jwtTokenProvider.createAccessToken("nonexistent123", "ROLE_USER");
+
+        mockMvc.perform(get("/mentors/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .param("region", "강남")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").value("추천 멘토 조회에 실패했습니다."));
     }
 }
