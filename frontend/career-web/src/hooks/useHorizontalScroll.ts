@@ -9,8 +9,9 @@ export const useHorizontalScroll = () => {
 
   const handleMouseDown = useCallback((e: MouseEvent) => {
     const slider = scrollRef.current
+
     if (!slider) return
-    
+
     isDown.current = true
     hasMoved.current = false
     slider.style.cursor = 'grabbing'
@@ -21,37 +22,41 @@ export const useHorizontalScroll = () => {
 
   const handleMouseLeave = useCallback(() => {
     const slider = scrollRef.current
+
     if (!slider) return
-    
+
     isDown.current = false
     slider.style.cursor = 'grab'
   }, [])
 
   const handleMouseUp = useCallback(() => {
     const slider = scrollRef.current
+
     if (!slider) return
-    
+
     isDown.current = false
     slider.style.cursor = 'grab'
   }, [])
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const slider = scrollRef.current
+
     if (!slider || !isDown.current) return
-    
+
     e.preventDefault()
     const x = e.pageX - slider.offsetLeft
     const walk = (x - startX.current) * 1.5
-    
+
     if (Math.abs(walk) > 3) {
       hasMoved.current = true
     }
-    
+
     slider.scrollLeft = scrollLeft.current - walk
   }, [])
 
   useEffect(() => {
     const slider = scrollRef.current
+
     if (!slider) return
 
     const handleClick = (e: MouseEvent) => {
