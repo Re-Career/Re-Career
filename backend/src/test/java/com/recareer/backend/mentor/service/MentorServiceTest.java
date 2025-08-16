@@ -2,6 +2,7 @@ package com.recareer.backend.mentor.service;
 
 import com.recareer.backend.availableTime.entity.AvailableTime;
 import com.recareer.backend.mentor.entity.Mentor;
+import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.repository.MentorRepository;
 import com.recareer.backend.reservation.entity.Reservation;
 import com.recareer.backend.user.entity.Role;
@@ -86,6 +87,8 @@ class MentorServiceTest {
                 .user(mentorUser)
                 .position("시니어 백엔드 개발자")
                 .description("5년차 백엔드 개발자입니다. Spring Boot 전문가입니다.")
+                .experience(5)
+                .mentoringType(MentoringType.BOTH)
                 .isVerified(true)
                 .build();
         
@@ -242,5 +245,136 @@ class MentorServiceTest {
         
         assertThat(result).hasSize(1);
         assertThat(result.getFirst().getUser().getRegion()).contains("강남");
+    }
+
+    @Test
+    @DisplayName("필터 조건으로 멘토 조회 - 모든 필터 적용")
+    void getMentorsByFilters_AllFilters() {
+        List<Mentor> result = mentorService.getMentorsByFilters("강남", "백엔드", "4-6년", MentoringType.BOTH, null);
+        
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getPosition()).contains("백엔드");
+        assertThat(result.getFirst().getExperience()).isEqualTo(5);
+        assertThat(result.getFirst().getMentoringType()).isEqualTo(MentoringType.BOTH);
+    }
+
+    @Test
+    @DisplayName("필터 조건으로 멘토 조회 - 직업 필터만")
+    void getMentorsByFilters_PositionOnly() {
+        List<Mentor> result = mentorService.getMentorsByFilters("강남", "백엔드", null, null, null);
+        
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getPosition()).contains("백엔드");
+    }
+
+    @Test
+    @DisplayName("필터 조건으로 멘토 조회 - 경력 필터만")
+    void getMentorsByFilters_ExperienceOnly() {
+        List<Mentor> result = mentorService.getMentorsByFilters("강남", null, "4-6년", null, null);
+        
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getExperience()).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("필터 조건으로 멘토 조회 - 멘토링 타입 필터만")
+    void getMentorsByFilters_MentoringTypeOnly() {
+        List<Mentor> result = mentorService.getMentorsByFilters("강남", null, null, MentoringType.ONLINE, null);
+        
+        // MentoringType.BOTH는 ONLINE 요청에도 매칭되어야 함
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getMentoringType()).isEqualTo(MentoringType.BOTH);
+    }
+
+    @Test
+    @DisplayName("필터 조건으로 멘토 조회 - 매칭되지 않는 경우")
+    void getMentorsByFilters_NoMatch() {
+        List<Mentor> result = mentorService.getMentorsByFilters("강남", "프론트엔드", null, null, null);
+        
+        assertThat(result).isEmpty();
+    }
+
+
+    @Test
+    @DisplayName("경력 범위 필터링 테스트 - 1-3년")
+    void getMentorsByFilters_ExperienceRange_1To3Years() {
+        // 3년 경력 멘토 추가
+        User mentor2User = User.builder()
+                .name("3년차 멘토")
+                .email("3years@test.com")
+                .role(Role.MENTOR)
+                .provider("google")
+                .providerId("3years123")
+                .region("서울시 강남구")
+                .build();
+        userRepository.save(mentor2User);
+
+        Mentor mentor2 = Mentor.builder()
+                .id(mentor2User.getId())
+                .user(mentor2User)
+                .position("주니어 개발자")
+                .description("3년차 개발자입니다.")
+                .experience(3)
+                .mentoringType(MentoringType.ONLINE)
+                .isVerified(true)
+                .build();
+        mentorRepository.save(mentor2);
+
+        List<Mentor> result = mentorService.getMentorsByFilters("강남", null, "1-3년", null, null);
+        
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getExperience()).isEqualTo(3);
+        assertThat(result.getFirst().getUser().getName()).isEqualTo("3년차 멘토");
+    }
+
+    @Test
+    @DisplayName("경력 범위 필터링 테스트 - 7년 이상")
+    void getMentorsByFilters_ExperienceRange_7YearsPlus() {
+        // 10년 경력 멘토 추가
+        User mentor3User = User.builder()
+                .name("10년차 멘토")
+                .email("10years@test.com")
+                .role(Role.MENTOR)
+                .provider("google")
+                .providerId("10years123")
+                .region("서울시 강남구")
+                .build();
+        userRepository.save(mentor3User);
+
+        Mentor mentor3 = Mentor.builder()
+                .id(mentor3User.getId())
+                .user(mentor3User)
+                .position("시니어 개발자")
+                .description("10년차 개발자입니다.")
+                .experience(10)
+                .mentoringType(MentoringType.OFFLINE)
+                .isVerified(true)
+                .build();
+        mentorRepository.save(mentor3);
+
+        List<Mentor> result = mentorService.getMentorsByFilters("강남", null, "7년 이상", null, null);
+        
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getExperience()).isEqualTo(10);
+        assertThat(result.getFirst().getUser().getName()).isEqualTo("10년차 멘토");
+    }
+
+    @Test
+    @DisplayName("필터 조건으로 멘토 조회 - personalityTags 포함")
+    void getMentorsByFilters_WithPersonalityTags() {
+        // 성향 태그 생성
+        List<PersonalityTag> tags = personalityTagRepository.findAll();
+        Long tag1Id = tags.stream()
+                .filter(tag -> "적극적".equals(tag.getName()))
+                .map(PersonalityTag::getId)
+                .findFirst()
+                .orElseThrow();
+
+        List<Mentor> result = mentorService.getMentorsByFilters("강남", "백엔드", "4-6년", MentoringType.BOTH, List.of(tag1Id));
+        
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getPosition()).contains("백엔드");
+        assertThat(result.getFirst().getExperience()).isEqualTo(5);
+        assertThat(result.getFirst().getMentoringType()).isEqualTo(MentoringType.BOTH);
     }
 }
