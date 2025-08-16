@@ -3,6 +3,7 @@ package com.recareer.backend.mentor.service;
 import com.recareer.backend.availableTime.entity.AvailableTime;
 import com.recareer.backend.availableTime.repository.AvailableTimeRepository;
 import com.recareer.backend.mentor.entity.Mentor;
+import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.repository.MentorRepository;
 import com.recareer.backend.reservation.entity.Reservation;
 import com.recareer.backend.reservation.repository.ReservationRepository;
@@ -86,11 +87,76 @@ public class MentorServiceImpl implements MentorService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Mentor> getMentorsByFilters(String region, String position, String experience, MentoringType mentoringType, List<Long> personalityTags) {
+        if (region == null || region.trim().isEmpty()) {
+            region = DEFAULT_REGION;
+        }
+
+        log.info("Finding mentors with filters - region: {}, position: {}, experience: {}, mentoringType: {}, personalityTags: {}", 
+                region, position, experience, mentoringType, personalityTags);
+
+        List<Mentor> mentors;
+        
+        if (personalityTags != null && !personalityTags.isEmpty()) {
+            // personalityTags가 있으면 기존 매칭 로직 사용
+            mentors = getMentorsByRegionAndPersonalityTags(region, personalityTags);
+        } else {
+            // personalityTags가 없으면 기본 지역 조회
+            mentors = mentorRepository.findByIsVerifiedTrueAndUserRegionContainsWithUser(region);
+        }
+
+        return mentors.stream()
+                .filter(mentor -> {
+                    if (position != null && !position.trim().isEmpty()) {
+                        return mentor.getPosition() != null && 
+                               mentor.getPosition().toLowerCase().contains(position.toLowerCase());
+                    }
+                    return true;
+                })
+                .filter(mentor -> {
+                    if (experience != null && !experience.trim().isEmpty()) {
+                        return matchesExperienceRange(mentor.getExperience(), experience);
+                    }
+                    return true;
+                })
+                .filter(mentor -> {
+                    if (mentoringType != null) {
+                        return mentor.getMentoringType() != null && 
+                               (mentor.getMentoringType().equals(mentoringType) || 
+                                mentor.getMentoringType().equals(MentoringType.BOTH));
+                    }
+                    return true;
+                })
+                .sorted((mentor1, mentor2) -> {
+                    if (personalityTags != null && !personalityTags.isEmpty()) {
+                        // personalityTags가 있으면 매칭 수에 따라 정렬 (이미 정렬된 상태)
+                        return 0;
+                    }
+                    return mentor1.getCreatedDate().compareTo(mentor2.getCreatedDate());
+                })
+                .toList();
+    }
+
+    private boolean matchesExperienceRange(Integer mentorExperience, String experienceRange) {
+        if (mentorExperience == null) {
+            return false;
+        }
+        
+        return switch (experienceRange) {
+            case "1-3년" -> mentorExperience >= 1 && mentorExperience <= 3;
+            case "4-6년" -> mentorExperience >= 4 && mentorExperience <= 6;
+            case "7년 이상" -> mentorExperience >= 7;
+            default -> true;
+        };
+    }
+
+    @Override
     @Transactional
     public Optional<Mentor> updateMentor(Long id, String position, String description) {
         return mentorRepository.findById(id)
                 .map(mentor -> {
-                    mentor.update(position, description);
+                    mentor.update(position, description, mentor.getExperience(), mentor.getMentoringType());
                     return mentorRepository.save(mentor);
                 });
     }

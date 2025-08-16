@@ -33,9 +33,18 @@ public class Mentor extends BaseTimeEntity {
   @Column(name = "is_verified", nullable = false)
   private Boolean isVerified = false;
 
-  public Mentor update(String position, String description) {
+  @Column(name = "experience")
+  private Integer experience;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "mentoring_type")
+  private MentoringType mentoringType;
+
+  public Mentor update(String position, String description, Integer experience, MentoringType mentoringType) {
     this.position = position;
     this.description = description;
+    this.experience = experience;
+    this.mentoringType = mentoringType;
     return this;
   }
 }
