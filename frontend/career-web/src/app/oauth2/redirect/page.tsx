@@ -11,7 +11,7 @@ const AuthRedirectPage = () => {
 
   useEffect(() => {
     sendAuthTokensToNative(accessToken as string, refreshToken as string)
-  }, [])
+  }, [accessToken, refreshToken])
 
   return <></>
 }

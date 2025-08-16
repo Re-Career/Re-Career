@@ -1,6 +1,5 @@
 import React from 'react'
 import Image from 'next/image'
-import { trendJobs } from '@/mocks/home/trend-job-list'
 import Link from 'next/link'
 import HorizontalScroll from '@/components/common/HorizontalScroll'
 import { getTrendJobs } from '@/services/positions'

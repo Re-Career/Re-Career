@@ -11,5 +11,6 @@ export const getUserProfile = async (): Promise<User> => {
       'Content-Type': 'application/json',
     },
   })
+
   return data
 }

@@ -45,6 +45,7 @@ export default function Tabs() {
     } else if (currentPage === 'my-page') {
       return 'my-page'
     }
+
     return 'home'
   }, [pathname])
 
@@ -55,6 +56,7 @@ export default function Tabs() {
           ({ key, name, icon: Icon, filledIcon: FilledIcon, href }) => {
             const isActive = activeTab === key
             const IconComponent = isActive ? FilledIcon : Icon
+
             return (
               <Link
                 key={key}

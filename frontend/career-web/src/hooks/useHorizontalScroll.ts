@@ -8,6 +8,7 @@ export const useHorizontalScroll = () => {
 
   useEffect(() => {
     const slider = scrollRef.current
+
     if (!slider) return
 
     const handleMouseDown = (e: MouseEvent) => {
@@ -32,6 +33,7 @@ export const useHorizontalScroll = () => {
       e.preventDefault()
       const x = e.pageX - slider.offsetLeft
       const walk = (x - startX.current) * 2
+
       slider.scrollLeft = scrollLeft.current - walk
     }
 
