@@ -13,7 +13,7 @@ public interface MentorService {
     
     Optional<Mentor> getVerifiedMentorById(Long id);
 
-    List<Mentor> getMentorsByRegionAndPersonalityTags(String region, List<Long> personalityTagIds);
+    List<Mentor> getMentorsByRegionAndPersonalityTags(String region, String providerId);
 
     List<Mentor> getMentorsByFilters(String region, String position, String experience, MentoringType mentoringType, List<Long> personalityTags);
     

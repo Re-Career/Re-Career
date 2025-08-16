@@ -4,6 +4,7 @@ import com.recareer.backend.availableTime.repository.AvailableTimeRepository;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.repository.MentorRepository;
+import com.recareer.backend.auth.service.JwtTokenProvider;
 import com.recareer.backend.user.entity.Role;
 import com.recareer.backend.user.entity.User;
 import com.recareer.backend.user.entity.UserPersonalityTag;
@@ -56,6 +57,9 @@ class MentorControllerTest {
 
     @Autowired
     private UserPersonalityTagRepository userPersonalityTagRepository;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     private User mentorUser;
     private Mentor mentor;
@@ -681,5 +685,77 @@ class MentorControllerTest {
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data").value(hasSize(1)))
                 .andExpect(jsonPath("$.data[0].name").value("테스트 멘토"));
+    }
+
+    @Test
+    @DisplayName("추천 멘토 조회 API 테스트 - 유효한 토큰")
+    void getRecommendedMentors_ValidToken() throws Exception {
+        // PersonalityTag 생성
+        PersonalityTag tag1 = PersonalityTag.builder()
+                .name("적극적")
+                .build();
+        personalityTagRepository.save(tag1);
+
+        // 테스트 사용자 생성
+        User testUser = User.builder()
+                .name("테스트 유저")
+                .email("testuser@test.com")
+                .role(Role.USER)
+                .provider("google")
+                .providerId("testuser123")
+                .region("서울시 강남구")
+                .build();
+        userRepository.save(testUser);
+
+        // 사용자에게 성향 태그 추가
+        UserPersonalityTag userTag = UserPersonalityTag.builder()
+                .user(testUser)
+                .personalityTag(tag1)
+                .build();
+        userPersonalityTagRepository.save(userTag);
+
+        // 멘토에게도 같은 성향 태그 추가
+        UserPersonalityTag mentorTag = UserPersonalityTag.builder()
+                .user(mentorUser)
+                .personalityTag(tag1)
+                .build();
+        userPersonalityTagRepository.save(mentorTag);
+
+        // JWT 토큰 생성
+        String accessToken = jwtTokenProvider.createAccessToken("testuser123", "ROLE_USER");
+
+        mockMvc.perform(get("/mentors/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .param("region", "강남")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].name").value("테스트 멘토"));
+    }
+
+    @Test
+    @DisplayName("추천 멘토 조회 API 테스트 - 유효하지 않은 토큰")
+    void getRecommendedMentors_InvalidToken() throws Exception {
+        mockMvc.perform(get("/mentors/recommended")
+                        .header("Authorization", "Bearer invalid_token")
+                        .param("region", "강남")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Invalid access token"));
+    }
+
+    @Test
+    @DisplayName("추천 멘토 조회 API 테스트 - 존재하지 않는 사용자")
+    void getRecommendedMentors_UserNotFound() throws Exception {
+        // 존재하지 않는 providerId로 토큰 생성
+        String accessToken = jwtTokenProvider.createAccessToken("nonexistent123", "ROLE_USER");
+
+        mockMvc.perform(get("/mentors/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .param("region", "강남")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").value("추천 멘토 조회에 실패했습니다."));
     }
 }
