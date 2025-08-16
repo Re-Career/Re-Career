@@ -3,7 +3,6 @@ import MyMentoringList from '@/components/my-page/mentoring/MyMentoringList'
 import { getUserProfile } from '@/services/user'
 
 import Image from 'next/image'
-import { redirect } from 'next/navigation'
 import { GoPerson } from 'react-icons/go'
 
 const MyPagePage = async () => {
