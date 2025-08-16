@@ -1,23 +1,23 @@
 import React from 'react'
 import Image from 'next/image'
 import Header from '@/components/common/Header'
-import { searchMentors } from '@/mocks/home/mentors-search'
 import Link from 'next/link'
 import HorizontalScroll from '@/components/common/HorizontalScroll'
 import Filter from '@/components/matching/Filter'
 import { getFilteredMenters, getRecommenedMentors } from '@/services/mentor'
 
 interface MatchingPageProps {
-  searchParams: Record<string, string>
+  searchParams: Promise<Record<string, string>>
 }
 
-const MatchingPage = ({ searchParams }: MatchingPageProps) => {
-  const mentorName = searchParams.mentorName || ''
+const MatchingPage = async ({ searchParams }: MatchingPageProps) => {
+  const params = await searchParams
+  const mentorName = params.mentorName || ''
 
   // URL에서 필터 값 추출 - 동적으로 처리
   const filters: Record<string, string[]> = {}
 
-  Object.entries(searchParams).forEach(([key, value]) => {
+  Object.entries(params).forEach(([key, value]) => {
     if (key !== 'search' && value) {
       filters[key] = value.split(',')
     }
@@ -29,10 +29,12 @@ const MatchingPage = ({ searchParams }: MatchingPageProps) => {
   return (
     <>
       <Header title="멘토 찾기" />
-      {/* 검색 섹션 */}
+
       <div className="flex flex-col gap-4 pt-32 pb-4">
+        {/* 검색 섹션 */}
         <Filter initialFilters={filters} initialMentorName={mentorName} />
 
+        {/* 추천 멘토 리스트 */}
         <div className="border-b border-gray-100 pb-4">
           <h2 className="mb-4 px-4 text-lg font-bold text-gray-900">
             추천 매칭
