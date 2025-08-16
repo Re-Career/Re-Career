@@ -137,7 +137,7 @@ class MentorServiceTest {
     @Test
     @DisplayName("지역으로 멘토 검색 성공")
     void getMentorsByRegion_Success() {
-        List<Mentor> result = mentorService.getMentorsByRegionAndPersonalityTags("강남", null);
+        List<Mentor> result = mentorService.getMentorsByFilters("강남", null, null, null, null);
         
         assertThat(result).hasSize(1);
         assertThat(result.getFirst().getUser().getRegion()).contains("강남");
@@ -149,7 +149,7 @@ class MentorServiceTest {
         mentorUser.updateProfile("멘토 김철수", "mentor@test.com", "https://example.com/mentor.jpg", "서울시");
         userRepository.save(mentorUser);
         
-        List<Mentor> result = mentorService.getMentorsByRegionAndPersonalityTags(null, null);
+        List<Mentor> result = mentorService.getMentorsByFilters(null, null, null, null, null);
         
         assertThat(result).hasSize(1);
     }
@@ -220,7 +220,7 @@ class MentorServiceTest {
         User queryUser = User.builder()
                 .name("조회 사용자")
                 .email("query@test.com")
-                .role(Role.USER)
+                .role(Role.MENTEE)
                 .provider("google")
                 .providerId("queryuser123")
                 .profileImageUrl("https://example.com/query.jpg")
@@ -252,7 +252,7 @@ class MentorServiceTest {
     @Test
     @DisplayName("빈 personalityTags로 멘토 조회 시 전체 멘토 반환")
     void getMentorsByRegion_WithEmptyPersonalityTags() {
-        List<Mentor> result = mentorService.getMentorsByRegionAndPersonalityTags("강남", List.of());
+        List<Mentor> result = mentorService.getMentorsByFilters("강남", null, null, null, null);
         
         assertThat(result).hasSize(1);
         assertThat(result.getFirst().getUser().getRegion()).contains("강남");
@@ -403,7 +403,7 @@ class MentorServiceTest {
         User userWithoutTags = User.builder()
                 .name("태그 없는 사용자")
                 .email("notags@test.com")
-                .role(Role.USER)
+                .role(Role.MENTEE)
                 .provider("google")
                 .providerId("notags123")
                 .profileImageUrl("https://example.com/notags.jpg")

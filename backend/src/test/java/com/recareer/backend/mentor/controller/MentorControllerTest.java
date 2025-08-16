@@ -700,7 +700,7 @@ class MentorControllerTest {
         User testUser = User.builder()
                 .name("테스트 유저")
                 .email("testuser@test.com")
-                .role(Role.USER)
+                .role(Role.MENTEE)
                 .provider("google")
                 .providerId("testuser123")
                 .region("서울시 강남구")
