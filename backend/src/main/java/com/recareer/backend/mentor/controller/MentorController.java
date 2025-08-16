@@ -5,7 +5,9 @@ import com.recareer.backend.availableTime.entity.AvailableTime;
 import com.recareer.backend.mentor.dto.MentorListResponseDto;
 import com.recareer.backend.mentor.dto.MentorUpdateResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
+import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.service.MentorService;
+import com.recareer.backend.auth.service.JwtTokenProvider;
 import com.recareer.backend.reservation.dto.ReservationListResponseDto;
 import com.recareer.backend.reservation.entity.Reservation;
 import com.recareer.backend.response.ApiResponse;
@@ -27,23 +29,55 @@ import java.util.List;
 public class MentorController {
 
     private final MentorService mentorService;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @GetMapping("/region")
-    @Operation(summary = "지역, 성향별 인증된 멘토 조회", description = "사용자와 동일한 지역에 거주하며, 같은 성향을 가진 멘토 리스트를 조회합니다.")
-    public ResponseEntity<ApiResponse<List<MentorListResponseDto>>> getMentorsByRegion(
+    @GetMapping("/filter")
+    @Operation(summary = "필터 조건으로 인증된 멘토 조회", description = "지역, 직업, 경력, 멘토링 타입, 성향 태그로 필터링하여 인증된 멘토 리스트를 조회합니다.")
+    public ResponseEntity<ApiResponse<List<MentorListResponseDto>>> getMentorsByFilter(
             @RequestParam(required = false, defaultValue = "서울시") String region,
+            @RequestParam(required = false) String position,
+            @RequestParam(required = false) String experience,
+            @RequestParam(required = false) MentoringType mentoringType,
             @RequestParam(required = false) List<Long> personalityTags) {
         
         try {
-            List<Mentor> mentors = mentorService.getMentorsByRegionAndPersonalityTags(region, personalityTags);
+            List<Mentor> mentors = mentorService.getMentorsByFilters(region, position, experience, mentoringType, personalityTags);
+            List<MentorListResponseDto> mentorDtos = mentors.stream()
+                    .map(MentorListResponseDto::from)
+                    .toList();
+
+            return ResponseEntity.ok(ApiResponse.success(mentorDtos));
+            
+        } catch (Exception e) {
+            log.error("Get mentors by filters failed: {}", e.getMessage());
+            return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 조회에 실패했습니다."));
+        }
+    }
+
+    @GetMapping("/recommended")
+    @Operation(summary = "인증된 사용자 기반 추천 멘토 조회", description = "인증된 사용자의 성향 태그를 기반으로 추천 멘토를 조회합니다.")
+    public ResponseEntity<ApiResponse<List<MentorListResponseDto>>> getRecommendedMentors(
+            @RequestHeader("Authorization") String accessToken,
+            @RequestParam(required = false, defaultValue = "서울시") String region) {
+        
+        try {
+            String token = accessToken.replace("Bearer ", "");
+            
+            if (!jwtTokenProvider.validateToken(token)) {
+                return ResponseEntity.status(401)
+                        .body(ApiResponse.error("Invalid access token"));
+            }
+
+            String providerId = jwtTokenProvider.getProviderIdFromToken(token);
+            List<Mentor> mentors = mentorService.getMentorsByRegionAndPersonalityTags(region, providerId);
             List<MentorListResponseDto> mentorDtos = mentors.stream()
                     .map(MentorListResponseDto::from)
                     .toList();
             return ResponseEntity.ok(ApiResponse.success(mentorDtos));
             
         } catch (Exception e) {
-            log.error("Get mentors by region failed: {}", e.getMessage());
-            return ResponseEntity.internalServerError().body(ApiResponse.error("해당 지역별 멘토 조회에 실패했습니다."));
+            log.error("Get recommended mentors failed: {}", e.getMessage());
+            return ResponseEntity.internalServerError().body(ApiResponse.error("추천 멘토 조회에 실패했습니다."));
         }
     }
 

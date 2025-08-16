@@ -56,10 +56,10 @@ jwt:
 
 app:
   oauth2:
-    authorized-redirect-uri: https://re-career.onrender.com/oauth2/redirect
+    authorized-redirect-uri: https://re-career.vercel.app/oauth2/redirect
 
 cors:
-  allowed-origins: "http://localhost:3000,https://localhost:3000,http://localhost:8081,https://localhost:8081,https://re-career.onrender.com"
+  allowed-origins: "https://re-career.vercel.app,https://re-career.onrender.com"
 
 aws:
   s3:
