@@ -22,7 +22,6 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.H2Dialect
 
-
   security:
     oauth2:
       client:
@@ -47,7 +46,7 @@ jwt:
   refresh-token-validity-in-seconds: 604800
 
 cors:
-  allowed-origins: "http://localhost:3000,http://localhost:8081,https://localhost:3000,https://re-career.vercel.app,https://re-career.vercel.app/"
+  allowed-origins: "http://localhost:3000,https://localhost:3000,http://localhost:8081,https://localhost:8081,https://re-career.vercel.app"
 
 app:
   oauth2:
