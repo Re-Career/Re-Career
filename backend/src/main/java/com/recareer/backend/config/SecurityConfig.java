@@ -66,7 +66,7 @@ public class SecurityConfig {
                     if (origin != null) {
                         configuration.setAllowedOrigins(Arrays.asList(origin));
                     } else {
-                        configuration.setAllowedOrigins(Arrays.asList("*"));
+                        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
                     }
                 } else {
                     // 일반적인 경우 설정된 allowed-origins 사용
