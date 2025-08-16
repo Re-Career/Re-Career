@@ -1,21 +1,15 @@
 'use client'
 
-import {
-  getPersonalityTags,
-  personalityUrls,
-} from '@/services/personality-tags'
 import { PersonalityTag } from '@/types/personality-tags'
 import React from 'react'
-import useSWR from 'swr'
 
 interface TagListProps {
   selectedTags: number[]
   toggleTag: (tag: number) => void
+  tags: PersonalityTag[]
 }
 
-const TagList = ({ selectedTags, toggleTag }: TagListProps) => {
-  const { data: tags } = useSWR(personalityUrls.tags(), getPersonalityTags)
-
+const TagList = ({ selectedTags, toggleTag, tags }: TagListProps) => {
   if (!tags || tags.length === 0) {
     return <></>
   }

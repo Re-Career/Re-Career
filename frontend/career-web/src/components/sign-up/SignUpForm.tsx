@@ -1,12 +1,20 @@
 'use client'
 
-import React, { useActionState, useState } from 'react'
+import React, { useActionState, useState, useEffect } from 'react'
 import TagList from './TagList'
 import { RoleType } from '@/types/global'
 import Image from 'next/image'
 import { signUpAction } from '@/app/actions/sign-up/action'
+import { PersonalityTag } from '@/types/personality-tags'
+import { isWebView, sendAuthTokensToNative } from '@/utils/webview'
+import { getToken } from '@/app/actions/auth/action'
 
-const SignUpForm = ({ role }: { role: RoleType }) => {
+interface SignUpFormProps {
+  role: RoleType
+  tags: PersonalityTag[]
+}
+const SignUpForm = ({ role, tags }: SignUpFormProps) => {
+
   const [selectedTags, setSelectedTags] = useState<number[]>([])
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
     null
@@ -16,6 +24,24 @@ const SignUpForm = ({ role }: { role: RoleType }) => {
     success: false,
     message: '',
   })
+
+  useEffect(() => {
+    const { success } = state
+
+    const saveNativeAuth = async () => {
+      const accessToken = await getToken()
+
+      console.log(accessToken)
+      sendAuthTokensToNative(accessToken, '')
+    }
+
+    if (success) {
+      if (isWebView()) {
+        saveNativeAuth()
+      }
+      window.history.go(-2)
+    }
+  }, [state])
 
   const toggleTag = (tagId: number) => {
     const hasTag = selectedTags.includes(tagId)
@@ -42,7 +68,7 @@ const SignUpForm = ({ role }: { role: RoleType }) => {
   }
 
   return (
-    <form action={formAction}>
+    <form action={formAction} key={state.success ? 'reset' : 'keep'}>
       <main className="flex flex-1 flex-col">
         <h1 className="mb-9 px-4 py-3 text-xl leading-7 font-bold text-neutral-900">
           프로필을 완성해주세요
@@ -53,10 +79,13 @@ const SignUpForm = ({ role }: { role: RoleType }) => {
             className={`mx-4 mb-4 rounded-xl p-3 text-sm ${
               state.success
                 ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
+                : 'bg-red-100 text-gray-800'
             }`}
           >
-            {state.message}
+            <p>{state.message}</p>
+            {state.error && (
+              <p className="font-semibold text-red-800">{state.error}</p>
+            )}
           </div>
         )}
 
@@ -67,8 +96,15 @@ const SignUpForm = ({ role }: { role: RoleType }) => {
               name="role"
               value={role}
               onChange={() => {}}
-              accept="image/*"
             />
+            {selectedTags.map((tagId, index) => (
+              <input
+                key={index}
+                type="hidden"
+                name="personalityTagIds"
+                value={tagId.toString()}
+              />
+            ))}
             <input
               name="name"
               placeholder="이름 *"
@@ -110,7 +146,7 @@ const SignUpForm = ({ role }: { role: RoleType }) => {
             </div>
 
             {profileImagePreview && (
-              <div className="flex justify-center">
+              <div className="mt-1 flex justify-center">
                 <Image
                   width={200}
                   height={200}
@@ -127,7 +163,11 @@ const SignUpForm = ({ role }: { role: RoleType }) => {
               관심태그 (최대 5개) *
             </h3>
             <div className="flex flex-wrap gap-2">
-              <TagList toggleTag={toggleTag} selectedTags={selectedTags} />
+              <TagList
+                toggleTag={toggleTag}
+                selectedTags={selectedTags}
+                tags={tags}
+              />
             </div>
           </div>
         </div>
