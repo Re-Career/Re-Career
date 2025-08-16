@@ -4,6 +4,7 @@ import React from 'react'
 
 const page = async () => {
   const accessToken = await getToken()
+
   return (
     <div>
       {accessToken ? (

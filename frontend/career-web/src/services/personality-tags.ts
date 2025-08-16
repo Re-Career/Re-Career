@@ -14,7 +14,9 @@ export const getPersonalityTags = async (): Promise<PersonalityTag[]> => {
       data: { data },
     } = await api.get(personalityUrls.tags())
 
+
     console.log('Personality tags response:', data)
+
     return data
   } catch (error) {
     console.error('Failed to fetch personality tags:', error)

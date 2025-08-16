@@ -22,6 +22,7 @@ const SignUpForm = ({ role }: { role: RoleType }) => {
 
     if (!hasTag && selectedTags.length >= 5) {
       alert('최대 5개까지 선택할 수 있습니다.')
+
       return
     }
 

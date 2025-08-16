@@ -7,7 +7,7 @@ import { DatePiece, DateType } from '@/types/global'
 import { handleReserve } from '@/app/actions/reservation/action'
 
 const ReservationForm = ({ mentorId }: { mentorId: string }) => {
-  const [state, formAction] = useActionState(handleReserve, {
+  const [, formAction] = useActionState(handleReserve, {
     success: false,
     message: '',
   })

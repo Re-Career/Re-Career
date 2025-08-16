@@ -48,7 +48,11 @@ export const signUpAction = async (
       profileImageUrl: profileImage,
     }
 
-    schema.safeParse(formData)
+    const parseResult = schema.safeParse(formData)
+    
+    if (!parseResult.success) {
+      throw new z.ZodError(parseResult.error.issues)
+    }
 
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, {
       method: 'POST',
@@ -80,7 +84,7 @@ export const signUpAction = async (
     redirect('/sign-up/success')
   } catch (error) {
     if (error instanceof z.ZodError) {
-      error.issues
+      console.error('Validation errors:', error.issues)
     }
 
     return {

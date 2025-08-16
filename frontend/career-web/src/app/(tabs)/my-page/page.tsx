@@ -1,8 +1,7 @@
-import { getToken } from '@/app/actions/auth/action'
 import Header from '@/components/common/Header'
 import MyMentoringList from '@/components/my-page/mentoring/MyMentoringList'
 import { getUserProfile } from '@/services/user'
-import { sendMessageToNative } from '@/utils/webview'
+
 import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { GoPerson } from 'react-icons/go'

@@ -1,5 +1,3 @@
-import { DefaultJob } from './position'
-
 export interface TrendJob {
   id: number
   name: string

@@ -1,10 +1,10 @@
 import React from 'react'
 import Image from 'next/image'
-import { industryNews } from '@/mocks/home/industry-news'
 import { getNews } from '@/services/news'
 
 const IndustryNews = async () => {
   const news = await getNews()
+
   return (
     <section>
       <h2 className="section-title">최신 산업뉴스</h2>
