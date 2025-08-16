@@ -1,8 +1,10 @@
+import { DefaultJob } from './position'
+
 export interface TrendJob {
   id: number
   name: string
   category: string
-  illustration: string
+  imageUrl: string
 }
 
 export interface RegionJob extends TrendJob {
@@ -11,7 +13,7 @@ export interface RegionJob extends TrendJob {
 
 export interface RegionJobs {
   region: string
-  jobs: RegionJob[]
+  positions: RegionJob[]
 }
 
 export interface Mentor {

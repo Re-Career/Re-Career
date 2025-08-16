@@ -33,7 +33,6 @@ const DEFAULT_TABS = [
 type TabsKey = (typeof DEFAULT_TABS)[number]['key']
 
 export default function Tabs() {
-  console.log('here')
   const pathname = usePathname()
 
   const activeTab: TabsKey = useMemo(() => {
