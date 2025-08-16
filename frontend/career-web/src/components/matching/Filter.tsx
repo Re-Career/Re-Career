@@ -74,13 +74,12 @@ const Filter = ({ initialFilters, initialMentorName }: FilterProps) => {
 
   return (
     <>
-      {/* Overlay */}
-      {isFilterOpen && (
-        <div
-          className="fixed inset-0 z-60 bg-black opacity-10"
-          onClick={() => setIsFilterOpen(false)}
-        />
-      )}
+      <div
+        className={`pointer-events-none fixed inset-0 z-60 bg-black transition-opacity duration-300 ease-in-out ${
+          isFilterOpen ? 'pointer-events-auto opacity-10' : 'opacity-0'
+        }`}
+        onClick={() => setIsFilterOpen(false)}
+      />
 
       <div
         ref={filterRef}
