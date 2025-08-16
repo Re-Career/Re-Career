@@ -36,6 +36,7 @@ const FilterDropdown = ({
 
     // URL 생성
     const searchString = params.toString()
+
     return searchString ? `?${searchString}` : ''
   }
 
