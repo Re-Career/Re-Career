@@ -15,6 +15,7 @@ const page = () => {
     name: '김지원',
     type: '영상 통화',
   }
+
   return (
     <>
       <Header title="예약 확인" showBackButton />
@@ -29,7 +30,7 @@ const page = () => {
       <section className="px-4">
         <h4 className="py-4 text-lg font-bold">섹션 세부 사항</h4>
         {columns.map((column) => (
-          <div className="border-t border-gray-200 py-5">
+          <div key={column.key} className="border-t border-gray-200 py-5">
             <div className="text-gray-600">{column.name}</div>
             <div>{data[column.key]}</div>
           </div>

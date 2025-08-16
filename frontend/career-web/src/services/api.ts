@@ -6,3 +6,15 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
 })
+
+export const fetchUrl = async (url: string, init?: RequestInit) => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...init?.headers,
+    },
+    ...init,
+  }).then((res) => res.json())
+
+  return res
+}

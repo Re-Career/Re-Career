@@ -36,6 +36,7 @@ export async function middleware(request: NextRequest) {
         const response = NextResponse.redirect(
           new URL('/sign-up/mentee', request.url)
         )
+
         response.cookies.set('pendingAccessToken', accessToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',

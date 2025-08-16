@@ -1,9 +1,7 @@
 'use client'
 
 import React from 'react'
-import { sendMessageToNative } from '../../utils/webview'
 import { useRouter } from 'next/navigation'
-import { WebViewMessageTypes } from '@/lib/constants/global'
 import { IoArrowBack } from 'react-icons/io5'
 
 interface HeaderProps {
@@ -29,7 +27,9 @@ const Header: React.FC<HeaderProps> = ({
   const handleBackPress = () => {
     router.back()
 
-    onBackPress && onBackPress()
+    if (onBackPress) {
+      onBackPress()
+    }
   }
 
   return (

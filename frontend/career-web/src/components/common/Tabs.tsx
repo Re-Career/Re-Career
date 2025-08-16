@@ -33,7 +33,6 @@ const DEFAULT_TABS = [
 type TabsKey = (typeof DEFAULT_TABS)[number]['key']
 
 export default function Tabs() {
-  console.log('here')
   const pathname = usePathname()
 
   const activeTab: TabsKey = useMemo(() => {
@@ -46,6 +45,7 @@ export default function Tabs() {
     } else if (currentPage === 'my-page') {
       return 'my-page'
     }
+
     return 'home'
   }, [pathname])
 
@@ -56,6 +56,7 @@ export default function Tabs() {
           ({ key, name, icon: Icon, filledIcon: FilledIcon, href }) => {
             const isActive = activeTab === key
             const IconComponent = isActive ? FilledIcon : Icon
+
             return (
               <Link
                 key={key}

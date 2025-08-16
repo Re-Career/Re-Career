@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Lint staged files (already configured in package.json lint-staged)
+echo "📝 Running lint-staged..."
+npx lint-staged
+
+# Type checking for web
+echo "🔎 Type checking web..."
+cd career-web && npx tsc --noEmit
+if [ $? -ne 0 ]; then
+  echo "❌ Web type check failed!"
+  exit 1
+fi
+cd ..
+
+# Type checking for native  
+echo "🔎 Type checking native..."
+cd career-native && npx tsc --noEmit
+if [ $? -ne 0 ]; then
+  echo "❌ Native type check failed!"
+  exit 1
+fi
+cd ..
+
+echo "✅ All pre-commit checks passed!"

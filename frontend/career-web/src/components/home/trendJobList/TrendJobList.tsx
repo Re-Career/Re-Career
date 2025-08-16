@@ -1,18 +1,20 @@
 import React from 'react'
 import Image from 'next/image'
-import { trendJobs } from '@/mocks/home/trend-job-list'
 import Link from 'next/link'
 import HorizontalScroll from '@/components/common/HorizontalScroll'
+import { getTrendJobs } from '@/services/positions'
 
-const TrendJobList = () => {
+const TrendJobList = async () => {
+  const trendJobs = await getTrendJobs()
+
   return (
     <>
       <section className="">
         <div>
-          <h2 className="section-title">최고의 20개 트렌드 직업</h2>
+          <h2 className="section-title">최신 트렌드 TOP 20 직업</h2>
 
           <HorizontalScroll>
-            {trendJobs.map((job, index) => (
+            {trendJobs.map((job) => (
               <Link
                 key={job.id}
                 className="flex flex-col gap-3"
@@ -20,8 +22,8 @@ const TrendJobList = () => {
               >
                 <div className="w-40">
                   <Image
-                    src={job.illustration}
-                    alt={job.name}
+                    src={job.imageUrl}
+                    alt={`job_trend_20_${job.name}`}
                     width={160}
                     height={160}
                     className="rounded-xl object-cover"

@@ -42,6 +42,7 @@ const CustomTimePicker = ({ value, onChange }: CustomTimePickerProps) => {
       const itemHeight = 44
       const index = Math.round(scrollTop / itemHeight)
       const clampedIndex = Math.max(0, Math.min(index, items.length - 1))
+
       setter(items[clampedIndex])
     }, 100)
   }, [])
@@ -57,6 +58,7 @@ const CustomTimePicker = ({ value, onChange }: CustomTimePickerProps) => {
     scrollTimeoutRef.current = setTimeout(() => {
       if (!periodRef.current) return
       const scrollTop = periodRef.current.scrollTop
+
       onChange({ ...value, period: scrollTop < 22 ? 'AM' : 'PM' })
     }, 100)
   }, [value, onChange])
@@ -107,6 +109,7 @@ const CustomTimePicker = ({ value, onChange }: CustomTimePickerProps) => {
               onClick={() => {
                 onChange({ ...value, hour })
                 const index = hours.indexOf(hour)
+
                 hourRef.current?.scrollTo({ top: index * 44, behavior: 'smooth' })
               }}
             >
@@ -135,6 +138,7 @@ const CustomTimePicker = ({ value, onChange }: CustomTimePickerProps) => {
               onClick={() => {
                 onChange({ ...value, minute })
                 const index = minutes.indexOf(minute)
+
                 minuteRef.current?.scrollTo({ top: index * 44, behavior: 'smooth' })
               }}
             >
@@ -163,6 +167,7 @@ const CustomTimePicker = ({ value, onChange }: CustomTimePickerProps) => {
               onClick={() => {
                 onChange({ ...value, period })
                 const index = periods.indexOf(period)
+
                 periodRef.current?.scrollTo({ top: index * 44, behavior: 'smooth' })
               }}
             >
