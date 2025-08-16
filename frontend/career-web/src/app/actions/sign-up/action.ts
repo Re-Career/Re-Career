@@ -95,6 +95,7 @@ export const signUpAction = async (
     if (error instanceof z.ZodError) {
       const fieldErrors = error.issues.map((issue) => {
         const field = issue.path.join('.')
+
         switch (field) {
           case 'name':
             return '이름을 입력해주세요.'

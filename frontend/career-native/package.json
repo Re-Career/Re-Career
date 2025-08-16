@@ -11,6 +11,8 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "lint:fix": "expo lint --fix",
+    "checkTs": "tsc --noEmit",
+    "build": "expo export",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
