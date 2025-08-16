@@ -61,10 +61,10 @@ const FilterDropdown = ({
                   <button
                     key={option.key + index}
                     onClick={() => onFilterChange(key, option.key)}
-                    className={`rounded-full border px-4 py-2 text-sm ${
+                    className={`rounded-full border px-4 py-2 text-sm transition-all duration-200 ease-in-out ${
                       isSelected
                         ? 'bg-secondary border-secondary'
-                        : 'border-gray-300 bg-white text-gray-700'
+                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                   >
                     {option.name}
