@@ -47,7 +47,7 @@ jwt:
   refresh-token-validity-in-seconds: 604800
 
 cors:
-  allowed-origins: "http://localhost:3000,http://localhost:8081,https://localhost:3000"
+  allowed-origins: "http://localhost:3000,http://localhost:8081,https://localhost:3000,https://re-career.vercel.app"
 
 app:
   oauth2:
