@@ -3,11 +3,14 @@ package com.recareer.backend.mentor.service;
 import com.recareer.backend.availableTime.entity.AvailableTime;
 import com.recareer.backend.availableTime.repository.AvailableTimeRepository;
 import com.recareer.backend.mentor.entity.Mentor;
+import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.repository.MentorRepository;
 import com.recareer.backend.reservation.entity.Reservation;
 import com.recareer.backend.reservation.repository.ReservationRepository;
+import com.recareer.backend.user.entity.User;
 import com.recareer.backend.user.entity.UserPersonalityTag;
 import com.recareer.backend.user.repository.UserPersonalityTagRepository;
+import com.recareer.backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,7 @@ public class MentorServiceImpl implements MentorService {
     private final ReservationRepository reservationRepository;
     private final AvailableTimeRepository availableTimeRepository;
     private final UserPersonalityTagRepository userPersonalityTagRepository;
+    private final UserRepository userRepository;
 
     private static final String DEFAULT_REGION = "서울시";
 
@@ -40,35 +44,48 @@ public class MentorServiceImpl implements MentorService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Mentor> getMentorsByRegionAndPersonalityTags(String region, List<Long> personalityTagIds) {
+    public List<Mentor> getMentorsByRegionAndPersonalityTags(String region, String providerId) {
         if (region == null || region.trim().isEmpty()) {
             region = DEFAULT_REGION;
         }
 
-        if (personalityTagIds == null || personalityTagIds.isEmpty()) {
-            // personalityTagIds가 없으면 기존 방식으로 조회
-            log.info("Finding mentors in region: {} (no personality filtering)", region);
+        log.info("Finding mentors by user personality tags - providerId: {}, region: {}", providerId, region);
 
+        // 1. providerId로 User 조회
+        User user = userRepository.findByProviderId(providerId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with providerId: " + providerId));
+
+        // 2. 해당 유저의 성향 태그 조회
+        List<UserPersonalityTag> userPersonalityTags = userPersonalityTagRepository.findByUserId(user.getId());
+        List<Long> personalityTagIds = userPersonalityTags.stream()
+                .map(upt -> upt.getPersonalityTag().getId())
+                .toList();
+
+        log.info("User personality tag IDs: {}", personalityTagIds);
+
+        if (personalityTagIds.isEmpty()) {
+            // personalityTags가 없으면 기존 방식으로 조회
+            log.info("Finding mentors in region: {} (no personality filtering)", region);
             return mentorRepository.findByIsVerifiedTrueAndUserRegionContains(region);
         }
 
         log.info("Finding mentors in region: {} with personality tags: {}", region, personalityTagIds);
         
-        // 1. 지역별 멘토 조회 (User 정보까지 Fetch Join)
+        // 3. 지역별 멘토 조회 (User 정보까지 Fetch Join)
         List<Mentor> allMentors = mentorRepository.findByIsVerifiedTrueAndUserRegionContainsWithUser(region);
         
-        // 2. 모든 멘토의 UserId 추출
+        // 4. 모든 멘토의 UserId 추출
         List<Long> userIds = allMentors.stream()
                 .map(mentor -> mentor.getUser().getId())
                 .toList();
         
-        // 3. 배치로 모든 UserPersonalityTag를 한 번에 조회하여 Map으로 그룹화 (N+1 방지)
+        // 5. 배치로 모든 UserPersonalityTag를 한 번에 조회하여 Map으로 그룹화 (N+1 방지)
         Map<Long, List<UserPersonalityTag>> userPersonalityTagMap = userPersonalityTagRepository
                 .findByUserIdInWithPersonalityTag(userIds)
                 .stream()
                 .collect(Collectors.groupingBy(upt -> upt.getUser().getId()));
         
-        // 4. 성향 매칭을 기반으로 정렬 (추가 쿼리 없이 메모리에서 계산)
+        // 6. 성향 매칭을 기반으로 정렬 (추가 쿼리 없이 메모리에서 계산)
         return allMentors.stream()
                 .sorted((mentor1, mentor2) -> {
                     // 각 멘토의 성향 태그와 요청된 성향 태그 매칭 수 계산 (메모리에서)
@@ -86,11 +103,76 @@ public class MentorServiceImpl implements MentorService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Mentor> getMentorsByFilters(String region, String position, String experience, MentoringType mentoringType, List<Long> personalityTags) {
+        if (region == null || region.trim().isEmpty()) {
+            region = DEFAULT_REGION;
+        }
+
+        log.info("Finding mentors with filters - region: {}, position: {}, experience: {}, mentoringType: {}, personalityTags: {}", 
+                region, position, experience, mentoringType, personalityTags);
+
+        List<Mentor> mentors;
+        
+        if (personalityTags != null && !personalityTags.isEmpty()) {
+            // personalityTags가 있으면 직접 태그 매칭 로직 사용
+            mentors = getMentorsByRegionAndPersonalityTagIds(region, personalityTags);
+        } else {
+            // personalityTags가 없으면 기본 지역 조회
+            mentors = mentorRepository.findByIsVerifiedTrueAndUserRegionContainsWithUser(region);
+        }
+
+        return mentors.stream()
+                .filter(mentor -> {
+                    if (position != null && !position.trim().isEmpty()) {
+                        return mentor.getPosition() != null && 
+                               mentor.getPosition().toLowerCase().contains(position.toLowerCase());
+                    }
+                    return true;
+                })
+                .filter(mentor -> {
+                    if (experience != null && !experience.trim().isEmpty()) {
+                        return matchesExperienceRange(mentor.getExperience(), experience);
+                    }
+                    return true;
+                })
+                .filter(mentor -> {
+                    if (mentoringType != null) {
+                        return mentor.getMentoringType() != null && 
+                               (mentor.getMentoringType().equals(mentoringType) || 
+                                mentor.getMentoringType().equals(MentoringType.BOTH));
+                    }
+                    return true;
+                })
+                .sorted((mentor1, mentor2) -> {
+                    if (personalityTags != null && !personalityTags.isEmpty()) {
+                        // personalityTags가 있으면 매칭 수에 따라 정렬 (이미 정렬된 상태)
+                        return 0;
+                    }
+                    return mentor1.getCreatedDate().compareTo(mentor2.getCreatedDate());
+                })
+                .toList();
+    }
+
+    private boolean matchesExperienceRange(Integer mentorExperience, String experienceRange) {
+        if (mentorExperience == null) {
+            return false;
+        }
+        
+        return switch (experienceRange) {
+            case "1-3년" -> mentorExperience >= 1 && mentorExperience <= 3;
+            case "4-6년" -> mentorExperience >= 4 && mentorExperience <= 6;
+            case "7년 이상" -> mentorExperience >= 7;
+            default -> true;
+        };
+    }
+
+    @Override
     @Transactional
     public Optional<Mentor> updateMentor(Long id, String position, String description) {
         return mentorRepository.findById(id)
                 .map(mentor -> {
-                    mentor.update(position, description);
+                    mentor.update(position, description, mentor.getExperience(), mentor.getMentoringType());
                     return mentorRepository.save(mentor);
                 });
     }
@@ -130,6 +212,47 @@ public class MentorServiceImpl implements MentorService {
         return mentorPersonalityTags.stream()
                 .mapToLong(mpt -> userTagIds.contains(mpt.getPersonalityTag().getId()) ? 1 : 0)
                 .sum();
+    }
+
+    /**
+     * 직접 personalityTagIds를 받아서 멘토 조회 (기존 로직)
+     */
+    private List<Mentor> getMentorsByRegionAndPersonalityTagIds(String region, List<Long> personalityTagIds) {
+        if (region == null || region.trim().isEmpty()) {
+            region = DEFAULT_REGION;
+        }
+
+        log.info("Finding mentors in region: {} with personality tags: {}", region, personalityTagIds);
+        
+        // 1. 지역별 멘토 조회 (User 정보까지 Fetch Join)
+        List<Mentor> allMentors = mentorRepository.findByIsVerifiedTrueAndUserRegionContainsWithUser(region);
+        
+        // 2. 모든 멘토의 UserId 추출
+        List<Long> userIds = allMentors.stream()
+                .map(mentor -> mentor.getUser().getId())
+                .toList();
+        
+        // 3. 배치로 모든 UserPersonalityTag를 한 번에 조회하여 Map으로 그룹화 (N+1 방지)
+        Map<Long, List<UserPersonalityTag>> userPersonalityTagMap = userPersonalityTagRepository
+                .findByUserIdInWithPersonalityTag(userIds)
+                .stream()
+                .collect(Collectors.groupingBy(upt -> upt.getUser().getId()));
+        
+        // 4. 성향 매칭을 기반으로 정렬 (추가 쿼리 없이 메모리에서 계산)
+        return allMentors.stream()
+                .sorted((mentor1, mentor2) -> {
+                    // 각 멘토의 성향 태그와 요청된 성향 태그 매칭 수 계산 (메모리에서)
+                    long matches1 = calculatePersonalityMatchesFromMap(mentor1.getUser().getId(), userPersonalityTagMap, personalityTagIds);
+                    long matches2 = calculatePersonalityMatchesFromMap(mentor2.getUser().getId(), userPersonalityTagMap, personalityTagIds);
+                    
+                    // 매칭 수 내림차순, 그 다음 생성일 오름차순
+                    int matchComparison = Long.compare(matches2, matches1);
+                    if (matchComparison != 0) {
+                        return matchComparison;
+                    }
+                    return mentor1.getCreatedDate().compareTo(mentor2.getCreatedDate());
+                })
+                .toList();
     }
 
     /**
