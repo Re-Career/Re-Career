@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { IoSearch, IoFilter } from 'react-icons/io5'
 import FilterDropdown from './FilterDropdown'
-import { useRouter } from 'next/navigation'
 import { FilterOptions } from '@/types/mentor'
 import { INITIAL_FILTERS } from '@/lib/constants/matching'
 
@@ -55,10 +54,11 @@ const Filter = ({ initialFilters, initialMentorName }: FilterProps) => {
   }
 
   const handleFilterChange = (key: keyof typeof filters, value: string) => {
-    let newFilters = { ...filters }
+    const newFilters = { ...filters }
 
     // 모든 필터는 배열로 관리 (다중 선택)
     const currentArray = Array.isArray(filters[key]) ? filters[key] : []
+
     if (currentArray.includes(value)) {
       newFilters[key] = currentArray.filter((item) => item !== value)
     } else {

@@ -1,5 +1,4 @@
 import Header from '@/components/common/Header'
-import React, { useCallback } from 'react'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getMentor } from '@/services/mentor'
