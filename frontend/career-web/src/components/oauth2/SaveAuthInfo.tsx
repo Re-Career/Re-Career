@@ -9,7 +9,7 @@ export default function SaveAuthInfo({
 }) {
   useEffect(() => {
     sendAuthTokensToNative()
-  }, [])
+  }, [sendAuthTokensToNative])
 
   return <></>
 }

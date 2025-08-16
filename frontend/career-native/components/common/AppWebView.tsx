@@ -120,7 +120,12 @@ const CareerWebView = (props: CareerWebViewProps) => {
   return (
     <WebView
       {...restProps}
-      source={{ uri: `${getBaseUrl()}/${path}` }}
+      source={{
+        uri: `${getBaseUrl()}/${path}`,
+        headers: {
+          'User-Agent': 'CareerApp-WebView',
+        },
+      }}
       style={style}
       sharedCookiesEnabled={true}
       injectedJavaScript={injectedJS}
@@ -129,6 +134,7 @@ const CareerWebView = (props: CareerWebViewProps) => {
       startInLoadingState={startInLoadingState}
       scalesPageToFit={scalesPageToFit}
       onMessage={onMessage}
+      webviewDebuggingEnabled={true}
     />
   )
 }

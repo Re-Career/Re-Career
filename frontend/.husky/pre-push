@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔨 Running builds before push..."
+
+# Web build test
+echo "📱 Testing web build..."
+pnpm build:web
+if [ $? -ne 0 ]; then
+  echo "❌ Web build failed!"
+  exit 1
+fi
+echo "✅ Web build successful!"
+
+# Native Android build test
+echo "🤖 Testing Android build..."
+pnpm --filter career-native run android --no-bundler
+if [ $? -ne 0 ]; then
+  echo "❌ Android build failed!"
+  exit 1
+fi
+echo "✅ Android build successful!"
+
+# Native iOS build test (only on macOS)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  echo "🍎 Testing iOS build..."
+  pnpm --filter career-native run ios --no-bundler
+  if [ $? -ne 0 ]; then
+    echo "❌ iOS build failed!"
+    exit 1
+  fi
+  echo "✅ iOS build successful!"
+else
+  echo "ℹ️ Skipping iOS build (not on macOS)"
+fi
+
+echo "🎉 All builds passed!"

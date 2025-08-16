@@ -3,7 +3,8 @@ import Image from 'next/image'
 import React from 'react'
 
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params
+  await params
+
   return (
     <>
       <Header showBackButton title="상담 세부사항" />

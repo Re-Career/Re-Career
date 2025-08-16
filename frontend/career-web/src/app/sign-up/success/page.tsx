@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { WebViewMessageTypes } from '@/lib/constants/global'
-import { sendAuthTokensToNative, sendMessageToNative } from '@/utils/webview'
+import { sendAuthTokensToNative } from '@/utils/webview'
 import { getToken } from '@/app/actions/auth/action'
 
 export default function SignUpSuccessPage() {

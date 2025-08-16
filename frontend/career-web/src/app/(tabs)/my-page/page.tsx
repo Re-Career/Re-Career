@@ -1,18 +1,15 @@
-import { getToken } from '@/app/actions/auth/action'
 import Header from '@/components/common/Header'
 import MyMentoringList from '@/components/my-page/mentoring/MyMentoringList'
-import { sendMessageToNative } from '@/utils/webview'
+import { getUserProfile } from '@/services/user'
+
 import Image from 'next/image'
 import { GoPerson } from 'react-icons/go'
 
 const MyPagePage = async () => {
-  const data = {
-    id: 1,
-    name: '김지연',
-    job: '시니어 소프트웨어 엔지니어',
-    email: 'sophia.kim@example.com',
-    profileImage:
-      'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=200&h=200&fit=crop&crop=face',
+  const data = await getUserProfile()
+
+  if (!data) {
+    return
   }
 
   return (
@@ -21,7 +18,7 @@ const MyPagePage = async () => {
       <main className="flex-1">
         <section className="flex flex-col items-center gap-4 p-4">
           <Image
-            src={data.profileImage}
+            src={data.profileImageUrl ?? ''}
             alt={`my_page_image_${data.id}`}
             width={128}
             height={128}
