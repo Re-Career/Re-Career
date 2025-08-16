@@ -214,24 +214,35 @@ class MentorServiceTest {
     }
 
     @Test
-    @DisplayName("personalityTags 기반 멘토 필터링 테스트")
+    @DisplayName("인증 토큰 기반 멘토 추천 테스트")
     void getMentorsByRegionAndPersonalityTags() {
-        // setUp에서 생성된 tag1("적극적") ID 가져오기
+        // 조회용 사용자 생성
+        User queryUser = User.builder()
+                .name("조회 사용자")
+                .email("query@test.com")
+                .role(Role.USER)
+                .provider("google")
+                .providerId("queryuser123")
+                .profileImageUrl("https://example.com/query.jpg")
+                .region("서울시 강남구")
+                .build();
+        userRepository.save(queryUser);
+
+        // 조회 사용자에게 성향 태그 추가 (멘토와 동일한 태그)
         List<PersonalityTag> tags = personalityTagRepository.findAll();
-        Long tag1Id = tags.stream()
+        PersonalityTag tag1 = tags.stream()
                 .filter(tag -> "적극적".equals(tag.getName()))
-                .map(PersonalityTag::getId)
-                .findFirst()
-                .orElseThrow();
-        Long tag2Id = tags.stream()
-                .filter(tag -> "분석적".equals(tag.getName()))
-                .map(PersonalityTag::getId)
                 .findFirst()
                 .orElseThrow();
 
-        // personalityTags로 필터링 (적극적 태그)
-        List<Long> personalityTags = List.of(tag1Id);
-        List<Mentor> result = mentorService.getMentorsByRegionAndPersonalityTags("강남", personalityTags);
+        UserPersonalityTag queryUserTag = UserPersonalityTag.builder()
+                .user(queryUser)
+                .personalityTag(tag1)
+                .build();
+        userPersonalityTagRepository.save(queryUserTag);
+
+        // providerId로 멘토 추천 조회
+        List<Mentor> result = mentorService.getMentorsByRegionAndPersonalityTags("강남", "queryuser123");
 
         // 결과 검증: 매칭되는 멘토가 우선 정렬되어야 함
         assertThat(result).hasSize(1);
@@ -376,5 +387,33 @@ class MentorServiceTest {
         assertThat(result.getFirst().getPosition()).contains("백엔드");
         assertThat(result.getFirst().getExperience()).isEqualTo(5);
         assertThat(result.getFirst().getMentoringType()).isEqualTo(MentoringType.BOTH);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 providerId로 멘토 추천 조회 실패")
+    void getMentorsByRegionAndPersonalityTags_UserNotFound() {
+        assertThatThrownBy(() -> mentorService.getMentorsByRegionAndPersonalityTags("강남", "nonexistent123"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("User not found with providerId");
+    }
+
+    @Test
+    @DisplayName("성향 태그가 없는 사용자로 멘토 추천 조회")
+    void getMentorsByRegionAndPersonalityTags_NoPersonalityTags() {
+        User userWithoutTags = User.builder()
+                .name("태그 없는 사용자")
+                .email("notags@test.com")
+                .role(Role.USER)
+                .provider("google")
+                .providerId("notags123")
+                .profileImageUrl("https://example.com/notags.jpg")
+                .region("서울시 강남구")
+                .build();
+        userRepository.save(userWithoutTags);
+
+        List<Mentor> result = mentorService.getMentorsByRegionAndPersonalityTags("강남", "notags123");
+        
+        // 성향 태그가 없어도 지역 기반으로 멘토는 조회되어야 함
+        assertThat(result).hasSize(1);
     }
 }
