@@ -1,10 +1,19 @@
 import React, { useState, useMemo } from 'react'
-import { PROVINCES } from '@/lib/constants/regions'
-import { getCitiesByProvinceKey } from '@/utils/region'
+import { CITIES_LIST, PROVINCES } from '@/lib/constants/regions'
 import Dropdown from '@/components/ui/Dropdown'
 
 interface RegionSelectorProps {
   onRegionChange: (regionName: string) => void
+}
+
+export const getCitiesByProvinceId = (provinceId: number) => {
+  return CITIES_LIST.filter((city) => city.provinceId === provinceId)
+}
+
+export const getCitiesByProvinceKey = (provinceKey: string) => {
+  const province = PROVINCES.find((p) => p.key === provinceKey)
+
+  return province ? getCitiesByProvinceId(province.id) : []
 }
 
 const RegionSelector = ({ onRegionChange }: RegionSelectorProps) => {
