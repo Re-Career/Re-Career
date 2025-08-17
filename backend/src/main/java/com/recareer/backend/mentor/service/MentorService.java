@@ -3,6 +3,7 @@ package com.recareer.backend.mentor.service;
 import com.recareer.backend.availableTime.entity.AvailableTime;
 import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
+import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.reservation.entity.Reservation;
@@ -18,6 +19,8 @@ public interface MentorService {
     Optional<Mentor> getVerifiedMentorById(Long id);
     
     Optional<MentorDetailResponseDto> getMentorDetailById(Long id);
+
+    List<MentorSummaryResponseDto> getMentorsByRegion(String region);
 
     List<Mentor> getMentorsByRegionAndPersonalityTags(List<String> regions, String providerId);
 

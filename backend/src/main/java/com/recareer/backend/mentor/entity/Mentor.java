@@ -2,6 +2,9 @@ package com.recareer.backend.mentor.entity;
 
 import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.common.entity.BaseTimeEntity;
+import com.recareer.backend.common.entity.Company;
+import com.recareer.backend.common.entity.Job;
+import com.recareer.backend.common.entity.Region;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.user.entity.User;
 import jakarta.persistence.*;
@@ -28,8 +31,17 @@ public class Mentor extends BaseTimeEntity {
   @JoinColumn(name = "user_id")
   private User user;
 
-  @Column(length = 100)
-  private String position;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "job_id")
+  private Job job;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "company_id")
+  private Company company;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "region_id")
+  private Region region;
 
   @Column(columnDefinition = "TEXT")
   private String description; // 간단한 소개 (shortDescription)
@@ -62,8 +74,10 @@ public class Mentor extends BaseTimeEntity {
   @Builder.Default
   private List<MentorFeedback> feedbacks = new ArrayList<>();
 
-  public Mentor update(String position, String description, String introduction, Integer experience, MentoringType mentoringType) {
-    this.position = position;
+  public Mentor update(Job job, Company company, Region region, String description, String introduction, Integer experience, MentoringType mentoringType) {
+    this.job = job;
+    this.company = company;
+    this.region = region;
     this.description = description;
     this.introduction = introduction;
     this.experience = experience;
@@ -79,5 +93,18 @@ public class Mentor extends BaseTimeEntity {
     }
 
     return this;
+  }
+
+  // 호환성을 위한 메서드들
+  public String getPosition() {
+    return job != null ? job.getName() : null;
+  }
+
+  public String getCompanyName() {
+    return company != null ? company.getName() : null;
+  }
+
+  public String getRegionName() {
+    return region != null ? region.getName() : null;
   }
 }

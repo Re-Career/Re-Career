@@ -6,6 +6,7 @@ import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorCreateResponseDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
 import com.recareer.backend.mentor.dto.MentorListResponseDto;
+import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.dto.MentorUpdateResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.entity.MentoringType;
@@ -47,6 +48,19 @@ public class MentorController {
         } catch (Exception e) {
             log.error("Mentor creation failed: {}", e.getMessage());
             return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 등록에 실패했습니다."));
+        }
+    }
+
+    @GetMapping
+    @Operation(summary = "지역별 멘토 목록 조회", description = "지정된 지역의 멘토 목록을 조회합니다")
+    public ResponseEntity<ApiResponse<List<MentorSummaryResponseDto>>> getMentorsByRegion(
+            @RequestParam(required = false, defaultValue = "서울") String region) {
+        try {
+            List<MentorSummaryResponseDto> mentors = mentorService.getMentorsByRegion(region);
+            return ResponseEntity.ok(ApiResponse.success(mentors));
+        } catch (Exception e) {
+            log.error("Get mentors by region failed: {}", e.getMessage());
+            return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 목록 조회에 실패했습니다."));
         }
     }
 
