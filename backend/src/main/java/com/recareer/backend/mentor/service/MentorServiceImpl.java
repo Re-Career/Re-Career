@@ -4,11 +4,15 @@ import com.recareer.backend.availableTime.entity.AvailableTime;
 import com.recareer.backend.availableTime.repository.AvailableTimeRepository;
 import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.career.repository.MentorCareerRepository;
+import com.recareer.backend.common.entity.City;
 import com.recareer.backend.common.entity.Company;
 import com.recareer.backend.common.entity.Job;
+import com.recareer.backend.common.entity.Province;
 import com.recareer.backend.common.entity.Region;
+import com.recareer.backend.common.repository.CityRepository;
 import com.recareer.backend.common.repository.CompanyRepository;
 import com.recareer.backend.common.repository.JobRepository;
+import com.recareer.backend.common.repository.ProvinceRepository;
 import com.recareer.backend.common.repository.RegionRepository;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.feedback.repository.MentorFeedbackRepository;
@@ -52,6 +56,8 @@ public class MentorServiceImpl implements MentorService {
     private final JobRepository jobRepository;
     private final CompanyRepository companyRepository;
     private final RegionRepository regionRepository;
+    private final ProvinceRepository provinceRepository;
+    private final CityRepository cityRepository;
 
     private static final String DEFAULT_REGION = "서울시";
 
@@ -266,7 +272,7 @@ public class MentorServiceImpl implements MentorService {
     public Optional<Mentor> updateMentor(Long id, String position, String description, String introduction, List<String> skills) {
         return mentorRepository.findById(id)
                 .map(mentor -> {
-                    mentor.update(mentor.getJob(), mentor.getCompany(), mentor.getRegion(), description, introduction, mentor.getExperience(), mentor.getMentoringType());
+                    mentor.update(mentor.getJob(), mentor.getCompany(), mentor.getRegion(), mentor.getProvince(), mentor.getCity(), description, introduction, mentor.getExperience(), mentor.getMentoringType());
                     if (skills != null) {
                         mentor.updateSkills(skills);
                     }
@@ -404,8 +410,9 @@ public class MentorServiceImpl implements MentorService {
     @Override
     @Transactional(readOnly = true)
     public List<MentorSummaryResponseDto> getMentorsByFilters(MentorFilterRequestDto filterRequest) {
-        log.info("Finding mentors by filters - jobs: {}, experiences: {}, mentoringTypes: {}", 
-                filterRequest.getJobs(), filterRequest.getExperiences(), filterRequest.getMentoringTypes());
+        log.info("Finding mentors by filters - jobs: {}, experiences: {}, mentoringTypes: {}, provinceId: {}, cityId: {}", 
+                filterRequest.getJobs(), filterRequest.getExperiences(), filterRequest.getMentoringTypes(),
+                filterRequest.getProvinceId(), filterRequest.getCityId());
 
         // 1. 전체 검증된 멘토 조회 (User 정보까지 Fetch Join)
         List<Mentor> allMentors = mentorRepository.findAllByIsVerifiedTrueWithUser();
@@ -433,6 +440,20 @@ public class MentorServiceImpl implements MentorService {
                         boolean mentoringTypeMatches = filterRequest.getMentoringTypes().stream()
                                 .anyMatch(type -> matchesMentoringType(mentor.getMentoringType(), type));
                         if (!mentoringTypeMatches) return false;
+                    }
+                    
+                    // Province 필터링
+                    if (filterRequest.getProvinceId() != null) {
+                        boolean provinceMatches = mentor.getProvince() != null && 
+                                mentor.getProvince().getId().equals(filterRequest.getProvinceId());
+                        if (!provinceMatches) return false;
+                    }
+                    
+                    // City 필터링
+                    if (filterRequest.getCityId() != null) {
+                        boolean cityMatches = mentor.getCity() != null && 
+                                mentor.getCity().getId().equals(filterRequest.getCityId());
+                        if (!cityMatches) return false;
                     }
                     
                     return true;
