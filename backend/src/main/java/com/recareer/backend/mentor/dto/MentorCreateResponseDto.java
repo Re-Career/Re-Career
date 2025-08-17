@@ -1,6 +1,7 @@
 package com.recareer.backend.mentor.dto;
 
 import com.recareer.backend.mentor.entity.Mentor;
+import com.recareer.backend.mentor.entity.MentoringType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,15 +13,19 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MentorUpdateResponseDto {
+public class MentorCreateResponseDto {
 
     private Long id;
+    private Long userId;
     private JobDto job;
     private CompanyDto company;
     private RegionDto region;
     private String description;
     private String introduction;
+    private Integer experience;
+    private MentoringType mentoringType;
     private List<String> skills;
+    private Boolean isVerified;
 
     @Getter
     @NoArgsConstructor
@@ -49,9 +54,10 @@ public class MentorUpdateResponseDto {
         private String name;
     }
 
-    public static MentorUpdateResponseDto from(Mentor mentor) {
-        return MentorUpdateResponseDto.builder()
+    public static MentorCreateResponseDto from(Mentor mentor) {
+        return MentorCreateResponseDto.builder()
                 .id(mentor.getId())
+                .userId(mentor.getUser().getId())
                 .job(mentor.getJob() != null ? JobDto.builder()
                         .id(mentor.getJob().getId())
                         .name(mentor.getJob().getName())
@@ -66,7 +72,10 @@ public class MentorUpdateResponseDto {
                         .build() : null)
                 .description(mentor.getDescription())
                 .introduction(mentor.getIntroduction())
+                .experience(mentor.getExperience())
+                .mentoringType(mentor.getMentoringType())
                 .skills(mentor.getSkills())
+                .isVerified(mentor.getIsVerified())
                 .build();
     }
 }

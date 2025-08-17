@@ -76,7 +76,7 @@ public class AuthService {
                 .provider(user.getProvider())
                 .providerId(user.getProviderId())
                 .profileImageUrl(signupRequest.getProfileImageUrl() != null ? signupRequest.getProfileImageUrl() : user.getProfileImageUrl())
-                .region(signupRequest.getRegion())
+                // TODO: Province와 City 설정 로직 추가 필요
                 .build();
 
         User savedUser = userRepository.save(updatedUser);
@@ -86,7 +86,6 @@ public class AuthService {
             Mentor mentor = Mentor.builder()
                     .id(savedUser.getId())
                     .user(savedUser)
-                    .position(signupRequest.getPosition())
                     .description(signupRequest.getDescription())
                     .build();
             
