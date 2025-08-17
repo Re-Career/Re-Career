@@ -4,10 +4,17 @@ import com.recareer.backend.availableTime.entity.AvailableTime;
 import com.recareer.backend.availableTime.repository.AvailableTimeRepository;
 import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.career.repository.MentorCareerRepository;
+import com.recareer.backend.common.entity.Company;
+import com.recareer.backend.common.entity.Job;
+import com.recareer.backend.common.entity.Region;
+import com.recareer.backend.common.repository.CompanyRepository;
+import com.recareer.backend.common.repository.JobRepository;
+import com.recareer.backend.common.repository.RegionRepository;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.feedback.repository.MentorFeedbackRepository;
 import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
+import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.repository.MentorRepository;
@@ -41,6 +48,9 @@ public class MentorServiceImpl implements MentorService {
     private final UserRepository userRepository;
     private final MentorCareerRepository mentorCareerRepository;
     private final MentorFeedbackRepository mentorFeedbackRepository;
+    private final JobRepository jobRepository;
+    private final CompanyRepository companyRepository;
+    private final RegionRepository regionRepository;
 
     private static final String DEFAULT_REGION = "서울시";
 
@@ -51,11 +61,26 @@ public class MentorServiceImpl implements MentorService {
         User user = userRepository.findById(requestDto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + requestDto.getUserId()));
         
+        // Job, Company, Region 조회
+        Job job = requestDto.getJobId() != null ? 
+            jobRepository.findById(requestDto.getJobId())
+                .orElseThrow(() -> new IllegalArgumentException("Job not found with id: " + requestDto.getJobId())) : null;
+                
+        Company company = requestDto.getCompanyId() != null ? 
+            companyRepository.findById(requestDto.getCompanyId())
+                .orElseThrow(() -> new IllegalArgumentException("Company not found with id: " + requestDto.getCompanyId())) : null;
+                
+        Region region = requestDto.getRegionId() != null ? 
+            regionRepository.findById(requestDto.getRegionId())
+                .orElseThrow(() -> new IllegalArgumentException("Region not found with id: " + requestDto.getRegionId())) : null;
+        
         // 멘토 생성
         Mentor mentor = Mentor.builder()
                 .id(user.getId()) // User와 동일한 ID 사용
                 .user(user)
-                .position(requestDto.getPosition())
+                .job(job)
+                .company(company)
+                .region(region)
                 .description(requestDto.getDescription())
                 .introduction(requestDto.getIntroduction())
                 .experience(requestDto.getExperience())
@@ -71,6 +96,32 @@ public class MentorServiceImpl implements MentorService {
     @Transactional(readOnly = true)
     public Optional<Mentor> getVerifiedMentorById(Long id) {
         return mentorRepository.findById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MentorSummaryResponseDto> getMentorsByRegion(String region) {
+        if (region == null || region.trim().isEmpty()) {
+            region = DEFAULT_REGION;
+        }
+
+        log.info("Finding mentors by region: {}", region);
+
+        // 1. 지역별 멘토 조회 (User 정보까지 Fetch Join)
+        List<Mentor> mentors = mentorRepository.findByIsVerifiedTrueAndUserRegionContainsWithUser(region);
+
+        // 2. 각 멘토에 대한 추가 정보 조회
+        return mentors.stream()
+                .map(mentor -> {
+                    // 경력 정보 조회
+                    List<MentorCareer> careers = mentorCareerRepository.findByMentorOrderByDisplayOrderAscStartDateDesc(mentor);
+                    
+                    // 성향 태그 조회
+                    List<UserPersonalityTag> userPersonalityTags = userPersonalityTagRepository.findByUserId(mentor.getUser().getId());
+                    
+                    return MentorSummaryResponseDto.from(mentor, userPersonalityTags, careers);
+                })
+                .toList();
     }
 
     @Override
@@ -214,7 +265,7 @@ public class MentorServiceImpl implements MentorService {
     public Optional<Mentor> updateMentor(Long id, String position, String description, String introduction, List<String> skills) {
         return mentorRepository.findById(id)
                 .map(mentor -> {
-                    mentor.update(position, description, introduction, mentor.getExperience(), mentor.getMentoringType());
+                    mentor.update(mentor.getJob(), mentor.getCompany(), mentor.getRegion(), description, introduction, mentor.getExperience(), mentor.getMentoringType());
                     if (skills != null) {
                         mentor.updateSkills(skills);
                     }

@@ -15,7 +15,9 @@ import java.util.List;
 public class MentorCreateRequestDto {
 
     private Long userId;
-    private String position;
+    private Long jobId;
+    private Long companyId;
+    private Long regionId;
     private String description;
     private String introduction;
     private Integer experience;

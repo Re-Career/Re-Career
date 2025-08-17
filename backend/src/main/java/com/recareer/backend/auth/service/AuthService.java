@@ -86,7 +86,6 @@ public class AuthService {
             Mentor mentor = Mentor.builder()
                     .id(savedUser.getId())
                     .user(savedUser)
-                    .position(signupRequest.getPosition())
                     .description(signupRequest.getDescription())
                     .build();
             

@@ -17,7 +17,9 @@ public class MentorCreateResponseDto {
 
     private Long id;
     private Long userId;
-    private String position;
+    private JobDto job;
+    private CompanyDto company;
+    private RegionDto region;
     private String description;
     private String introduction;
     private Integer experience;
@@ -25,11 +27,49 @@ public class MentorCreateResponseDto {
     private List<String> skills;
     private Boolean isVerified;
 
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class JobDto {
+        private Long id;
+        private String name;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class CompanyDto {
+        private Long id;
+        private String name;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class RegionDto {
+        private Long id;
+        private String name;
+    }
+
     public static MentorCreateResponseDto from(Mentor mentor) {
         return MentorCreateResponseDto.builder()
                 .id(mentor.getId())
                 .userId(mentor.getUser().getId())
-                .position(mentor.getPosition())
+                .job(mentor.getJob() != null ? JobDto.builder()
+                        .id(mentor.getJob().getId())
+                        .name(mentor.getJob().getName())
+                        .build() : null)
+                .company(mentor.getCompany() != null ? CompanyDto.builder()
+                        .id(mentor.getCompany().getId())
+                        .name(mentor.getCompany().getName())
+                        .build() : null)
+                .region(mentor.getRegion() != null ? RegionDto.builder()
+                        .id(mentor.getRegion().getId())
+                        .name(mentor.getRegion().getName())
+                        .build() : null)
                 .description(mentor.getDescription())
                 .introduction(mentor.getIntroduction())
                 .experience(mentor.getExperience())
