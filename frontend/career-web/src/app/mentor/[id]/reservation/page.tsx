@@ -20,7 +20,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
         <h4 className="section-title">멘토 정보</h4>
         <div className="flex gap-4">
           <Image
-            src={mentor.profileImage}
+            src={mentor.profileImageUrl}
             alt={`mentor_reservation_profile_${mentor.id}`}
             width={56}
             height={56}

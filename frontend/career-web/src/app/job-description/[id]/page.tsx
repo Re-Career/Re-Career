@@ -1,9 +1,9 @@
 import React from 'react'
 import Image from 'next/image'
-import { jobDetails } from '@/mocks/home/job-details'
 import { notFound } from 'next/navigation'
 import Header from '@/components/common/Header'
 import Link from 'next/link'
+import { getJobDetail } from '@/services/positions'
 
 const JobDescriptionPage = async ({
   params,
@@ -11,7 +11,7 @@ const JobDescriptionPage = async ({
   params: Promise<{ id: string }>
 }) => {
   const { id } = await params
-  const jobDetail = jobDetails.find((job) => job.id === parseInt(id))
+  const jobDetail = await getJobDetail(id)
 
   if (!jobDetail) {
     notFound()
@@ -22,8 +22,8 @@ const JobDescriptionPage = async ({
       <Header title="직무설명" showBackButton />
       <div className="h-60 w-full flex-shrink-0 overflow-hidden">
         <Image
-          src={jobDetail.famousPerson.image}
-          alt={jobDetail.famousPerson.name}
+          src={jobDetail.imageUrl}
+          alt={`job_detail_image_${jobDetail.id}`}
           width={400}
           height={300}
           className="h-full w-full object-cover object-top"
@@ -41,15 +41,6 @@ const JobDescriptionPage = async ({
               </span>
             </div>
 
-            <div className="mb-2 text-sm text-gray-600">
-              대표 인물:{' '}
-              <span className="font-medium text-gray-800">
-                {jobDetail.famousPerson.name}
-              </span>
-              <span className="mx-1">·</span>
-              <span>{jobDetail.famousPerson.title}</span>
-            </div>
-
             <p className="leading-relaxed text-gray-700">
               {jobDetail.description}
             </p>
@@ -60,18 +51,20 @@ const JobDescriptionPage = async ({
         <h2 className="mb-4 text-xl font-bold text-neutral-900">주요 책임</h2>
 
         <div className="space-y-4">
-          {jobDetail.responsibilities.map((responsibility, index) => (
+          {jobDetail.positionResponsibilities.map((responsibility, index) => (
             <div key={index} className="flex items-center gap-4">
               <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-200 text-2xl">
-                {responsibility.icon}
+                <Image
+                  src={responsibility.imageUrl}
+                  width={24}
+                  height={24}
+                  alt={responsibility.imageUrl}
+                />
               </div>
               <div>
                 <h3 className="mb-1 font-semibold text-neutral-900">
-                  {responsibility.title}
+                  {responsibility.name}
                 </h3>
-                <p className="text-sm text-gray-600">
-                  {responsibility.description}
-                </p>
               </div>
             </div>
           ))}
@@ -79,18 +72,10 @@ const JobDescriptionPage = async ({
       </section>
       <section className="p-4">
         <h2 className="mb-4 text-xl font-bold text-neutral-900">산업 동향</h2>
-        <div className="space-y-4">
-          {jobDetail.industryTrends.map((trend, index) => (
-            <div key={index} className="flex items-start gap-3">
-              <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-400">
-                <span className="text-sm font-semibold text-white">
-                  {index + 1}
-                </span>
-              </div>
-              <p className="leading-relaxed text-gray-700">{trend}</p>
-            </div>
-          ))}
-        </div>
+
+        <p className="leading-relaxed text-gray-700">
+          {jobDetail.industryTrends}
+        </p>
       </section>
 
       <div className="flex w-full items-center justify-center px-4">

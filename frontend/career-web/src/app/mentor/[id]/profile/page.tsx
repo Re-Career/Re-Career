@@ -1,9 +1,19 @@
 import Header from '@/components/common/Header'
-import React from 'react'
 import Image from 'next/image'
-import { mentorDetails } from '@/mocks/home/mentor-details'
 import { notFound } from 'next/navigation'
-import MentorReservationButton from '@/components/mentor/profile/ReservationButton'
+import { getMentor } from '@/services/mentor'
+import Link from 'next/link'
+
+const renderStars = (rating: number) => {
+  return Array.from({ length: 5 }, (_, i) => (
+    <span
+      key={i}
+      className={`text-lg ${i < rating ? 'text-secondary' : 'text-gray-300'}`}
+    >
+      ★
+    </span>
+  ))
+}
 
 const MentorProfilePage = async ({
   params,
@@ -11,21 +21,10 @@ const MentorProfilePage = async ({
   params: Promise<{ id: string }>
 }) => {
   const { id } = await params
-  const mentor = mentorDetails.find((m) => m.id === parseInt(id))
+  const mentor = await getMentor(id)
 
   if (!mentor) {
     notFound()
-  }
-
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <span
-        key={i}
-        className={`text-lg ${i < rating ? 'text-secondary' : 'text-gray-300'}`}
-      >
-        ★
-      </span>
-    ))
   }
 
   return (
@@ -36,7 +35,7 @@ const MentorProfilePage = async ({
         <div className="bg-white p-6 text-center">
           <div className="mx-auto mb-4 h-32 w-32 overflow-hidden rounded-full">
             <Image
-              src={mentor.profileImage}
+              src={mentor.profileImageUrl}
               alt={mentor.name}
               width={128}
               height={128}
@@ -161,7 +160,12 @@ const MentorProfilePage = async ({
 
         {/* 하단 상담 예약 버튼 */}
         <div className="sticky bottom-0 border-t border-gray-100 bg-white p-4">
-          <MentorReservationButton id={mentor.id} />
+          <Link
+            className="bg-primary w-full rounded-lg py-3 font-bold"
+            href={`/mentor/${id}/reservation`}
+          >
+            상담 예약하기
+          </Link>
         </div>
       </div>
     </>

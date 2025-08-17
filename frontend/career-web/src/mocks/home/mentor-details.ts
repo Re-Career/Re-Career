@@ -6,13 +6,16 @@ export const mentorDetails: Mentor[] = [
     name: '김지연',
     job: '시니어 소프트웨어 엔지니어',
     email: 'sophia.kim@example.com',
-    profileImage:
+    profileImageUrl:
       'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=200&h=200&fit=crop&crop=face',
     company: '카카오',
     experience: 8,
-    location: '서울',
+    region: '서울',
     meetingType: 'both',
-    personality: '친근하고 꼼꼼함',
+    personalityTags: [
+      { id: 1, name: '친근함' },
+      { id: 2, name: '꼼꼼함' },
+    ],
     shortDescription:
       '카카오에서 8년간 근무하며 백엔드 개발과 시스템 아키텍처 설계를 담당하고 있습니다.',
     introduction:
@@ -60,13 +63,16 @@ export const mentorDetails: Mentor[] = [
     name: '박서영',
     job: '프로덕트 매니저',
     email: 'sophia.park@example.com',
-    profileImage:
+    profileImageUrl:
       'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop&crop=face',
     company: '네이버',
     experience: 6,
-    location: '서울',
+    region: '서울',
     meetingType: 'online',
-    personality: '논리적이고 체계적',
+    personalityTags: [
+      { id: 3, name: '논리적' },
+      { id: 4, name: '체계적' },
+    ],
     shortDescription:
       '네이버에서 6년간 다양한 프로덕트의 기획과 운영을 담당하고 있습니다.',
     introduction:
