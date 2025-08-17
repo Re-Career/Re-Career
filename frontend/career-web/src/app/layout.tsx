@@ -32,7 +32,7 @@ export default function RootLayout({
         className={`${notoSans.variable} ${notoSansKR.variable} mx-auto flex min-h-screen w-full max-w-[450px] flex-col bg-neutral-50`}
       >
         <div className="flex-1 bg-white">{children}</div>
-        <footer className="h-4" />
+        <div className="h-4 bg-white" />
       </body>
     </html>
   )

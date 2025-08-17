@@ -2,7 +2,9 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 
 const ProfileImageUpload = () => {
-  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null)
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
+    null
+  )
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -26,7 +28,7 @@ const ProfileImageUpload = () => {
           <label className="cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-gray-100 px-4 py-2 text-center text-sm leading-tight font-medium text-neutral-900">
             {profileImagePreview ? '변경' : '추가'}
             <input
-              name="profileImage"
+              name="profileImageUrl"
               type="file"
               className="hidden"
               accept="image/*"

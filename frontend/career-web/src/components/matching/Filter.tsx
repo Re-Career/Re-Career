@@ -83,7 +83,7 @@ const Filter = ({ initialFilters, initialMentorName }: FilterProps) => {
 
       <div
         ref={filterRef}
-        className="fixed top-14 right-0 left-0 z-80 mx-auto max-w-[450px] bg-white pt-2"
+        className="fixed top-14 right-0 left-0 z-80 mx-auto max-w-[450px] bg-white py-2"
       >
         <div className="flex px-4">
           <div className="focus-within:ring-primary flex flex-1 items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 focus-within:ring-2">

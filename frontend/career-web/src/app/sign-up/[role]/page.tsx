@@ -1,5 +1,6 @@
 import Header from '@/components/common/Header'
 import SignUpForm from '@/components/sign-up/SignUpForm'
+import PageWithHeader from '@/components/ui/PageWithHeader'
 import { ROLE_TYPES } from '@/lib/constants/global'
 import { getPersonalityTags } from '@/services/personality-tags'
 import { RoleType } from '@/types/global'
@@ -23,7 +24,9 @@ const SignUpPage = async ({
   return (
     <>
       <Header title="회원가입" showCancelButton />
-      <SignUpForm role={_role} tags={tags} />
+      <PageWithHeader>
+        <SignUpForm role={_role} tags={tags} />
+      </PageWithHeader>
     </>
   )
 }

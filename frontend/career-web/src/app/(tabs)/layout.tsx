@@ -7,7 +7,7 @@ export default function TabLayout({
 }>) {
   return (
     <>
-      <div className="pb-24">
+      <div className="bg-white pb-24">
         {children}
         <Tabs />
       </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import Header from '@/components/common/Header'
+import PageWithHeader from '@/components/ui/PageWithHeader'
 import Image from 'next/image'
 
 export default function Login() {
@@ -17,21 +18,23 @@ export default function Login() {
   return (
     <div>
       <Header title="로그인" showCancelButton />
-      <main className="mt-25 flex flex-col items-center justify-center">
-        <Image src="/logo_lg.png" alt="login_logo" width={260} height={240} />
-        <div className="my-10 flex flex-col items-center justify-center">
-          <p>일을 넘어 삶을 설계하는 </p>
-          <p>진짜 커리어 탐색 Re:Career</p>
-        </div>
-        <Image
-          src="/kakao_login.png"
-          alt="kakao_login"
-          width={300}
-          height={45}
-          onClick={handleOAuthLogin}
-          className="cursor-pointer"
-        />
-      </main>
+      <PageWithHeader>
+        <main className="flex flex-col items-center justify-center">
+          <Image src="/logo_lg.png" alt="login_logo" width={260} height={240} />
+          <div className="my-10 flex flex-col items-center justify-center">
+            <p>일을 넘어 삶을 설계하는 </p>
+            <p>진짜 커리어 탐색 Re:Career</p>
+          </div>
+          <Image
+            src="/kakao_login.png"
+            alt="kakao_login"
+            width={300}
+            height={45}
+            onClick={handleOAuthLogin}
+            className="cursor-pointer"
+          />
+        </main>
+      </PageWithHeader>
     </div>
   )
 }
