@@ -4,6 +4,12 @@ import com.recareer.backend.availableTime.repository.AvailableTimeRepository;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.repository.MentorRepository;
+import com.recareer.backend.common.entity.Job;
+import com.recareer.backend.common.entity.Company;
+import com.recareer.backend.common.entity.Region;
+import com.recareer.backend.common.repository.JobRepository;
+import com.recareer.backend.common.repository.CompanyRepository;
+import com.recareer.backend.common.repository.RegionRepository;
 import com.recareer.backend.auth.service.JwtTokenProvider;
 import com.recareer.backend.user.entity.Role;
 import com.recareer.backend.user.entity.User;
@@ -56,6 +62,15 @@ class MentorControllerTest {
     private PersonalityTagRepository personalityTagRepository;
 
     @Autowired
+    private JobRepository jobRepository;
+
+    @Autowired
+    private CompanyRepository companyRepository;
+
+    @Autowired
+    private RegionRepository regionRepository;
+
+    @Autowired
     private UserPersonalityTagRepository userPersonalityTagRepository;
 
     @Autowired
@@ -83,7 +98,7 @@ class MentorControllerTest {
         mentor = Mentor.builder()
                 .id(mentorUser.getId())
                 .user(mentorUser)
-                .position("시니어 백엔드 개발자")
+                .job(createJob("시니어 백엔드 개발자"))
                 .description("5년차 백엔드 개발자입니다.")
                 .experience(5)
                 .mentoringType(MentoringType.BOTH)
@@ -112,7 +127,7 @@ class MentorControllerTest {
         Mentor mentor2 = Mentor.builder()
                 .id(mentor2User.getId())
                 .user(mentor2User)
-                .position("디지털 마케팅 매니저")
+                .job(createJob("디지털 마케팅 매니저"))
                 .description("퍼포먼스 마케팅과 브랜드 마케팅 10년 경력입니다.")
                 .isVerified(true)
                 .build();
@@ -133,7 +148,7 @@ class MentorControllerTest {
         Mentor mentor3 = Mentor.builder()
                 .id(mentor3User.getId())
                 .user(mentor3User)
-                .position("UX/UI 디자이너")
+                .job(createJob("UX/UI 디자이너"))
                 .description("사용자 경험 중심의 디자인을 합니다. Figma, Adobe 전문가입니다.")
                 .isVerified(true)
                 .build();
@@ -154,7 +169,7 @@ class MentorControllerTest {
         Mentor mentor4 = Mentor.builder()
                 .id(mentor4User.getId())
                 .user(mentor4User)
-                .position("B2B 세일즈 매니저")
+                .job(createJob("B2B 세일즈 매니저"))
                 .description("기업 고객 대상 솔루션 영업 15년 경력입니다.")
                 .isVerified(true)
                 .build();
@@ -175,16 +190,15 @@ class MentorControllerTest {
         Mentor mentor5 = Mentor.builder()
                 .id(mentor5User.getId())
                 .user(mentor5User)
-                .position("데이터 사이언티스트")
+                .job(createJob("데이터 사이언티스트"))
                 .description("머신러닝과 통계 분석을 통해 비즈니스 인사이트를 제공합니다.")
                 .isVerified(true)
                 .build();
         mentorRepository.save(mentor5);
 
         // API 테스트 (변경된 엔드포인트)
-        mockMvc.perform(get("/mentors/search/recommended")
-                        .header("Authorization", "Bearer test_token")
-                        .param("regions", "강남")
+        mockMvc.perform(get("/mentors")
+                        .param("region", "강남")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").exists())
@@ -278,7 +292,7 @@ class MentorControllerTest {
         Mentor mentor2 = Mentor.builder()
                 .id(mentor2User.getId())
                 .user(mentor2User)
-                .position("디지털 마케팅 매니저")
+                .job(createJob("디지털 마케팅 매니저"))
                 .description("퍼포먼스 마케팅 전문가입니다.")
                 .isVerified(true)
                 .build();
@@ -309,7 +323,7 @@ class MentorControllerTest {
         Mentor mentor3 = Mentor.builder()
                 .id(mentor3User.getId())
                 .user(mentor3User)
-                .position("UX/UI 디자이너")
+                .job(createJob("UX/UI 디자이너"))
                 .description("사용자 경험 디자인 전문가입니다.")
                 .isVerified(true)
                 .build();
@@ -514,7 +528,7 @@ class MentorControllerTest {
         Mentor mentor2 = Mentor.builder()
                 .id(mentor2User.getId())
                 .user(mentor2User)
-                .position("프론트엔드 개발자")
+                .job(createJob("프론트엔드 개발자"))
                 .description("React 전문가입니다.")
                 .experience(3)
                 .mentoringType(MentoringType.ONLINE)
@@ -604,7 +618,7 @@ class MentorControllerTest {
         Mentor mentor3Years = Mentor.builder()
                 .id(mentor3YearsUser.getId())
                 .user(mentor3YearsUser)
-                .position("주니어 개발자")
+                .job(createJob("주니어 개발자"))
                 .description("3년차 개발자입니다.")
                 .experience(3)
                 .mentoringType(MentoringType.ONLINE)
@@ -625,7 +639,7 @@ class MentorControllerTest {
         Mentor mentor10Years = Mentor.builder()
                 .id(mentor10YearsUser.getId())
                 .user(mentor10YearsUser)
-                .position("시니어 개발자")
+                .job(createJob("시니어 개발자"))
                 .description("10년차 개발자입니다.")
                 .experience(10)
                 .mentoringType(MentoringType.OFFLINE)
@@ -958,7 +972,7 @@ class MentorControllerTest {
         Mentor mentor2 = Mentor.builder()
                 .id(mentor2User.getId())
                 .user(mentor2User)
-                .position("프론트엔드 개발자")
+                .job(createJob("프론트엔드 개발자"))
                 .description("React 전문가입니다.")
                 .experience(3)
                 .mentoringType(MentoringType.ONLINE)
@@ -1043,7 +1057,7 @@ class MentorControllerTest {
         Mentor mentor2 = Mentor.builder()
                 .id(mentor2User.getId())
                 .user(mentor2User)
-                .position("디지털 마케터")
+                .job(createJob("디지털 마케터"))
                 .description("성과 마케팅 전문가입니다.")
                 .experience(7)
                 .mentoringType(MentoringType.OFFLINE)
@@ -1082,7 +1096,7 @@ class MentorControllerTest {
         Mentor onlineMentor = Mentor.builder()
                 .id(onlineMentorUser.getId())
                 .user(onlineMentorUser)
-                .position("온라인 강사")
+                .job(createJob("온라인 강사"))
                 .description("온라인 전문가입니다.")
                 .mentoringType(MentoringType.ONLINE)
                 .isVerified(true)
@@ -1103,7 +1117,7 @@ class MentorControllerTest {
         Mentor offlineMentor = Mentor.builder()
                 .id(offlineMentorUser.getId())
                 .user(offlineMentorUser)
-                .position("오프라인 강사")
+                .job(createJob("오프라인 강사"))
                 .description("오프라인 전문가입니다.")
                 .mentoringType(MentoringType.OFFLINE)
                 .isVerified(true)
@@ -1127,5 +1141,26 @@ class MentorControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.meetingType").value("both"));
+    }
+    
+    private Job createJob(String name) {
+        Job job = Job.builder()
+                .name(name)
+                .build();
+        return jobRepository.save(job);
+    }
+    
+    private Company createCompany(String name) {
+        Company company = Company.builder()
+                .name(name)
+                .build();
+        return companyRepository.save(company);
+    }
+    
+    private Region createRegion(String name) {
+        Region region = Region.builder()
+                .name(name)
+                .build();
+        return regionRepository.save(region);
     }
 }
