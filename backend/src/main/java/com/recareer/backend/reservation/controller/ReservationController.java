@@ -1,5 +1,6 @@
 package com.recareer.backend.reservation.controller;
 
+import com.recareer.backend.reservation.dto.ReservationCancelRequestDto;
 import com.recareer.backend.reservation.dto.ReservationRequestDto;
 import com.recareer.backend.reservation.dto.ReservationResponseDto;
 import com.recareer.backend.reservation.dto.ReservationUpdateRequestDto;
@@ -104,6 +105,39 @@ public class ReservationController {
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
           .body(ApiResponse.error(e.getMessage()));
+    }
+  }
+
+  @PostMapping("/{reservationId}/cancel")
+  @Operation(summary = "멘토링 예약 취소", description = "멘티가 자신의 멘토링 예약을 취소합니다")
+  public ResponseEntity<ApiResponse<String>> cancelReservation(
+      @RequestHeader("Authorization") String accessToken,
+      @PathVariable Long reservationId,
+      @Valid @RequestBody ReservationCancelRequestDto cancelRequestDto) {
+    
+    try {
+      Long userId = authUtil.validateTokenAndGetUserId(accessToken);
+      Reservation reservation = reservationService.findById(reservationId);
+      
+      // 해당 멘토링의 멘티만 취소 가능
+      if (!reservation.isMenteeParticipant(userId)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(ApiResponse.error("본인의 예약만 취소할 수 있습니다"));
+      }
+      
+      reservationService.cancelReservation(reservationId, cancelRequestDto);
+      
+      return ResponseEntity.ok(ApiResponse.success("멘토링 예약이 취소되었습니다."));
+      
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(ApiResponse.error(e.getMessage()));
+    } catch (IllegalStateException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(ApiResponse.error(e.getMessage()));
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(ApiResponse.error("예약 취소 중 오류가 발생했습니다."));
     }
   }
 }
