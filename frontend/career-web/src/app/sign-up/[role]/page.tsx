@@ -8,20 +8,22 @@ import { redirect } from 'next/navigation'
 const SignUpPage = async ({
   params,
 }: {
-  params: Promise<{ role: RoleType }>
+  params: Promise<{ role: string }>
 }) => {
   const { role } = await params
 
+  const _role = role.toLocaleUpperCase() as RoleType
+
   const tags = await getPersonalityTags()
 
-  if (!Object.values(RoleTypes).includes(role)) {
+  if (!Object.values(RoleTypes).includes(_role)) {
     redirect('/')
   }
 
   return (
     <>
       <Header title="회원가입" showCancelButton />
-      <SignUpForm role={role} tags={tags} />
+      <SignUpForm role={_role} tags={tags} />
     </>
   )
 }
