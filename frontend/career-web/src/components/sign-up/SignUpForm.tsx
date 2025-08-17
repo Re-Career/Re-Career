@@ -33,7 +33,6 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
     const saveNativeAuth = async () => {
       const accessToken = await getToken()
 
-      console.log(accessToken)
       sendAuthTokensToNative(accessToken, '')
     }
 
