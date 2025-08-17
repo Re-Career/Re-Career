@@ -20,13 +20,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
 @Transactional
-class MentorControllerTest {
+class MentorDetailControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -37,37 +37,35 @@ class MentorControllerTest {
     private MentorRepository mentorRepository;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private JobRepository jobRepository;
 
-    private User mentorUser;
+    @Autowired
+    private UserRepository userRepository;
+
     private Mentor mentor;
-    private Job testJob;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         
         // Job 생성
-        testJob = Job.builder()
-                .name("백엔드 개발자")
+        Job testJob = Job.builder()
+                .name("시니어 백엔드 개발자")
                 .build();
         jobRepository.save(testJob);
         
-        // User 생성 (Province/City 없이 간단하게)
-        mentorUser = User.builder()
-                .name("테스트 멘토")
-                .email("testmentor@test.com")
+        // 멘토 사용자 생성
+        User mentorUser = User.builder()
+                .name("김멘토")
+                .email("mentor@test.com")
                 .role(Role.MENTOR)
                 .provider("google")
-                .providerId("testmentor123")
+                .providerId("mentor123")
                 .profileImageUrl("https://example.com/mentor.jpg")
                 .build();
         userRepository.save(mentorUser);
 
-        // Mentor 생성
+        // 멘토 생성
         mentor = Mentor.builder()
                 .id(mentorUser.getId())
                 .user(mentorUser)
@@ -81,21 +79,29 @@ class MentorControllerTest {
     }
 
     @Test
-    @DisplayName("기본 멘토 조회 테스트")
-    void getMentors_Basic() throws Exception {
-        mockMvc.perform(get("/mentors")
+    @DisplayName("멘토 상세 조회 - 기본 정보")
+    void getMentorById_Basic() throws Exception {
+        mockMvc.perform(get("/mentors/{id}", mentor.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").isArray());
+                .andExpect(jsonPath("$.data").exists());
     }
 
     @Test
-    @DisplayName("특정 멘토 ID로 조회 테스트")
-    void getMentorById_Success() throws Exception {
+    @DisplayName("멘토 상세 조회 - API 응답 구조")
+    void getMentorById_Response() throws Exception {
         mockMvc.perform(get("/mentors/{id}", mentor.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(mentor.getId()))
-                .andExpect(jsonPath("$.data.name").value("테스트 멘토"));
+                .andExpect(jsonPath("$.data.experience").value(5));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 멘토 조회 시 404 에러")
+    void getMentorById_NotFound() throws Exception {
+        mockMvc.perform(get("/mentors/{id}", 999L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }

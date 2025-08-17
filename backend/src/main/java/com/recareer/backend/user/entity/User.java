@@ -1,6 +1,8 @@
 package com.recareer.backend.user.entity;
 
 import com.recareer.backend.common.entity.BaseTimeEntity;
+import com.recareer.backend.common.entity.City;
+import com.recareer.backend.common.entity.Province;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,8 +35,13 @@ public class User extends BaseTimeEntity {
   @Column(name = "profile_image_url")
   private String profileImageUrl;
 
-  @Column(name = "region")
-  private String region;
+  @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinColumn(name = "province_id", nullable = true)
+  private Province province;
+
+  @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinColumn(name = "city_id", nullable = true)
+  private City city;
 
   public User update(String name, String profileImageUrl) {
     this.name = name;
@@ -49,12 +56,21 @@ public class User extends BaseTimeEntity {
     return this;
   }
 
-  public User updateProfile(String name, String email, String profileImageUrl, String region) {
+  public User updateProfile(String name, String email, String profileImageUrl, Province province, City city) {
     this.name = name;
     this.email = email;
     this.profileImageUrl = profileImageUrl;
-    this.region = region;
+    this.province = province;
+    this.city = city;
     return this;
+  }
+
+  public String getProvinceName() {
+    return province != null ? province.getName() : null;
+  }
+
+  public String getCityName() {
+    return city != null ? city.getName() : null;
   }
 
   public String getRoleKey() {

@@ -17,11 +17,11 @@ public class PositionResponsibilityMap extends BaseTimeEntity {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "position_id", nullable = false)
     private Position position;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "responsibility_id", nullable = false)
     private PositionResponsibilities positionResponsibilities;
 }

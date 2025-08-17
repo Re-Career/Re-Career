@@ -1,5 +1,6 @@
 package com.recareer.backend.reservation.service;
 
+import com.recareer.backend.reservation.dto.ReservationCancelRequestDto;
 import com.recareer.backend.reservation.dto.ReservationRequestDto;
 import com.recareer.backend.reservation.dto.ReservationResponseDto;
 import com.recareer.backend.reservation.dto.ReservationUpdateRequestDto;
@@ -15,4 +16,6 @@ public interface ReservationService {
   Reservation findById(Long reservationId);
   
   void updateReservationStatus(Long reservationId, ReservationUpdateRequestDto updateRequestDto);
+  
+  void cancelReservation(Long reservationId, ReservationCancelRequestDto cancelRequestDto);
 }
