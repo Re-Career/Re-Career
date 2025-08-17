@@ -15,15 +15,15 @@ public interface MentorRepository extends JpaRepository<Mentor, Long> {
     @Query("SELECT m FROM Mentor m JOIN m.user u WHERE m.id = :id AND m.isVerified = true AND u.role = 'MENTOR'")
     Optional<Mentor> findById(@Param("id") Long id);
     
-    @Query("SELECT m FROM Mentor m JOIN m.user u WHERE m.isVerified = true AND u.role = 'MENTOR' AND (u.region LIKE %:region% OR :region LIKE CONCAT('%', u.region, '%'))")
+    @Query("SELECT m FROM Mentor m JOIN m.user u LEFT JOIN u.province p WHERE m.isVerified = true AND u.role = 'MENTOR' AND (p.name LIKE %:region% OR p IS NULL)")
     List<Mentor> findByIsVerifiedTrueAndUserRegionContains(@Param("region") String region);
     
-    @Query("SELECT m FROM Mentor m JOIN FETCH m.user u WHERE m.isVerified = true AND u.role = 'MENTOR' AND (u.region LIKE %:region% OR :region LIKE CONCAT('%', u.region, '%'))")
+    @Query("SELECT m FROM Mentor m JOIN FETCH m.user u LEFT JOIN FETCH u.province p WHERE m.isVerified = true AND u.role = 'MENTOR' AND (p.name LIKE %:region% OR p IS NULL)")
     List<Mentor> findByIsVerifiedTrueAndUserRegionContainsWithUser(@Param("region") String region);
     
     @Query("SELECT m FROM Mentor m JOIN FETCH m.user u WHERE m.isVerified = true AND u.role = 'MENTOR'")
     List<Mentor> findAllByIsVerifiedTrueWithUser();
     
-    @Query("SELECT m.job.name, COUNT(m) FROM Mentor m JOIN m.user u WHERE m.isVerified = true AND u.role = 'MENTOR' AND (u.region LIKE %:region% OR :region LIKE CONCAT('%', u.region, '%')) GROUP BY m.job.name ORDER BY COUNT(m) DESC limit 4")
+    @Query("SELECT m.job.name, COUNT(m) FROM Mentor m JOIN m.user u LEFT JOIN u.province p WHERE m.isVerified = true AND u.role = 'MENTOR' AND (p.name LIKE %:region% OR p IS NULL) GROUP BY m.job.name ORDER BY COUNT(m) DESC limit 4")
     List<Object[]> countPositionsByRegion(@Param("region") String region);
 }

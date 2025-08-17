@@ -53,7 +53,7 @@ public class MentorServiceImpl implements MentorService {
     private final CompanyRepository companyRepository;
     private final RegionRepository regionRepository;
 
-    private static final String DEFAULT_REGION = "서울시";
+    private static final Long DEFAULT_PROVINCE_ID = 1L; // 서울특별시
 
     @Override
     @Transactional
@@ -103,7 +103,7 @@ public class MentorServiceImpl implements MentorService {
     @Transactional(readOnly = true)
     public List<MentorSummaryResponseDto> getMentorsByRegion(String region) {
         if (region == null || region.trim().isEmpty()) {
-            region = DEFAULT_REGION;
+            region = "서울";
         }
 
         log.info("Finding mentors by region: {}", region);
@@ -149,7 +149,7 @@ public class MentorServiceImpl implements MentorService {
     @Transactional(readOnly = true)
     public List<Mentor> getMentorsByRegionAndPersonalityTags(List<String> regions, String providerId) {
         if (regions == null || regions.isEmpty()) {
-            regions = List.of(DEFAULT_REGION);
+            regions = List.of("서울");
         }
 
         log.info("Finding mentors by user personality tags - providerId: {}, regions: {}", providerId, regions);
@@ -322,7 +322,7 @@ public class MentorServiceImpl implements MentorService {
      */
     private List<Mentor> getMentorsByRegionAndPersonalityTagIds(List<String> regions, List<Long> personalityTagIds) {
         if (regions == null || regions.isEmpty()) {
-            regions = List.of(DEFAULT_REGION);
+            regions = List.of("서울");
         }
 
         log.info("Finding mentors in regions: {} with personality tags: {}", regions, personalityTagIds);
@@ -404,9 +404,23 @@ public class MentorServiceImpl implements MentorService {
     @Override
     @Transactional(readOnly = true)
     public List<MentorSummaryResponseDto> getMentorsByFilters(MentorFilterRequestDto filterRequest) {
+        // 기본값 설정: provinceId가 null이면 서울특별시(1L)로 설정
+        final MentorFilterRequestDto finalFilterRequest;
+        if (filterRequest.getProvinceId() == null) {
+            finalFilterRequest = MentorFilterRequestDto.builder()
+                    .jobs(filterRequest.getJobs())
+                    .experiences(filterRequest.getExperiences())
+                    .mentoringTypes(filterRequest.getMentoringTypes())
+                    .provinceId(DEFAULT_PROVINCE_ID)
+                    .cityId(filterRequest.getCityId())
+                    .build();
+        } else {
+            finalFilterRequest = filterRequest;
+        }
+        
         log.info("Finding mentors by filters - jobs: {}, experiences: {}, mentoringTypes: {}, provinceId: {}, cityId: {}", 
-                filterRequest.getJobs(), filterRequest.getExperiences(), filterRequest.getMentoringTypes(),
-                filterRequest.getProvinceId(), filterRequest.getCityId());
+                finalFilterRequest.getJobs(), finalFilterRequest.getExperiences(), finalFilterRequest.getMentoringTypes(),
+                finalFilterRequest.getProvinceId(), finalFilterRequest.getCityId());
 
         // 1. 전체 검증된 멘토 조회 (User 정보까지 Fetch Join)
         List<Mentor> allMentors = mentorRepository.findAllByIsVerifiedTrueWithUser();
@@ -415,40 +429,40 @@ public class MentorServiceImpl implements MentorService {
         List<Mentor> filteredMentors = allMentors.stream()
                 .filter(mentor -> {
                     // Job 필터링
-                    if (filterRequest.getJobs() != null && !filterRequest.getJobs().isEmpty()) {
-                        boolean jobMatches = filterRequest.getJobs().stream()
+                    if (finalFilterRequest.getJobs() != null && !finalFilterRequest.getJobs().isEmpty()) {
+                        boolean jobMatches = finalFilterRequest.getJobs().stream()
                                 .anyMatch(job -> mentor.getJob() != null && 
                                         mentor.getJob().getName().toLowerCase().contains(job.toLowerCase()));
                         if (!jobMatches) return false;
                     }
                     
                     // Experience 필터링
-                    if (filterRequest.getExperiences() != null && !filterRequest.getExperiences().isEmpty()) {
-                        boolean experienceMatches = filterRequest.getExperiences().stream()
+                    if (finalFilterRequest.getExperiences() != null && !finalFilterRequest.getExperiences().isEmpty()) {
+                        boolean experienceMatches = finalFilterRequest.getExperiences().stream()
                                 .anyMatch(exp -> matchesExperienceRange(mentor.getExperience(), exp));
                         if (!experienceMatches) return false;
                     }
                     
                     // MentoringType 필터링
-                    if (filterRequest.getMentoringTypes() != null && !filterRequest.getMentoringTypes().isEmpty()) {
-                        boolean mentoringTypeMatches = filterRequest.getMentoringTypes().stream()
+                    if (finalFilterRequest.getMentoringTypes() != null && !finalFilterRequest.getMentoringTypes().isEmpty()) {
+                        boolean mentoringTypeMatches = finalFilterRequest.getMentoringTypes().stream()
                                 .anyMatch(type -> matchesMentoringType(mentor.getMentoringType(), type));
                         if (!mentoringTypeMatches) return false;
                     }
                     
                     // Province 필터링
-                    if (filterRequest.getProvinceId() != null) {
+                    if (finalFilterRequest.getProvinceId() != null) {
                         boolean provinceMatches = mentor.getUser() != null && 
                                 mentor.getUser().getProvince() != null && 
-                                mentor.getUser().getProvince().getId().equals(filterRequest.getProvinceId());
+                                mentor.getUser().getProvince().getId().equals(finalFilterRequest.getProvinceId());
                         if (!provinceMatches) return false;
                     }
                     
                     // City 필터링
-                    if (filterRequest.getCityId() != null) {
+                    if (finalFilterRequest.getCityId() != null) {
                         boolean cityMatches = mentor.getUser() != null && 
                                 mentor.getUser().getCity() != null && 
-                                mentor.getUser().getCity().getId().equals(filterRequest.getCityId());
+                                mentor.getUser().getCity().getId().equals(finalFilterRequest.getCityId());
                         if (!cityMatches) return false;
                     }
                     
