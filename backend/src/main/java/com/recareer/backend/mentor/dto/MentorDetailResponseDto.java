@@ -28,7 +28,7 @@ public class MentorDetailResponseDto {
     private Integer experience;
     private String region;
     private String meetingType;
-    private List<PersonalityTagDto> PersonalityTags;
+    private List<PersonalityTagDto> personalityTags;
     private String shortDescription;
     private String introduction;
     private List<String> skills;
@@ -113,7 +113,7 @@ public class MentorDetailResponseDto {
                 .experience(mentor.getExperience())
                 .region(mentor.getUser().getRegion())
                 .meetingType(meetingType)
-                .PersonalityTags(personalityTagDtos)
+                .personalityTags(personalityTagDtos)
                 .shortDescription(mentor.getDescription())
                 .introduction(mentor.getDescription()) // 현재는 description을 introduction으로 사용
                 .skills(mentor.getSkills() != null ? mentor.getSkills() : List.of())
