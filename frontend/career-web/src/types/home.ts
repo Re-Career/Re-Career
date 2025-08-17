@@ -14,6 +14,11 @@ export interface RegionJobs {
   positions: RegionJob[]
 }
 
+export interface PersonalityTag {
+  id: number
+  name: string
+}
+
 export interface Mentor {
   id: number
   name: string
@@ -22,9 +27,9 @@ export interface Mentor {
   profileImageUrl: string
   company?: string
   experience?: number
-  location?: string
+  region?: string
   meetingType?: 'online' | 'offline' | 'both'
-  personality?: string
+  personalityTags?: PersonalityTag[]
   shortDescription?: string
   introduction?: string
   skills?: string[]

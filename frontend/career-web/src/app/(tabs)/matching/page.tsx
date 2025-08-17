@@ -97,10 +97,12 @@ const MatchingPage = async ({ searchParams }: MatchingPageProps) => {
 
                         <p className="text-xs text-gray-900">
                           {mentor.company} • {mentor.experience}년 •
-                          {mentor.location}
+                          {mentor.region}
                         </p>
                         <p className="text-xs text-gray-900">
-                          {mentor.personality}
+                          {mentor.personalityTags
+                            ?.map((tag) => tag.name)
+                            .join(', ')}
                         </p>
                       </div>
 

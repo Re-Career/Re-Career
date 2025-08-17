@@ -10,9 +10,12 @@ export const searchMentors: Mentor[] = [
       'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&h=120&fit=crop&crop=face',
     company: '카카오',
     experience: 8,
-    location: '서울',
+    region: '서울',
     meetingType: 'both',
-    personality: '친근하고 꼼꼼함',
+    personalityTags: [
+      { id: 1, name: '친근함' },
+      { id: 2, name: '꼼꼼함' },
+    ],
   },
   {
     id: 2,
@@ -23,9 +26,12 @@ export const searchMentors: Mentor[] = [
       'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&h=120&fit=crop&crop=face',
     company: '네이버',
     experience: 6,
-    location: '서울',
+    region: '서울',
     meetingType: 'online',
-    personality: '논리적이고 체계적',
+    personalityTags: [
+      { id: 3, name: '논리적' },
+      { id: 4, name: '체계적' },
+    ],
   },
   {
     id: 3,
@@ -36,9 +42,12 @@ export const searchMentors: Mentor[] = [
       'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&h=120&fit=crop&crop=face',
     company: '당근마켓',
     experience: 5,
-    location: '서울',
+    region: '서울',
     meetingType: 'offline',
-    personality: '창의적이고 소통 능력 우수',
+    personalityTags: [
+      { id: 5, name: '창의적' },
+      { id: 6, name: '소통능력우수' },
+    ],
   },
   {
     id: 4,
@@ -49,9 +58,12 @@ export const searchMentors: Mentor[] = [
       'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&h=120&fit=crop&crop=face',
     company: '토스',
     experience: 4,
-    location: '서울',
+    region: '서울',
     meetingType: 'both',
-    personality: '분석적이고 차분함',
+    personalityTags: [
+      { id: 7, name: '분석적' },
+      { id: 8, name: '차분함' },
+    ],
   },
   {
     id: 5,
@@ -62,9 +74,12 @@ export const searchMentors: Mentor[] = [
       'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&fit=crop&crop=face',
     company: '배달의민족',
     experience: 7,
-    location: '부산',
+    region: '부산',
     meetingType: 'online',
-    personality: '활발하고 열정적',
+    personalityTags: [
+      { id: 9, name: '활발함' },
+      { id: 10, name: '열정적' },
+    ],
   },
   {
     id: 6,
@@ -75,9 +90,12 @@ export const searchMentors: Mentor[] = [
       'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&h=120&fit=crop&crop=face',
     company: '자체 창업',
     experience: 10,
-    location: '대구',
+    region: '대구',
     meetingType: 'both',
-    personality: '리더십이 강하고 격려를 잘함',
+    personalityTags: [
+      { id: 11, name: '리더십' },
+      { id: 12, name: '격려잘함' },
+    ],
   },
   {
     id: 7,
@@ -88,9 +106,12 @@ export const searchMentors: Mentor[] = [
       'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&h=120&fit=crop&crop=face',
     company: '라인',
     experience: 5,
-    location: '서울',
+    region: '서울',
     meetingType: 'online',
-    personality: '차분하고 설명을 잘함',
+    personalityTags: [
+      { id: 8, name: '차분함' },
+      { id: 13, name: '설명잘함' },
+    ],
   },
   {
     id: 8,
@@ -101,8 +122,11 @@ export const searchMentors: Mentor[] = [
       'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&h=120&fit=crop&crop=face',
     company: '쿠팡',
     experience: 6,
-    location: '서울',
+    region: '서울',
     meetingType: 'both',
-    personality: '꼼꼼하고 인내심이 강함',
+    personalityTags: [
+      { id: 2, name: '꼼꼼함' },
+      { id: 14, name: '인내심강함' },
+    ],
   },
 ]

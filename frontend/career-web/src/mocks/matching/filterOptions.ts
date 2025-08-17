@@ -20,7 +20,7 @@ export const filterOptions = [
     ],
   },
   {
-    key: 'location',
+    key: 'region',
     title: '지역',
     options: [
       { key: 'seoul', name: '서울' },
@@ -38,7 +38,7 @@ export const filterOptions = [
     ],
   },
   {
-    key: 'personality',
+    key: 'PersonalityTags',
     title: '성향',
     options: [
       { key: 'friendly', name: '친근함' },
