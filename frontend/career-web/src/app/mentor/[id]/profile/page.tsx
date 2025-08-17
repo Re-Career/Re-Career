@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getMentor } from '@/services/mentor'
 import Link from 'next/link'
+import PageWithHeader from '@/components/ui/PageWithHeader'
 
 const renderStars = (rating: number) => {
   return Array.from({ length: 5 }, (_, i) => (
@@ -30,7 +31,7 @@ const MentorProfilePage = async ({
   return (
     <>
       <Header title="멘토 프로필" showBackButton />
-      <div>
+      <PageWithHeader>
         {/* 프로필 상단 */}
         <div className="bg-white p-6 text-center">
           <div className="mx-auto mb-4 h-32 w-32 overflow-hidden rounded-full">
@@ -167,7 +168,7 @@ const MentorProfilePage = async ({
             상담 예약하기
           </Link>
         </div>
-      </div>
+      </PageWithHeader>
     </>
   )
 }

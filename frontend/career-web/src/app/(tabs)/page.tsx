@@ -5,17 +5,20 @@ import {
   MentorList,
   IndustryNews,
 } from '@/components/home'
+import PageWithHeader from '@/components/ui/PageWithHeader'
 
 const HomePage = async () => {
   return (
     <>
       <Header title="Re:Career" />
-      <main className="flex-1">
-        <TrendJobList />
-        <ReginalJobList />
-        <MentorList />
-        <IndustryNews />
-      </main>
+      <PageWithHeader>
+        <main className="flex-1">
+          <TrendJobList />
+          <ReginalJobList />
+          <MentorList />
+          <IndustryNews />
+        </main>
+      </PageWithHeader>
     </>
   )
 }

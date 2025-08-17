@@ -1,5 +1,6 @@
 import Header from '@/components/common/Header'
 import MyMentoringList from '@/components/my-page/mentoring/MyMentoringList'
+import PageWithHeader from '@/components/ui/PageWithHeader'
 import { getUserProfile } from '@/services/user'
 
 import Image from 'next/image'
@@ -13,9 +14,9 @@ const MyPagePage = async () => {
   }
 
   return (
-    <div className="flex h-screen flex-col">
+    <>
       <Header title="마이페이지" />
-      <main className="flex-1">
+      <PageWithHeader>
         <section className="flex flex-col items-center gap-4 p-4">
           <Image
             src={data.profileImageUrl ?? ''}
@@ -39,8 +40,8 @@ const MyPagePage = async () => {
             <p>계정</p>
           </div>
         </section>
-      </main>
-    </div>
+      </PageWithHeader>
+    </>
   )
 }
 

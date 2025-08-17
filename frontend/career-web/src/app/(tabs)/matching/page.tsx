@@ -5,6 +5,7 @@ import Link from 'next/link'
 import HorizontalScroll from '@/components/common/HorizontalScroll'
 import Filter from '@/components/matching/Filter'
 import { getFilteredMenters, getRecommenedMentors } from '@/services/mentor'
+import PageWithHeader from '@/components/ui/PageWithHeader'
 
 interface MatchingPageProps {
   searchParams: Promise<Record<string, string>>
@@ -30,7 +31,7 @@ const MatchingPage = async ({ searchParams }: MatchingPageProps) => {
     <>
       <Header title="멘토 찾기" />
 
-      <div className="flex flex-col gap-4 pt-32 pb-4">
+      <PageWithHeader>
         {/* 검색 섹션 */}
         <Filter initialFilters={filters} initialMentorName={mentorName} />
 
@@ -119,7 +120,7 @@ const MatchingPage = async ({ searchParams }: MatchingPageProps) => {
             ))}
           </div>
         </div>
-      </div>
+      </PageWithHeader>
     </>
   )
 }

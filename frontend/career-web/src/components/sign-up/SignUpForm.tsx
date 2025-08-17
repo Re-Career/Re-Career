@@ -97,7 +97,7 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
 
   return (
     <form action={formAction}>
-      <main className="mt-14 flex flex-1 flex-col">
+      <main className="flex flex-1 flex-col">
         <h1 className="px-4 py-3 text-xl leading-7 font-bold text-neutral-900">
           프로필을 완성해주세요
         </h1>
