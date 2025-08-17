@@ -18,7 +18,7 @@ public class MentoringRecord extends BaseTimeEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @OneToOne(optional = false)
+  @OneToOne(optional = false, cascade = CascadeType.ALL)
   @JoinColumn(name = "reservation_id", nullable = false, unique = true)
   private Reservation reservation;
 

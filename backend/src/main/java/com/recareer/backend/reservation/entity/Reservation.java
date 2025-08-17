@@ -20,11 +20,11 @@ public class Reservation extends BaseTimeEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   @JoinColumn(name = "mentor_id", nullable = false)
   private Mentor mentor;
 
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
