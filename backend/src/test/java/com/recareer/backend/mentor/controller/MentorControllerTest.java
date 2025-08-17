@@ -182,8 +182,9 @@ class MentorControllerTest {
         mentorRepository.save(mentor5);
 
         // API 테스트 (변경된 엔드포인트)
-        mockMvc.perform(get("/mentors/filter")
-                        .param("region", "강남")
+        mockMvc.perform(get("/mentors/search/recommended")
+                        .header("Authorization", "Bearer test_token")
+                        .param("regions", "강남")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").exists())
@@ -356,14 +357,36 @@ class MentorControllerTest {
     }
 
     @Test
-    @DisplayName("멘토 ID로 조회 API 테스트")
+    @DisplayName("멘토 ID로 조회 API 테스트 - MentorDetailResponseDto")
     void getMentorById_Success() throws Exception {
         mockMvc.perform(get("/mentors/{id}", mentor.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(mentor.getId()))
                 .andExpect(jsonPath("$.data.name").value("테스트 멘토"))
-                .andExpect(jsonPath("$.data.position").value("시니어 백엔드 개발자"));
+                .andExpect(jsonPath("$.data.job").value("시니어 백엔드 개발자"))
+                .andExpect(jsonPath("$.data.email").value("testmentor@test.com"))
+                .andExpect(jsonPath("$.data.profileImageUrl").value("https://example.com/mentor.jpg"))
+                .andExpect(jsonPath("$.data.experience").value(5))
+                .andExpect(jsonPath("$.data.location").value("서울시 강남구"))
+                .andExpect(jsonPath("$.data.meetingType").value("both"))
+                .andExpect(jsonPath("$.data.shortDescription").value("5년차 백엔드 개발자입니다."))
+                .andExpect(jsonPath("$.data.introduction").value("5년차 백엔드 개발자입니다."))
+                .andExpect(jsonPath("$.data.skills").isArray())
+                .andExpect(jsonPath("$.data.skills").isEmpty())
+                .andExpect(jsonPath("$.data.career").isArray())
+                .andExpect(jsonPath("$.data.career").isEmpty())
+                .andExpect(jsonPath("$.data.feedback").exists())
+                .andExpect(jsonPath("$.data.feedback.rating").value(0.0))
+                .andExpect(jsonPath("$.data.feedback.count").value(0))
+                .andExpect(jsonPath("$.data.feedback.comments").isArray())
+                .andExpect(jsonPath("$.data.feedback.comments").isEmpty())
+                .andDo(result -> {
+                    System.out.println("\n=== 멘토 상세 정보 조회 응답 ===");
+                    String jsonResponse = result.getResponse().getContentAsString();
+                    System.out.println(jsonResponse);
+                    System.out.println("============================\n");
+                });
     }
 
     @Test
@@ -726,7 +749,7 @@ class MentorControllerTest {
 
         mockMvc.perform(get("/mentors/recommended")
                         .header("Authorization", "Bearer " + accessToken)
-                        .param("region", "강남")
+                        .param("regions", "강남")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
@@ -742,7 +765,7 @@ class MentorControllerTest {
                         .param("region", "강남")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value("Invalid access token"));
+                .andExpect(jsonPath("$.message").value("유효하지 않은 토큰입니다."));
     }
 
     @Test
@@ -753,9 +776,356 @@ class MentorControllerTest {
 
         mockMvc.perform(get("/mentors/recommended")
                         .header("Authorization", "Bearer " + accessToken)
-                        .param("region", "강남")
+                        .param("regions", "강남")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message").value("추천 멘토 조회에 실패했습니다."));
+    }
+
+    @Test
+    @DisplayName("홈 페이지 - 당신을 위한 멘토들 API 테스트")
+    void getHomeRecommendedMentors_Success() throws Exception {
+        // PersonalityTag 생성
+        PersonalityTag tag1 = PersonalityTag.builder()
+                .name("창의적")
+                .build();
+        personalityTagRepository.save(tag1);
+
+        // 테스트 사용자 생성
+        User testUser = User.builder()
+                .name("테스트 유저")
+                .email("homeuser@test.com")
+                .role(Role.MENTEE)
+                .provider("google")
+                .providerId("homeuser123")
+                .region("서울시 강남구")
+                .build();
+        userRepository.save(testUser);
+
+        // 사용자에게 성향 태그 추가
+        UserPersonalityTag userTag = UserPersonalityTag.builder()
+                .user(testUser)
+                .personalityTag(tag1)
+                .build();
+        userPersonalityTagRepository.save(userTag);
+
+        // 멘토에게도 같은 성향 태그 추가
+        UserPersonalityTag mentorTag = UserPersonalityTag.builder()
+                .user(mentorUser)
+                .personalityTag(tag1)
+                .build();
+        userPersonalityTagRepository.save(mentorTag);
+
+        // JWT 토큰 생성
+        String accessToken = jwtTokenProvider.createAccessToken("homeuser123", "ROLE_USER");
+
+        mockMvc.perform(get("/mentors/home")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].name").value("테스트 멘토"))
+                .andDo(result -> {
+                    System.out.println("\n=== 홈 페이지 추천 멘토 응답 ===");
+                    String jsonResponse = result.getResponse().getContentAsString();
+                    System.out.println(jsonResponse);
+                    System.out.println("============================\n");
+                });
+    }
+
+    @Test
+    @DisplayName("멘토 찾기 - 추천 매칭 API 테스트 (지역 필터 있음)")
+    void getSearchRecommendedMentors_WithRegionFilter() throws Exception {
+        // PersonalityTag 생성
+        PersonalityTag tag1 = PersonalityTag.builder()
+                .name("논리적")
+                .build();
+        personalityTagRepository.save(tag1);
+
+        // 테스트 사용자 생성
+        User testUser = User.builder()
+                .name("테스트 유저")
+                .email("searchuser@test.com")
+                .role(Role.MENTEE)
+                .provider("google")
+                .providerId("searchuser123")
+                .region("서울시 강남구")
+                .build();
+        userRepository.save(testUser);
+
+        // 사용자에게 성향 태그 추가
+        UserPersonalityTag userTag = UserPersonalityTag.builder()
+                .user(testUser)
+                .personalityTag(tag1)
+                .build();
+        userPersonalityTagRepository.save(userTag);
+
+        // 멘토에게 성향 태그 추가
+        UserPersonalityTag mentorTag = UserPersonalityTag.builder()
+                .user(mentorUser)
+                .personalityTag(tag1)
+                .build();
+        userPersonalityTagRepository.save(mentorTag);
+
+        // JWT 토큰 생성
+        String accessToken = jwtTokenProvider.createAccessToken("searchuser123", "ROLE_USER");
+
+        // 지역 필터 조건 있음 - 해당 지역 + 사용자 성향으로 필터링
+        mockMvc.perform(get("/mentors/search/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .param("regions", "강남")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].name").value("테스트 멘토"))
+                .andDo(result -> {
+                    System.out.println("\n=== 멘토 찾기 추천 매칭 (지역 필터 있음) 응답 ===");
+                    String jsonResponse = result.getResponse().getContentAsString();
+                    System.out.println(jsonResponse);
+                    System.out.println("==========================================\n");
+                });
+    }
+
+    @Test
+    @DisplayName("멘토 찾기 - 추천 매칭 API 테스트 (필터 조건 없음)")
+    void getSearchRecommendedMentors_WithoutFilters() throws Exception {
+        // PersonalityTag 생성
+        PersonalityTag tag1 = PersonalityTag.builder()
+                .name("창의적")
+                .build();
+        personalityTagRepository.save(tag1);
+
+        // 테스트 사용자 생성
+        User testUser = User.builder()
+                .name("테스트 유저")
+                .email("nofilteruser@test.com")
+                .role(Role.MENTEE)
+                .provider("google")
+                .providerId("nofilteruser123")
+                .region("서울시 강남구")
+                .build();
+        userRepository.save(testUser);
+
+        // 사용자에게 성향 태그 추가
+        UserPersonalityTag userTag = UserPersonalityTag.builder()
+                .user(testUser)
+                .personalityTag(tag1)
+                .build();
+        userPersonalityTagRepository.save(userTag);
+
+        // 멘토에게도 같은 성향 태그 추가
+        UserPersonalityTag mentorTag = UserPersonalityTag.builder()
+                .user(mentorUser)
+                .personalityTag(tag1)
+                .build();
+        userPersonalityTagRepository.save(mentorTag);
+
+        // JWT 토큰 생성
+        String accessToken = jwtTokenProvider.createAccessToken("nofilteruser123", "ROLE_USER");
+
+        // 필터 조건 없음 - 사용자 기반 추천
+        mockMvc.perform(get("/mentors/search/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].name").value("테스트 멘토"))
+                .andDo(result -> {
+                    System.out.println("\n=== 멘토 찾기 추천 매칭 (필터 없음) 응답 ===");
+                    String jsonResponse = result.getResponse().getContentAsString();
+                    System.out.println(jsonResponse);
+                    System.out.println("==========================================\n");
+                });
+    }
+
+    @Test
+    @DisplayName("멘토 찾기 - 멘토 리스트 API 테스트 (2순위 필터링)")
+    void getSearchMentorList_Success() throws Exception {
+        // 다양한 멘토 생성
+        User mentor2User = User.builder()
+                .name("김프론트")
+                .email("frontend@test.com")
+                .role(Role.MENTOR)
+                .provider("google")
+                .providerId("frontend123")
+                .region("서울시 강남구")
+                .build();
+        userRepository.save(mentor2User);
+
+        Mentor mentor2 = Mentor.builder()
+                .id(mentor2User.getId())
+                .user(mentor2User)
+                .position("프론트엔드 개발자")
+                .description("React 전문가입니다.")
+                .experience(3)
+                .mentoringType(MentoringType.ONLINE)
+                .isVerified(true)
+                .build();
+        mentorRepository.save(mentor2);
+
+        // 2순위 필터링 테스트 - 직업만
+        mockMvc.perform(get("/mentors/search/list")
+                        .param("position", "백엔드")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].name").value("테스트 멘토"))
+                .andDo(result -> {
+                    System.out.println("\n=== 멘토 찾기 리스트 (직업 필터) 응답 ===");
+                    String jsonResponse = result.getResponse().getContentAsString();
+                    System.out.println(jsonResponse);
+                    System.out.println("=====================================\n");
+                });
+
+        // 2순위 필터링 테스트 - 경험만
+        mockMvc.perform(get("/mentors/search/list")
+                        .param("experience", "4-6년")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].name").value("테스트 멘토"));
+
+        // 2순위 필터링 테스트 - 멘토링 타입만
+        mockMvc.perform(get("/mentors/search/list")
+                        .param("mentoringType", "ONLINE")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(2))) // BOTH(테스트 멘토) + ONLINE(김프론트) = 2명
+                .andDo(result -> {
+                    System.out.println("\n=== 멘토 찾기 리스트 (멘토링 타입 필터) 응답 ===");
+                    String jsonResponse = result.getResponse().getContentAsString();
+                    System.out.println(jsonResponse);
+                    System.out.println("============================================\n");
+                });
+    }
+
+    @Test
+    @DisplayName("멘토 찾기 - 멘토 리스트 API 테스트 (복합 필터)")
+    void getSearchMentorList_ComplexFilters() throws Exception {
+        mockMvc.perform(get("/mentors/search/list")
+                        .param("position", "백엔드")
+                        .param("experience", "4-6년")
+                        .param("mentoringType", "BOTH")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(1)))
+                .andExpect(jsonPath("$.data[0].name").value("테스트 멘토"))
+                .andExpect(jsonPath("$.data[0].position").value("시니어 백엔드 개발자"))
+                .andDo(result -> {
+                    System.out.println("\n=== 멘토 찾기 리스트 (복합 필터) 응답 ===");
+                    String jsonResponse = result.getResponse().getContentAsString();
+                    System.out.println(jsonResponse);
+                    System.out.println("=====================================\n");
+                });
+    }
+
+    @Test
+    @DisplayName("멘토 찾기 - 멘토 리스트 API 테스트 (필터 없음)")
+    void getSearchMentorList_NoFilters() throws Exception {
+        // 추가 멘토 생성
+        User mentor2User = User.builder()
+                .name("박마케팅")
+                .email("marketing@test.com")
+                .role(Role.MENTOR)
+                .provider("google")
+                .providerId("marketing123")
+                .region("부산시 해운대구")
+                .build();
+        userRepository.save(mentor2User);
+
+        Mentor mentor2 = Mentor.builder()
+                .id(mentor2User.getId())
+                .user(mentor2User)
+                .position("디지털 마케터")
+                .description("성과 마케팅 전문가입니다.")
+                .experience(7)
+                .mentoringType(MentoringType.OFFLINE)
+                .isVerified(true)
+                .build();
+        mentorRepository.save(mentor2);
+
+        // 필터 없음 - 모든 멘토 조회
+        mockMvc.perform(get("/mentors/search/list")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data").value(hasSize(2)))
+                .andDo(result -> {
+                    System.out.println("\n=== 멘토 찾기 리스트 (필터 없음) 응답 ===");
+                    String jsonResponse = result.getResponse().getContentAsString();
+                    System.out.println(jsonResponse);
+                    System.out.println("=====================================\n");
+                });
+    }
+
+    @Test
+    @DisplayName("MentorDetailResponseDto - meetingType 변환 테스트")
+    void getMentorById_MeetingTypeConversion() throws Exception {
+        // ONLINE 멘토 생성
+        User onlineMentorUser = User.builder()
+                .name("온라인 멘토")
+                .email("online@test.com")
+                .role(Role.MENTOR)
+                .provider("google")
+                .providerId("online123")
+                .region("서울시")
+                .build();
+        userRepository.save(onlineMentorUser);
+
+        Mentor onlineMentor = Mentor.builder()
+                .id(onlineMentorUser.getId())
+                .user(onlineMentorUser)
+                .position("온라인 강사")
+                .description("온라인 전문가입니다.")
+                .mentoringType(MentoringType.ONLINE)
+                .isVerified(true)
+                .build();
+        mentorRepository.save(onlineMentor);
+
+        // OFFLINE 멘토 생성
+        User offlineMentorUser = User.builder()
+                .name("오프라인 멘토")
+                .email("offline@test.com")
+                .role(Role.MENTOR)
+                .provider("google")
+                .providerId("offline123")
+                .region("서울시")
+                .build();
+        userRepository.save(offlineMentorUser);
+
+        Mentor offlineMentor = Mentor.builder()
+                .id(offlineMentorUser.getId())
+                .user(offlineMentorUser)
+                .position("오프라인 강사")
+                .description("오프라인 전문가입니다.")
+                .mentoringType(MentoringType.OFFLINE)
+                .isVerified(true)
+                .build();
+        mentorRepository.save(offlineMentor);
+
+        // ONLINE 테스트
+        mockMvc.perform(get("/mentors/{id}", onlineMentor.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.meetingType").value("online"));
+
+        // OFFLINE 테스트
+        mockMvc.perform(get("/mentors/{id}", offlineMentor.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.meetingType").value("offline"));
+
+        // BOTH 테스트 (기존 멘토)
+        mockMvc.perform(get("/mentors/{id}", mentor.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.meetingType").value("both"));
     }
 }
