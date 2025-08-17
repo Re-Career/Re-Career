@@ -104,7 +104,7 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
         <div className="p-4">
           <h3 className="mb-3 font-bold text-neutral-900">기본 정보</h3>
           {state.message && !state.success && (
-            <div className="mx-4 mb-4 flex gap-1 rounded-xl bg-red-100 p-2 text-sm text-gray-800">
+            <div className="mb-4 flex gap-1 rounded-xl bg-red-100 p-2 text-sm text-gray-800">
               <div className="flex h-5 w-5 items-center">
                 <BsExclamationCircle
                   className="h-4 w-4 text-red-500"

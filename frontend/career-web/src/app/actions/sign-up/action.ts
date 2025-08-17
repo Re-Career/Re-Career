@@ -1,10 +1,10 @@
 'use server'
 
-import { OneDay } from '@/lib/constants/global'
+import { ONE_DAY } from '@/lib/constants/global'
 import { postSignUp } from '@/services/auth'
 import { SignUpFormData } from '@/types/auth'
-import { cookies } from 'next/headers'
 import z from 'zod'
+import { deleteCookie, getCookie, setCookie } from '../global/action'
 
 interface FormState {
   success: boolean
@@ -20,8 +20,6 @@ export const signUpAction = async (
   _: FormState,
   formData: FormData
 ): Promise<FormState> => {
-  const cookieStore = await cookies()
-
   const name = formData.get('name') as string
   const role = formData.get('role') as string
   const email = formData.get('email') as string
@@ -41,8 +39,8 @@ export const signUpAction = async (
   })
 
   try {
-    const accessToken = cookieStore.get('pendingAccessToken')?.value
-    const refreshToken = cookieStore.get('pendingRefreshToken')?.value
+    const accessToken = await getCookie('pendingAccessToken')
+    const refreshToken = await getCookie('pendingRefreshToken')
 
     if (!accessToken || !refreshToken) {
       throw new Error('회원 정보가 없습니다.')
@@ -86,26 +84,20 @@ export const signUpAction = async (
       }
     }
 
-    cookieStore.set({
+    setCookie({
       name: 'accessToken',
       value: accessToken,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: OneDay,
-      path: '/',
+      options: { maxAge: ONE_DAY },
     })
 
-    cookieStore.set({
+    setCookie({
       name: 'refreshToken',
       value: refreshToken,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 7 * OneDay,
-      path: '/',
+      options: { maxAge: 7 * ONE_DAY },
     })
 
-    cookieStore.delete('pendingAccessToken')
-    cookieStore.delete('pendingRefreshToken')
+    deleteCookie('pendingAccessToken')
+    deleteCookie('pendingRefreshToken')
 
     return {
       success: true,
