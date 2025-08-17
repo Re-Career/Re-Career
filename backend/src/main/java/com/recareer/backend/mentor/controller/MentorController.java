@@ -2,6 +2,8 @@ package com.recareer.backend.mentor.controller;
 
 import com.recareer.backend.availableTime.dto.AvailableTimeResponseDto;
 import com.recareer.backend.availableTime.entity.AvailableTime;
+import com.recareer.backend.feedback.dto.MentorFeedbackResponseDto;
+import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorCreateResponseDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
@@ -192,6 +194,22 @@ public class MentorController {
             log.error("Create mentor available time failed: {}", e.getMessage());
 
             return ResponseEntity.internalServerError().body(ApiResponse.error("멘토링 가능 시간 추가에 실패했습니다."));
+        }
+    }
+
+    @GetMapping("/{id}/feedbacks")
+    @Operation(summary = "멘토 피드백 조회", description = "특정 멘토에 대한 피드백 리스트를 조회합니다")
+    public ResponseEntity<ApiResponse<List<MentorFeedbackResponseDto>>> getMentorFeedbacks(@PathVariable Long id) {
+        try {
+            List<MentorFeedback> feedbacks = mentorService.getMentorFeedbacks(id);
+            List<MentorFeedbackResponseDto> feedbackDtos = feedbacks.stream()
+                    .map(MentorFeedbackResponseDto::from)
+                    .toList();
+
+            return ResponseEntity.ok(ApiResponse.success(feedbackDtos));
+        } catch (Exception e) {
+            log.error("Get mentor feedbacks failed: {}", e.getMessage());
+            return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 피드백 조회에 실패했습니다."));
         }
     }
 }

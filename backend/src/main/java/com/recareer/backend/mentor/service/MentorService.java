@@ -1,6 +1,7 @@
 package com.recareer.backend.mentor.service;
 
 import com.recareer.backend.availableTime.entity.AvailableTime;
+import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
 import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
@@ -36,4 +37,6 @@ public interface MentorService {
     List<AvailableTime> getMentorAvailableTimes(Long mentorId);
     
     AvailableTime createMentorAvailableTime(Long mentorId, LocalDateTime availableTime);
+    
+    List<MentorFeedback> getMentorFeedbacks(Long mentorId);
 }

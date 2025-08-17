@@ -38,4 +38,12 @@ public class MentorFeedback extends BaseTimeEntity {
     @Builder.Default
     @Column(name = "is_visible", nullable = false)
     private Boolean isVisible = true; // 피드백 공개 여부
+
+    @Builder.Default
+    @Column(name = "like_count", nullable = false)
+    private Integer likeCount = 0; // 좋아요 갯수
+
+    @Builder.Default
+    @Column(name = "dislike_count", nullable = false)
+    private Integer dislikeCount = 0; // 싫어요 갯수
 }
