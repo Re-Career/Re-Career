@@ -8,12 +8,14 @@ import { signUpAction } from '@/app/actions/sign-up/action'
 import { PersonalityTag } from '@/types/personality-tags'
 import { isWebView, sendAuthTokensToNative } from '@/utils/webview'
 import { getToken } from '@/app/actions/auth/action'
+import { useRouter } from 'next/router'
 
 interface SignUpFormProps {
   role: RoleType
   tags: PersonalityTag[]
 }
 const SignUpForm = ({ role, tags }: SignUpFormProps) => {
+  const router = useRouter()
 
   const [selectedTags, setSelectedTags] = useState<number[]>([])
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
@@ -39,7 +41,7 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
       if (isWebView()) {
         saveNativeAuth()
       }
-      window.history.go(-2)
+      router.replace('/')
     }
   }, [state])
 
