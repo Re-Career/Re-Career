@@ -17,7 +17,7 @@ public class SessionRecord extends BaseTimeEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @OneToOne(optional = false)
+  @OneToOne(optional = false, cascade = CascadeType.ALL)
   @JoinColumn(name = "reservation_id", nullable = false)
   private Reservation reservation;
 
