@@ -2,8 +2,10 @@ package com.recareer.backend.mentor.entity;
 
 import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.common.entity.BaseTimeEntity;
+import com.recareer.backend.common.entity.City;
 import com.recareer.backend.common.entity.Company;
 import com.recareer.backend.common.entity.Job;
+import com.recareer.backend.common.entity.Province;
 import com.recareer.backend.common.entity.Region;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.user.entity.User;
@@ -43,6 +45,14 @@ public class Mentor extends BaseTimeEntity {
   @JoinColumn(name = "region_id")
   private Region region;
 
+  @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinColumn(name = "province_id")
+  private Province province;
+
+  @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinColumn(name = "city_id")
+  private City city;
+
   @Column(columnDefinition = "TEXT")
   private String description; // 간단한 소개 (shortDescription)
 
@@ -74,10 +84,12 @@ public class Mentor extends BaseTimeEntity {
   @Builder.Default
   private List<MentorFeedback> feedbacks = new ArrayList<>();
 
-  public Mentor update(Job job, Company company, Region region, String description, String introduction, Integer experience, MentoringType mentoringType) {
+  public Mentor update(Job job, Company company, Region region, Province province, City city, String description, String introduction, Integer experience, MentoringType mentoringType) {
     this.job = job;
     this.company = company;
     this.region = region;
+    this.province = province;
+    this.city = city;
     this.description = description;
     this.introduction = introduction;
     this.experience = experience;
@@ -106,5 +118,13 @@ public class Mentor extends BaseTimeEntity {
 
   public String getRegionName() {
     return region != null ? region.getName() : null;
+  }
+
+  public String getProvinceName() {
+    return province != null ? province.getName() : null;
+  }
+
+  public String getCityName() {
+    return city != null ? city.getName() : null;
   }
 }
