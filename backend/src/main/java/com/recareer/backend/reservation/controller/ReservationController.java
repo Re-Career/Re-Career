@@ -74,16 +74,16 @@ public class ReservationController {
     }
   }
   
-  @PostMapping("/{reservationId}")
+  @PostMapping("/{id}")
   @Operation(summary = "멘토링 상태 업데이트", description = "멘토링 상태를 업데이트합니다")
   public ResponseEntity<ApiResponse<String>> updateReservationStatus(
       @RequestHeader("Authorization") String accessToken,
-      @PathVariable Long reservationId,
+      @PathVariable Long id,
       @Valid @RequestBody ReservationUpdateRequestDto updateRequestDto) {
     
     try {
       Long userId = authUtil.validateTokenAndGetUserId(accessToken);
-      Reservation reservation = reservationService.findById(reservationId);
+      Reservation reservation = reservationService.findById(id);
       
       // 해당 멘토링의 멘토만 상태 변경 가능
       if (!reservation.isMentorParticipant(userId)) {
@@ -91,7 +91,7 @@ public class ReservationController {
             .body(ApiResponse.error("해당 멘토링의 멘토만 상태를 변경할 수 있습니다"));
       }
       
-      reservationService.updateReservationStatus(reservationId, updateRequestDto);
+      reservationService.updateReservationStatus(id, updateRequestDto);
       
       String message = switch (updateRequestDto.getStatus()) {
         case CONFIRMED -> "멘토링이 수락되었습니다.";
@@ -108,16 +108,16 @@ public class ReservationController {
     }
   }
 
-  @PostMapping("/{reservationId}/cancel")
+  @PostMapping("/{id}/cancel")
   @Operation(summary = "멘토링 예약 취소", description = "멘티가 자신의 멘토링 예약을 취소합니다")
   public ResponseEntity<ApiResponse<String>> cancelReservation(
       @RequestHeader("Authorization") String accessToken,
-      @PathVariable Long reservationId,
+      @PathVariable Long id,
       @Valid @RequestBody ReservationCancelRequestDto cancelRequestDto) {
     
     try {
       Long userId = authUtil.validateTokenAndGetUserId(accessToken);
-      Reservation reservation = reservationService.findById(reservationId);
+      Reservation reservation = reservationService.findById(id);
       
       // 해당 멘토링의 멘티만 취소 가능
       if (!reservation.isMenteeParticipant(userId)) {
@@ -125,7 +125,7 @@ public class ReservationController {
             .body(ApiResponse.error("본인의 예약만 취소할 수 있습니다"));
       }
       
-      reservationService.cancelReservation(reservationId, cancelRequestDto);
+      reservationService.cancelReservation(id, cancelRequestDto);
       
       return ResponseEntity.ok(ApiResponse.success("멘토링 예약이 취소되었습니다."));
       
