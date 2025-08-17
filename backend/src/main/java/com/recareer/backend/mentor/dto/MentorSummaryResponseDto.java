@@ -108,9 +108,9 @@ public class MentorSummaryResponseDto {
                 .profileImageUrl(mentor.getUser().getProfileImageUrl()) // nullable
                 .company(companyDto)
                 .experience(mentor.getExperience())
-                .region(mentor.getRegion() != null ? RegionDto.builder()
-                        .id(mentor.getRegion().getId())
-                        .name(mentor.getRegion().getName())
+                .region(mentor.getUser() != null && mentor.getUser().getProvince() != null ? RegionDto.builder()
+                        .id(mentor.getUser().getProvince().getId())
+                        .name(mentor.getUser().getProvince().getName())
                         .build() : null)
                 .meetingType(meetingType)
                 .personalityTags(personalityTagDtos)
