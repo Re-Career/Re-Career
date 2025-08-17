@@ -3,5 +3,5 @@ export const INITIAL_FILTERS = {
   experience: [],
   location: [],
   meetingType: [],
-  personality: [],
+  personalityTags: [],
 }
