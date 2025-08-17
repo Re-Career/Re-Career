@@ -9,8 +9,8 @@ export const WebViewMessageTypes = {
 } as const
 
 export const RoleTypes = {
-  Mentee: 'mentee',
-  Mentor: 'mentor',
+  MENTEE: 'MENTEE',
+  MENTOR: 'MENTOR',
 } as const
 
 export const OneDay = 24 * 60 * 60

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { RoleTypes } from './lib/constants/global'
 
 export async function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
@@ -34,7 +35,7 @@ export async function middleware(request: NextRequest) {
 
       if (!auth.data.signupCompleted) {
         const response = NextResponse.redirect(
-          new URL('/sign-up/mentee', request.url)
+          new URL(`/sign-up/${RoleTypes.MENTEE}`, request.url)
         )
 
         response.cookies.set('pendingAccessToken', accessToken, {
