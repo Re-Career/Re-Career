@@ -147,7 +147,7 @@ public class UserService {
             Mentor mentor = mentorRepository.findByUser(user)
                     .orElseThrow(() -> new RuntimeException("멘토 정보를 찾을 수 없습니다."));
             
-            mentor.update(mentor.getJob(), mentor.getCompany(), mentor.getRegion(), request.getDescription(), mentor.getIntroduction(), mentor.getExperience(), mentor.getMentoringType());
+            mentor.update(mentor.getJob(), mentor.getCompany(), mentor.getRegion(), mentor.getProvince(), mentor.getCity(), request.getDescription(), mentor.getIntroduction(), mentor.getExperience(), mentor.getMentoringType());
             mentorRepository.save(mentor);
             
             log.info("User and mentor profile updated for user: {}", providerId);
