@@ -44,6 +44,7 @@ const Dropdown = ({
     }
 
     document.addEventListener('mousedown', handleClickOutside)
+
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
@@ -62,7 +63,6 @@ const Dropdown = ({
     }
     setIsOpen(false)
   }
-
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
