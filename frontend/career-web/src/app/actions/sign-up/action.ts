@@ -1,6 +1,8 @@
 'use server'
 
 import { OneDay } from '@/lib/constants/global'
+import { postSignUp } from '@/services/auth'
+import { SignUpFormData } from '@/types/auth'
 import { cookies } from 'next/headers'
 import z from 'zod'
 
@@ -46,7 +48,7 @@ export const signUpAction = async (
       throw new Error('회원 정보가 없습니다.')
     }
 
-    const requestData = {
+    const requestData: SignUpFormData = {
       name,
       email,
       role,
@@ -57,20 +59,11 @@ export const signUpAction = async (
 
     const parseResult = schema.safeParse(requestData)
 
-    console.log({ personalityTagIds, parseResult })
-
     if (!parseResult.success) {
       throw new z.ZodError(parseResult.error.issues)
     }
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
-    })
+    const res = await postSignUp({ accessToken, requestData })
 
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}))

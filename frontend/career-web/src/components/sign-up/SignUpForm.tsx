@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useActionState, useEffect } from 'react'
+import React, { useState, useActionState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import TagList from './TagList'
 import ProfileImageUpload from './ProfileImageUpload'
@@ -11,6 +11,7 @@ import { signUpAction } from '@/app/actions/sign-up/action'
 import { isWebView, sendAuthTokensToNative } from '@/utils/webview'
 import { getToken } from '@/app/actions/auth/action'
 import { BsExclamationCircle } from 'react-icons/bs'
+import { deleteCookie, getCookie } from '@/app/actions/global/action'
 
 interface SignUpFormProps {
   role: RoleType
@@ -30,20 +31,31 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
     formData: { name: '', email: '' },
   })
 
+  const saveNativeAuth = useCallback(async () => {
+    const accessToken = await getToken()
+
+    sendAuthTokensToNative(accessToken, '')
+  }, [])
+
+  const checkRedirectUrl = useCallback(async () => {
+    const redirectUrl = await getCookie('redirectUrl')
+
+    if (redirectUrl) {
+      await deleteCookie('redirectUrl')
+      router.replace(redirectUrl)
+    } else {
+      router.replace('/')
+    }
+  }, [])
+
   useEffect(() => {
     const { success } = state
-
-    const saveNativeAuth = async () => {
-      const accessToken = await getToken()
-
-      sendAuthTokensToNative(accessToken, '')
-    }
 
     if (success) {
       if (isWebView()) {
         saveNativeAuth()
       }
-      router.replace('/')
+      checkRedirectUrl()
     }
 
     if (state.errors) {
@@ -85,95 +97,96 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
 
   return (
     <form action={formAction}>
-      <main className="flex flex-1 flex-col">
-        <h1 className="mb-9 px-4 py-3 text-xl leading-7 font-bold text-neutral-900">
+      <main className="mt-14 flex flex-1 flex-col">
+        <h1 className="px-4 py-3 text-xl leading-7 font-bold text-neutral-900">
           프로필을 완성해주세요
         </h1>
-
-        {state.message && !state.success && (
-          <div className="mx-4 mb-4 flex gap-1 rounded-xl bg-red-100 p-2 text-sm text-gray-800">
-            <div className="flex h-5 w-5 items-center">
-              <BsExclamationCircle
-                className="h-4 w-4 text-red-500"
-                strokeWidth={0.3}
-              />
+        <div className="p-4">
+          <h3 className="mb-3 font-bold text-neutral-900">기본 정보</h3>
+          {state.message && !state.success && (
+            <div className="mx-4 mb-4 flex gap-1 rounded-xl bg-red-100 p-2 text-sm text-gray-800">
+              <div className="flex h-5 w-5 items-center">
+                <BsExclamationCircle
+                  className="h-4 w-4 text-red-500"
+                  strokeWidth={0.3}
+                />
+              </div>
+              <p className="leading-[20px]">{state.message}</p>
             </div>
-            <p className="leading-[20px]">{state.message}</p>
+          )}
+          <div className="flex-1">
+            <div className="flex flex-col gap-6">
+              {/* Hidden inputs */}
+              <input type="hidden" name="role" value={role} />
+              {selectedTags.map((tagId, index) => (
+                <input
+                  key={index}
+                  type="hidden"
+                  name="personalityTagIds"
+                  value={tagId.toString()}
+                />
+              ))}
+              <input type="hidden" name="region" value={selectedRegion} />
+
+              {/* Form fields */}
+              <div className="flex flex-col gap-1">
+                <input
+                  name="name"
+                  placeholder="이름 *"
+                  className="h-14 rounded-xl bg-gray-100 p-4"
+                  defaultValue={state.formData.name}
+                  required
+                />
+                {errors?.name && (
+                  <span className="text-sm text-red-600">{errors.name}</span>
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="이메일 *"
+                  className="h-14 rounded-xl bg-gray-100 p-4"
+                  defaultValue={state.formData.email}
+                  required
+                />
+                {errors?.email && (
+                  <span className="text-sm text-red-600">{errors.email}</span>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <RegionSelector onRegionChange={handleRegionChange} />
+                {errors?.region && (
+                  <span className="text-sm text-red-600">{errors.region}</span>
+                )}
+              </div>
+            </div>
           </div>
-        )}
+        </div>
 
-        <div className="flex-1">
-          <div className="flex flex-col gap-6 px-4">
-            {/* Hidden inputs */}
-            <input type="hidden" name="role" value={role} />
-            {selectedTags.map((tagId, index) => (
-              <input
-                key={index}
-                type="hidden"
-                name="personalityTagIds"
-                value={tagId.toString()}
-              />
-            ))}
-            <input type="hidden" name="region" value={selectedRegion} />
+        <ProfileImageUpload />
 
-            {/* Form fields */}
-            <div className="flex flex-col gap-1">
-              <input
-                name="name"
-                placeholder="이름 *"
-                className="h-14 rounded-xl bg-gray-100 p-4"
-                defaultValue={state.formData.name}
-                required
-              />
-              {errors?.name && (
-                <span className="text-sm text-red-600">{errors.name}</span>
-              )}
-            </div>
-            <div className="flex flex-col gap-1">
-              <input
-                name="email"
-                type="email"
-                placeholder="이메일 *"
-                className="h-14 rounded-xl bg-gray-100 p-4"
-                defaultValue={state.formData.email}
-                required
-              />
-              {errors?.email && (
-                <span className="text-sm text-red-600">{errors.email}</span>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <RegionSelector onRegionChange={handleRegionChange} />
-              {errors?.region && (
-                <span className="text-sm text-red-600">{errors.region}</span>
-              )}
-            </div>
+        <div className="p-4">
+          <h3 className="mb-3 font-bold text-neutral-900">
+            관심태그 (최대 5개) *
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            <TagList
+              toggleTag={toggleTag}
+              selectedTags={selectedTags}
+              tags={tags}
+            />
           </div>
-
-          <ProfileImageUpload />
-
-          <div className="p-4">
-            <h3 className="mb-3 font-bold text-neutral-900">
-              관심태그 (최대 5개) *
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              <TagList
-                toggleTag={toggleTag}
-                selectedTags={selectedTags}
-                tags={tags}
-              />
-            </div>
-            {errors?.personalityTagIds && (
-              <span className="mt-2 text-sm text-red-600">
-                {errors.personalityTagIds}
-              </span>
-            )}
-          </div>
+          {errors?.personalityTagIds && (
+            <span className="mt-2 text-sm text-red-600">
+              {errors.personalityTagIds}
+            </span>
+          )}
         </div>
       </main>
 
-      <footer>
+      <footer className="sticky right-0 bottom-0 left-0 bg-white">
         <div className="flex items-center justify-center p-4">
           <button
             type="submit"
