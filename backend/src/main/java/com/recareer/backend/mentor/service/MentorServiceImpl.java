@@ -6,6 +6,7 @@ import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.career.repository.MentorCareerRepository;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.feedback.repository.MentorFeedbackRepository;
+import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.entity.MentoringType;
@@ -42,6 +43,28 @@ public class MentorServiceImpl implements MentorService {
     private final MentorFeedbackRepository mentorFeedbackRepository;
 
     private static final String DEFAULT_REGION = "서울시";
+
+    @Override
+    @Transactional
+    public Mentor createMentor(MentorCreateRequestDto requestDto) {
+        // 사용자 조회
+        User user = userRepository.findById(requestDto.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + requestDto.getUserId()));
+        
+        // 멘토 생성
+        Mentor mentor = Mentor.builder()
+                .id(user.getId()) // User와 동일한 ID 사용
+                .user(user)
+                .position(requestDto.getPosition())
+                .description(requestDto.getDescription())
+                .experience(requestDto.getExperience())
+                .mentoringType(requestDto.getMentoringType())
+                .skills(requestDto.getSkills() != null ? requestDto.getSkills() : List.of())
+                .isVerified(true) // TODO: 건강보험 등록증 확인 로직 추가 시 false로 변경
+                .build();
+        
+        return mentorRepository.save(mentor);
+    }
 
     @Override
     @Transactional(readOnly = true)

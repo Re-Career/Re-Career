@@ -2,6 +2,8 @@ package com.recareer.backend.mentor.controller;
 
 import com.recareer.backend.availableTime.dto.AvailableTimeResponseDto;
 import com.recareer.backend.availableTime.entity.AvailableTime;
+import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
+import com.recareer.backend.mentor.dto.MentorCreateResponseDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
 import com.recareer.backend.mentor.dto.MentorListResponseDto;
 import com.recareer.backend.mentor.dto.MentorUpdateResponseDto;
@@ -31,6 +33,22 @@ public class MentorController {
 
     private final MentorService mentorService;
     private final JwtTokenProvider jwtTokenProvider;
+
+    @PostMapping
+    @Operation(summary = "멘토 등록", description = "새로운 멘토를 등록합니다")
+    public ResponseEntity<ApiResponse<MentorCreateResponseDto>> createMentor(
+            @RequestBody MentorCreateRequestDto requestDto) {
+        try {
+            Mentor mentor = mentorService.createMentor(requestDto);
+            MentorCreateResponseDto responseDto = MentorCreateResponseDto.from(mentor);
+            return ResponseEntity.ok(ApiResponse.success("멘토가 성공적으로 등록되었습니다.", responseDto));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Mentor creation failed: {}", e.getMessage());
+            return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 등록에 실패했습니다."));
+        }
+    }
 
     @GetMapping("/home")
     @Operation(summary = "홈 - 당신을 위한 멘토들", description = "인증된 사용자의 지역과 성향 태그를 기반으로 멘토를 조회합니다.")
