@@ -62,7 +62,10 @@ public class MentorServiceImpl implements MentorService {
                     Double averageRating = mentorFeedbackRepository.getAverageRatingByMentor(mentor);
                     Integer feedbackCount = mentorFeedbackRepository.countByMentorAndIsVisibleTrue(mentor);
                     
-                    return MentorDetailResponseDto.from(mentor, careers, feedbacks, averageRating, feedbackCount);
+                    // 멘토의 성향 태그 조회
+                    List<UserPersonalityTag> userPersonalityTags = userPersonalityTagRepository.findByUserId(mentor.getUser().getId());
+                    
+                    return MentorDetailResponseDto.from(mentor, careers, feedbacks, averageRating, feedbackCount, userPersonalityTags);
                 });
     }
 
@@ -184,10 +187,13 @@ public class MentorServiceImpl implements MentorService {
 
     @Override
     @Transactional
-    public Optional<Mentor> updateMentor(Long id, String position, String description) {
+    public Optional<Mentor> updateMentor(Long id, String position, String description, List<String> skills) {
         return mentorRepository.findById(id)
                 .map(mentor -> {
                     mentor.update(position, description, mentor.getExperience(), mentor.getMentoringType());
+                    if (skills != null) {
+                        mentor.updateSkills(skills);
+                    }
                     return mentorRepository.save(mentor);
                 });
     }
