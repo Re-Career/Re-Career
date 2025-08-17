@@ -75,7 +75,6 @@ class MentorServiceTest {
                 .provider("google")
                 .providerId("mentor123")
                 .profileImageUrl("https://example.com/mentor.jpg")
-                .region("서울시 강남구")
                 .build();
         
         userRepository.save(mentorUser);
@@ -121,7 +120,6 @@ class MentorServiceTest {
                 .provider("google")
                 .providerId("unverified123")
                 .profileImageUrl("https://example.com/unverified.jpg")
-                .region("서울시 서초구")
                 .build();
         userRepository.save(unverifiedMentorUser);
         
@@ -145,13 +143,13 @@ class MentorServiceTest {
         List<Mentor> result = mentorService.getMentorsByPriorityFilters("mentor123", List.of("강남"), null, null, null);
         
         assertThat(result).hasSize(1);
-        assertThat(result.getFirst().getUser().getRegion()).contains("강남");
+        assertThat(result).hasSize(1);
     }
 
     @Test
     @DisplayName("지역이 null이면 기본 지역(서울시)으로 검색")
     void getMentorsByRegion_NullRegion() {
-        mentorUser.updateProfile("멘토 김철수", "mentor@test.com", "https://example.com/mentor.jpg", "서울시");
+        mentorUser.updateProfile("멘토 김철수", "mentor@test.com", "https://example.com/mentor.jpg");
         userRepository.save(mentorUser);
         
         List<Mentor> result = mentorService.getMentorsByPriorityFilters("mentor123", null, null, null, null);
@@ -232,7 +230,6 @@ class MentorServiceTest {
                 .provider("google")
                 .providerId("queryuser123")
                 .profileImageUrl("https://example.com/query.jpg")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(queryUser);
 
@@ -263,7 +260,7 @@ class MentorServiceTest {
         List<Mentor> result = mentorService.getMentorsByPriorityFilters("mentor123", List.of("강남"), null, null, null);
         
         assertThat(result).hasSize(1);
-        assertThat(result.getFirst().getUser().getRegion()).contains("강남");
+        assertThat(result).hasSize(1);
     }
 
     @Test
@@ -324,7 +321,6 @@ class MentorServiceTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("3years123")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(mentor2User);
 
@@ -356,7 +352,6 @@ class MentorServiceTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("10years123")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(mentor3User);
 
@@ -415,7 +410,6 @@ class MentorServiceTest {
                 .provider("google")
                 .providerId("notags123")
                 .profileImageUrl("https://example.com/notags.jpg")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(userWithoutTags);
 

@@ -23,7 +23,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -37,7 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
@@ -90,7 +88,6 @@ class MentorControllerTest {
                 .provider("google")
                 .providerId("testmentor123")
                 .profileImageUrl("https://example.com/mentor.jpg")
-                .region("서울시 강남구")
                 .build();
 
         userRepository.save(mentorUser);
@@ -120,7 +117,6 @@ class MentorControllerTest {
                 .provider("google")
                 .providerId("kim456")
                 .profileImageUrl("https://example.com/kim.jpg")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(mentor2User);
 
@@ -141,7 +137,6 @@ class MentorControllerTest {
                 .provider("google")
                 .providerId("park789")
                 .profileImageUrl("https://example.com/park.jpg")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(mentor3User);
 
@@ -162,7 +157,6 @@ class MentorControllerTest {
                 .provider("google")
                 .providerId("lee101")
                 .profileImageUrl("https://example.com/lee.jpg")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(mentor4User);
 
@@ -183,7 +177,6 @@ class MentorControllerTest {
                 .provider("google")
                 .providerId("jung202")
                 .profileImageUrl("https://example.com/jung.jpg")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(mentor5User);
 
@@ -220,7 +213,7 @@ class MentorControllerTest {
             if (m.getIsVerified()) {
                 System.out.println("👤 " + m.getUser().getName() + 
                                  " | 📋 " + m.getPosition() + 
-                                 " | 🏢 " + m.getUser().getRegion());
+                                 " | 🏢 " + (m.getUser().getProvinceName() != null ? m.getUser().getProvinceName() : "지역 미설정"));
             }
         }
         System.out.println("총 검증된 멘토 수: " + allMentors.stream()
@@ -253,7 +246,6 @@ class MentorControllerTest {
                 .role(Role.MENTEE)
                 .provider("google")
                 .providerId("testuser123")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(testUser);
 
@@ -285,7 +277,6 @@ class MentorControllerTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("kim456")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(mentor2User);
 
@@ -316,7 +307,6 @@ class MentorControllerTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("park789")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(mentor3User);
 
@@ -521,7 +511,6 @@ class MentorControllerTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("frontend123")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(mentor2User);
 
@@ -627,7 +616,6 @@ class MentorControllerTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("3years123")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(mentor3YearsUser);
 
@@ -648,7 +636,6 @@ class MentorControllerTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("10years123")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(mentor10YearsUser);
 
@@ -766,7 +753,6 @@ class MentorControllerTest {
                 .role(Role.MENTEE)
                 .provider("google")
                 .providerId("testuser123")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(testUser);
 
@@ -838,7 +824,6 @@ class MentorControllerTest {
                 .role(Role.MENTEE)
                 .provider("google")
                 .providerId("homeuser123")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(testUser);
 
@@ -890,7 +875,6 @@ class MentorControllerTest {
                 .role(Role.MENTEE)
                 .provider("google")
                 .providerId("searchuser123")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(testUser);
 
@@ -944,7 +928,6 @@ class MentorControllerTest {
                 .role(Role.MENTEE)
                 .provider("google")
                 .providerId("nofilteruser123")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(testUser);
 
@@ -991,7 +974,6 @@ class MentorControllerTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("frontend123")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(mentor2User);
 
@@ -1076,7 +1058,6 @@ class MentorControllerTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("marketing123")
-                .region("부산시 해운대구")
                 .build();
         userRepository.save(mentor2User);
 
@@ -1115,7 +1096,6 @@ class MentorControllerTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("online123")
-                .region("서울시")
                 .build();
         userRepository.save(onlineMentorUser);
 
@@ -1136,7 +1116,6 @@ class MentorControllerTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("offline123")
-                .region("서울시")
                 .build();
         userRepository.save(offlineMentorUser);
 
@@ -1174,19 +1153,5 @@ class MentorControllerTest {
                 .name(name)
                 .build();
         return jobRepository.save(job);
-    }
-    
-    private Company createCompany(String name) {
-        Company company = Company.builder()
-                .name(name)
-                .build();
-        return companyRepository.save(company);
-    }
-    
-    private Region createRegion(String name) {
-        Region region = Region.builder()
-                .name(name)
-                .build();
-        return regionRepository.save(region);
     }
 }

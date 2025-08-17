@@ -75,7 +75,6 @@ class MentoringRecordServiceTest {
                 .provider("google")
                 .providerId("mentor123")
                 .profileImageUrl("https://example.com/mentor.jpg")
-                .region("서울시 강남구")
                 .build();
 
         menteeUser = User.builder()
@@ -86,7 +85,6 @@ class MentoringRecordServiceTest {
                 .provider("google")
                 .providerId("mentee123")
                 .profileImageUrl("https://example.com/mentee.jpg")
-                .region("서울시 서초구")
                 .build();
 
         mentor = Mentor.builder()
