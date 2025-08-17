@@ -336,7 +336,7 @@ class MentorControllerTest {
         userPersonalityTagRepository.save(mentor3Tag);
 
         // 성향 매칭이 적용된 API 테스트
-        mockMvc.perform(get("/mentors/filter")
+        mockMvc.perform(get("/mentors/search/recommended")
                         .param("region", "강남")
                         .param("personalityTags", tag1.getId().toString(), tag2.getId().toString())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -354,7 +354,7 @@ class MentorControllerTest {
                 });
 
         // 성향 매칭 없이 호출 (기존 방식)
-        mockMvc.perform(get("/mentors/filter")
+        mockMvc.perform(get("/mentors/search/recommended")
                         .param("region", "강남")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -536,8 +536,12 @@ class MentorControllerTest {
                 .build();
         mentorRepository.save(mentor2);
 
+        // JWT 토큰 생성
+        String accessToken = jwtTokenProvider.createAccessToken("testmentor123", "ROLE_MENTOR");
+        
         // 모든 필터 적용 테스트
-        mockMvc.perform(get("/mentors/filter")
+        mockMvc.perform(get("/mentors/search/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
                         .param("region", "강남")
                         .param("position", "백엔드")
                         .param("experience", "4-6년")
@@ -553,7 +557,10 @@ class MentorControllerTest {
     @Test
     @DisplayName("필터 조건으로 멘토 조회 - 직업 필터만")
     void getMentorsByFilter_PositionOnly() throws Exception {
-        mockMvc.perform(get("/mentors/filter")
+        String accessToken = jwtTokenProvider.createAccessToken("testmentor123", "ROLE_MENTOR");
+        
+        mockMvc.perform(get("/mentors/search/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
                         .param("region", "강남")
                         .param("position", "백엔드")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -566,7 +573,10 @@ class MentorControllerTest {
     @Test
     @DisplayName("필터 조건으로 멘토 조회 - 경력 필터만")
     void getMentorsByFilter_ExperienceOnly() throws Exception {
-        mockMvc.perform(get("/mentors/filter")
+        String accessToken = jwtTokenProvider.createAccessToken("testmentor123", "ROLE_MENTOR");
+        
+        mockMvc.perform(get("/mentors/search/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
                         .param("region", "강남")
                         .param("experience", "4-6년")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -579,7 +589,10 @@ class MentorControllerTest {
     @Test
     @DisplayName("필터 조건으로 멘토 조회 - 멘토링 타입 필터만")
     void getMentorsByFilter_MentoringTypeOnly() throws Exception {
-        mockMvc.perform(get("/mentors/filter")
+        String accessToken = jwtTokenProvider.createAccessToken("testmentor123", "ROLE_MENTOR");
+        
+        mockMvc.perform(get("/mentors/search/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
                         .param("region", "강남")
                         .param("mentoringType", "ONLINE")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -591,7 +604,10 @@ class MentorControllerTest {
     @Test
     @DisplayName("필터 조건으로 멘토 조회 - 매칭되지 않는 경우")
     void getMentorsByFilter_NoMatch() throws Exception {
-        mockMvc.perform(get("/mentors/filter")
+        String accessToken = jwtTokenProvider.createAccessToken("testmentor123", "ROLE_MENTOR");
+        
+        mockMvc.perform(get("/mentors/search/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
                         .param("region", "강남")
                         .param("position", "데이터과학자")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -647,8 +663,11 @@ class MentorControllerTest {
                 .build();
         mentorRepository.save(mentor10Years);
 
+        String accessToken = jwtTokenProvider.createAccessToken("testmentor123", "ROLE_MENTOR");
+        
         // 1-3년 경력 필터 테스트
-        mockMvc.perform(get("/mentors/filter")
+        mockMvc.perform(get("/mentors/search/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
                         .param("region", "강남")
                         .param("experience", "1-3년")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -658,7 +677,8 @@ class MentorControllerTest {
                 .andExpect(jsonPath("$.data[0].name").value("3년차멘토"));
 
         // 7년 이상 경력 필터 테스트
-        mockMvc.perform(get("/mentors/filter")
+        mockMvc.perform(get("/mentors/search/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
                         .param("region", "강남")
                         .param("experience", "7년 이상")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -684,7 +704,10 @@ class MentorControllerTest {
                 .build();
         userPersonalityTagRepository.save(mentorTag);
 
-        mockMvc.perform(get("/mentors/filter")
+        String accessToken = jwtTokenProvider.createAccessToken("testmentor123", "ROLE_MENTOR");
+        
+        mockMvc.perform(get("/mentors/search/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
                         .param("region", "강남")
                         .param("position", "백엔드")
                         .param("personalityTags", tag1.getId().toString())
@@ -712,7 +735,10 @@ class MentorControllerTest {
                 .build();
         userPersonalityTagRepository.save(mentorTag);
 
-        mockMvc.perform(get("/mentors/filter")
+        String accessToken = jwtTokenProvider.createAccessToken("testmentor123", "ROLE_MENTOR");
+        
+        mockMvc.perform(get("/mentors/search/recommended")
+                        .header("Authorization", "Bearer " + accessToken)
                         .param("region", "강남")
                         .param("experience", "4-6년")
                         .param("mentoringType", "ONLINE")  // BOTH는 ONLINE 요청에 매칭됨
@@ -761,7 +787,7 @@ class MentorControllerTest {
         // JWT 토큰 생성
         String accessToken = jwtTokenProvider.createAccessToken("testuser123", "ROLE_USER");
 
-        mockMvc.perform(get("/mentors/recommended")
+        mockMvc.perform(get("/mentors/search")
                         .header("Authorization", "Bearer " + accessToken)
                         .param("regions", "강남")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -774,7 +800,7 @@ class MentorControllerTest {
     @Test
     @DisplayName("추천 멘토 조회 API 테스트 - 유효하지 않은 토큰")
     void getRecommendedMentors_InvalidToken() throws Exception {
-        mockMvc.perform(get("/mentors/recommended")
+        mockMvc.perform(get("/mentors/search")
                         .header("Authorization", "Bearer invalid_token")
                         .param("region", "강남")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -788,7 +814,7 @@ class MentorControllerTest {
         // 존재하지 않는 providerId로 토큰 생성
         String accessToken = jwtTokenProvider.createAccessToken("nonexistent123", "ROLE_USER");
 
-        mockMvc.perform(get("/mentors/recommended")
+        mockMvc.perform(get("/mentors/search")
                         .header("Authorization", "Bearer " + accessToken)
                         .param("regions", "강남")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -833,8 +859,8 @@ class MentorControllerTest {
         // JWT 토큰 생성
         String accessToken = jwtTokenProvider.createAccessToken("homeuser123", "ROLE_USER");
 
-        mockMvc.perform(get("/mentors/home")
-                        .header("Authorization", "Bearer " + accessToken)
+        mockMvc.perform(get("/mentors")
+                        .param("region", "서울")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())

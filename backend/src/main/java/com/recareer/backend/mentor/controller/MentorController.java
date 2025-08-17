@@ -5,6 +5,7 @@ import com.recareer.backend.availableTime.entity.AvailableTime;
 import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorCreateResponseDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
+import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
 import com.recareer.backend.mentor.dto.MentorListResponseDto;
 import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.dto.MentorUpdateResponseDto;
@@ -52,7 +53,7 @@ public class MentorController {
     }
 
     @GetMapping
-    @Operation(summary = "지역별 멘토 목록 조회", description = "지정된 지역의 멘토 목록을 조회합니다")
+    @Operation(summary = "홈 - 당신을 위한 멘토들", description = "유저가 속한 지역의 멘토 리스트를 조회합니다")
     public ResponseEntity<ApiResponse<List<MentorSummaryResponseDto>>> getMentorsByRegion(
             @RequestParam(required = false, defaultValue = "서울") String region) {
         try {
@@ -64,34 +65,6 @@ public class MentorController {
         }
     }
 
-    @GetMapping("/home")
-    @Operation(summary = "홈 - 당신을 위한 멘토들", description = "인증된 사용자의 지역과 성향 태그를 기반으로 멘토를 조회합니다.")
-    public ResponseEntity<ApiResponse<List<MentorListResponseDto>>> getHomeRecommendedMentors(
-            @RequestHeader("Authorization") String accessToken) {
-        
-        try {
-            String token = accessToken.replace("Bearer ", "");
-            
-            if (!jwtTokenProvider.validateToken(token)) {
-                return ResponseEntity.status(401)
-                        .body(ApiResponse.error("유효하지 않은 토큰입니다."));
-            }
-
-            String providerId = jwtTokenProvider.getProviderIdFromToken(token);
-
-            List<Mentor> mentors = mentorService.getMentorsByRegionAndPersonalityTags(null, providerId);
-            List<MentorListResponseDto> mentorDtos = mentors.stream()
-                    .map(MentorListResponseDto::from)
-                    .toList();
-
-            return ResponseEntity.ok(ApiResponse.success(mentorDtos));
-            
-        } catch (Exception e) {
-            log.error("Get home recommended mentors failed: {}", e.getMessage());
-
-            return ResponseEntity.internalServerError().body(ApiResponse.error("홈 추천 멘토 조회에 실패했습니다."));
-        }
-    }
 
     @GetMapping("/search/recommended")
     @Operation(summary = "멘토 찾기 - 추천 매칭", description = "필터링 우선순위대로 멘토를 추천합니다. 1순위: 지역/성향, 2순위: 직업/경험/미팅방식")
@@ -127,30 +100,34 @@ public class MentorController {
         }
     }
 
-    @GetMapping("/recommended")
-    @Operation(summary = "인증된 사용자 기반 추천 멘토 조회", description = "인증된 사용자의 성향 태그를 기반으로 추천 멘토를 조회합니다.")
-    public ResponseEntity<ApiResponse<List<MentorListResponseDto>>> getRecommendedMentors(
-            @RequestHeader("Authorization") String accessToken,
-            @RequestParam(required = false, defaultValue = "서울시") List<String> regions) {
+    @PostMapping("/search")
+    @Operation(summary = "멘토 찾기 - 결과 조회", description = "직업/경험/미팅방식으로 필터링한 멘토를 조회합니다.")
+    public ResponseEntity<ApiResponse<List<MentorSummaryResponseDto>>> searchMentorsByFilters(
+            @RequestBody MentorFilterRequestDto filterRequest) {
         
         try {
-            String token = accessToken.replace("Bearer ", "");
-            
-            if (!jwtTokenProvider.validateToken(token)) {
-                return ResponseEntity.status(401)
-                        .body(ApiResponse.error("유효하지 않은 토큰입니다."));
-            }
-
-            String providerId = jwtTokenProvider.getProviderIdFromToken(token);
-            List<Mentor> mentors = mentorService.getMentorsByRegionAndPersonalityTags(regions, providerId);
-            List<MentorListResponseDto> mentorDtos = mentors.stream()
-                    .map(MentorListResponseDto::from)
-                    .toList();
-            return ResponseEntity.ok(ApiResponse.success(mentorDtos));
+            List<MentorSummaryResponseDto> mentors = mentorService.getMentorsByFilters(filterRequest);
+            return ResponseEntity.ok(ApiResponse.success(mentors));
             
         } catch (Exception e) {
-            log.error("Get recommended mentors failed: {}", e.getMessage());
-            return ResponseEntity.internalServerError().body(ApiResponse.error("추천 멘토 조회에 실패했습니다."));
+            log.error("Search mentors by filters failed: {}", e.getMessage());
+            return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 검색에 실패했습니다."));
+        }
+    }
+
+    @GetMapping("/search/list")
+    @Operation(summary = "멘토 찾기 - 리스트 조회", description = "모든 멘토를 조회합니다.")
+    public ResponseEntity<ApiResponse<List<MentorSummaryResponseDto>>> getMentorsList() {
+        
+        try {
+            // 빈 필터로 모든 멘토 조회
+            MentorFilterRequestDto emptyFilter = MentorFilterRequestDto.builder().build();
+            List<MentorSummaryResponseDto> mentors = mentorService.getMentorsByFilters(emptyFilter);
+            return ResponseEntity.ok(ApiResponse.success(mentors));
+            
+        } catch (Exception e) {
+            log.error("Get mentors list failed: {}", e.getMessage());
+            return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 목록 조회에 실패했습니다."));
         }
     }
 
@@ -187,7 +164,7 @@ public class MentorController {
     }
 
     @GetMapping("/{id}/available-times")
-    @Operation(summary = "멘토별 가능 시간 조회", description = "각 멘토 별 멘토링이 가능한 시간대를 조회합니다")
+    @Operation(summary = "멘토 상담 예약 - 가능한 날짜, 시간 조회", description = "각 멘토 별 멘토링이 가능한 시간대를 조회합니다")
     public ResponseEntity<ApiResponse<List<AvailableTimeResponseDto>>> getMentorAvailableTimes(@PathVariable Long id) {
         List<AvailableTime> availableTimes = mentorService.getMentorAvailableTimes(id);
         List<AvailableTimeResponseDto> availableTimeDtos = availableTimes.stream()
@@ -198,7 +175,7 @@ public class MentorController {
     }
 
     @PostMapping("/{id}/available-times")
-    @Operation(summary = "멘토 가능 시간 생성", description = "각 멘토 별 멘토링이 가능한 시간대를 추가합니다")
+    @Operation(summary = "멘토링 가능한 시간대 생성", description = "각 멘토 별 멘토링이 가능한 시간대를 추가합니다")
     public ResponseEntity<ApiResponse<AvailableTimeResponseDto>> createMentorAvailableTime(
             @PathVariable Long id,
             @RequestParam String availableTime) {
@@ -206,7 +183,7 @@ public class MentorController {
             LocalDateTime dateTime = LocalDateTime.parse(availableTime);
             AvailableTime newAvailableTime = mentorService.createMentorAvailableTime(id, dateTime);
 
-            return ResponseEntity.ok(ApiResponse.success("멘토 가능 시간이 성공적으로 추가되었습니다.", AvailableTimeResponseDto.from(newAvailableTime)));
+            return ResponseEntity.ok(ApiResponse.success("멘토링 가능 시간이 성공적으로 추가되었습니다.", AvailableTimeResponseDto.from(newAvailableTime)));
         } catch (IllegalArgumentException e) {
             log.error("Create mentor available time failed: {}", e.getMessage());
 
@@ -214,7 +191,7 @@ public class MentorController {
         } catch (Exception e) {
             log.error("Create mentor available time failed: {}", e.getMessage());
 
-            return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 가능 시간 추가에 실패했습니다."));
+            return ResponseEntity.internalServerError().body(ApiResponse.error("멘토링 가능 시간 추가에 실패했습니다."));
         }
     }
 }
