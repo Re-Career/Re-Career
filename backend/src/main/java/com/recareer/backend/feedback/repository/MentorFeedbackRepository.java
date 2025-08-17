@@ -18,4 +18,7 @@ public interface MentorFeedbackRepository extends JpaRepository<MentorFeedback, 
     
     @Query("SELECT COUNT(f) FROM MentorFeedback f WHERE f.mentor = :mentor AND f.isVisible = true")
     Integer countByMentorAndIsVisibleTrue(@Param("mentor") Mentor mentor);
+    
+    @Query("SELECT f FROM MentorFeedback f JOIN FETCH f.user WHERE f.mentor.id = :mentorId AND f.isVisible = true ORDER BY f.createdDate DESC")
+    List<MentorFeedback> findByMentorIdAndIsVisibleTrue(@Param("mentorId") Long mentorId);
 }

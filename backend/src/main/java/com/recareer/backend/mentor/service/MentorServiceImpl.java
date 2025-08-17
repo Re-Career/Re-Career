@@ -304,6 +304,12 @@ public class MentorServiceImpl implements MentorService {
         return availableTimeRepository.save(newAvailableTime);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<MentorFeedback> getMentorFeedbacks(Long mentorId) {
+        return mentorFeedbackRepository.findByMentorIdAndIsVisibleTrue(mentorId);
+    }
+
     private long getPersonalityMatches(Long mentorUserId, Set<Long> userTagIds) {
         List<UserPersonalityTag> mentorPersonalityTags = userPersonalityTagRepository.findByUserId(mentorUserId);
         return mentorPersonalityTags.stream()
