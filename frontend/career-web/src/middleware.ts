@@ -1,24 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { handleOAuth2Redirect } from '@/lib/middleware/oauth'
+import { COOKIE_OPTIONS } from './lib/constants/global'
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  if (pathname === '/my-page') {
-    const accessToken = request.cookies.get('accessToken')
+  switch (pathname) {
+    case '/oauth2/redirect':
+      return await handleOAuth2Redirect(request)
 
-    if (!accessToken) {
-      const response = NextResponse.redirect(new URL('/login', request.url))
+    case '/my-page':
+      const accessToken = request.cookies.get('accessToken')
 
-      response.cookies.set('redirectUrl', pathname, {
-        httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 30 * 60,
-        path: '/',
-      })
+      if (!accessToken) {
+        const response = NextResponse.redirect(new URL('/login', request.url))
 
-      return response
-    }
+        response.cookies.set('redirectUrl', pathname, {
+          ...COOKIE_OPTIONS,
+          maxAge: 30 * 60,
+        })
+
+        return response
+      }
   }
 
   return NextResponse.next()

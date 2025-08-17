@@ -1,54 +1,35 @@
-import { redirect } from 'next/navigation'
-import { RoleTypes } from '@/lib/constants/global'
-import WebViewHandler from '@/components/oauth2/WebViewHandler'
-import { getCookie, deleteCookie } from '@/app/actions/global/action'
-import { setPendingToken, setToken } from '@/app/actions/auth/action'
-import { getAuthMe } from '@/services/auth'
+'use client'
 
-interface AuthRedirectPageProps {
-  searchParams: Promise<{
-    accessToken?: string
-    refreshToken?: string
-  }>
-}
+import { isWebView, sendAuthTokensToNative } from '@/utils/webview'
+import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+import { useEffect, Suspense } from 'react'
 
-const AuthRedirectPage = async ({ searchParams }: AuthRedirectPageProps) => {
-  const { accessToken, refreshToken } = await searchParams
+const AuthRedirectContent = () => {
+  const router = useRouter()
+  const params = useSearchParams()
 
-  if (!accessToken || !refreshToken) {
-    redirect('/login')
-  }
+  const accessToken = params.get('accessToken') ?? ''
+  const refreshToken = params.get('refreshToken') ?? ''
+  const redirectUrl = params.get('redirectUrl') ?? '/'
 
-  try {
-    const auth = await getAuthMe(accessToken)
-
-    //가입을 안한 유저
-    if (!auth.data.signupCompleted) {
-      //임시 토큰 설정
-      await setPendingToken(accessToken, refreshToken)
-
-      redirect(`/sign-up/${RoleTypes.MENTEE}`)
+  useEffect(() => {
+    if (isWebView()) {
+      sendAuthTokensToNative(accessToken, refreshToken)
     }
 
-    //토큰 설정
-    await setToken(accessToken, refreshToken)
+    router.replace(redirectUrl)
+  }, [accessToken, refreshToken, redirectUrl, router])
 
-    const redirectUrl = (await getCookie('redirectUrl')) || '/'
+  return <></>
+}
 
-    await deleteCookie('redirectUrl')
-
-    return (
-      <>
-        <WebViewHandler
-          accessToken={accessToken}
-          refreshToken={refreshToken}
-          redirectUrl={redirectUrl}
-        />
-      </>
-    )
-  } catch {
-    redirect('/login')
-  }
+const AuthRedirectPage = () => {
+  return (
+    <Suspense fallback={<></>}>
+      <AuthRedirectContent />
+    </Suspense>
+  )
 }
 
 export default AuthRedirectPage

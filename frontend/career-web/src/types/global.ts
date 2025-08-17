@@ -1,4 +1,4 @@
-import { RoleTypes } from '@/lib/constants/global'
+import { ROLE_TYPES } from '@/lib/constants/global'
 
 declare global {
   interface Window {
@@ -26,7 +26,7 @@ export interface WebViewMessage {
   data?: SaveAuthData | SearchMentorData | MentorProfileData | string
 }
 
-export type RoleType = (typeof RoleTypes)[keyof typeof RoleTypes]
+export type RoleType = (typeof ROLE_TYPES)[keyof typeof ROLE_TYPES]
 
 export type DatePiece = Date | null
 export type DateType = DatePiece | [DatePiece, DatePiece]
