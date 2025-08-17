@@ -17,6 +17,7 @@ public class MentorUpdateResponseDto {
     private Long id;
     private String position;
     private String description;
+    private String introduction;
     private List<String> skills;
 
     public static MentorUpdateResponseDto from(Mentor mentor) {
@@ -24,6 +25,7 @@ public class MentorUpdateResponseDto {
                 .id(mentor.getId())
                 .position(mentor.getPosition())
                 .description(mentor.getDescription())
+                .introduction(mentor.getIntroduction())
                 .skills(mentor.getSkills())
                 .build();
     }

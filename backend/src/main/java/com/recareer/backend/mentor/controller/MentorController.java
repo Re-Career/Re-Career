@@ -154,8 +154,9 @@ public class MentorController {
             @PathVariable Long id,
             @RequestParam String position,
             @RequestParam String description,
+            @RequestParam(required = false) String introduction,
             @RequestParam(required = false) List<String> skills) {
-        return mentorService.updateMentor(id, position, description, skills)
+        return mentorService.updateMentor(id, position, description, introduction, skills)
                 .map(mentor -> ResponseEntity.ok(ApiResponse.success("멘토 정보가 성공적으로 수정되었습니다.", MentorUpdateResponseDto.from(mentor))))
                 .orElse(ResponseEntity.status(404).body(ApiResponse.error("해당 멘토를 찾을 수 없습니다.")));
     }

@@ -115,7 +115,7 @@ public class MentorDetailResponseDto {
                 .meetingType(meetingType)
                 .personalityTags(personalityTagDtos)
                 .shortDescription(mentor.getDescription())
-                .introduction(mentor.getDescription()) // 현재는 description을 introduction으로 사용
+                .introduction(mentor.getIntroduction())
                 .skills(mentor.getSkills() != null ? mentor.getSkills() : List.of())
                 .career(careerList)
                 .feedback(FeedbackDto.builder()

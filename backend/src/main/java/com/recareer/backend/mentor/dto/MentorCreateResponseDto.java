@@ -19,6 +19,7 @@ public class MentorCreateResponseDto {
     private Long userId;
     private String position;
     private String description;
+    private String introduction;
     private Integer experience;
     private MentoringType mentoringType;
     private List<String> skills;
@@ -30,6 +31,7 @@ public class MentorCreateResponseDto {
                 .userId(mentor.getUser().getId())
                 .position(mentor.getPosition())
                 .description(mentor.getDescription())
+                .introduction(mentor.getIntroduction())
                 .experience(mentor.getExperience())
                 .mentoringType(mentor.getMentoringType())
                 .skills(mentor.getSkills())
