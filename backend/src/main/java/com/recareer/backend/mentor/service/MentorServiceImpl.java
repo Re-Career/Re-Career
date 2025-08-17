@@ -14,6 +14,7 @@ import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.feedback.repository.MentorFeedbackRepository;
 import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
+import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
 import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.entity.MentoringType;
@@ -392,5 +393,74 @@ public class MentorServiceImpl implements MentorService {
         return mentorPersonalityTags.stream()
                 .mapToLong(mpt -> personalityTagIds.contains(mpt.getPersonalityTag().getId()) ? 1 : 0)
                 .sum();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MentorSummaryResponseDto> getMentorsByFilters(MentorFilterRequestDto filterRequest) {
+        log.info("Finding mentors by filters - jobs: {}, experiences: {}, mentoringTypes: {}", 
+                filterRequest.getJobs(), filterRequest.getExperiences(), filterRequest.getMentoringTypes());
+
+        // 1. 전체 검증된 멘토 조회 (User 정보까지 Fetch Join)
+        List<Mentor> allMentors = mentorRepository.findAllByIsVerifiedTrueWithUser();
+        
+        // 2. 필터링 적용
+        List<Mentor> filteredMentors = allMentors.stream()
+                .filter(mentor -> {
+                    // Job 필터링
+                    if (filterRequest.getJobs() != null && !filterRequest.getJobs().isEmpty()) {
+                        boolean jobMatches = filterRequest.getJobs().stream()
+                                .anyMatch(job -> mentor.getJob() != null && 
+                                        mentor.getJob().getName().toLowerCase().contains(job.toLowerCase()));
+                        if (!jobMatches) return false;
+                    }
+                    
+                    // Experience 필터링
+                    if (filterRequest.getExperiences() != null && !filterRequest.getExperiences().isEmpty()) {
+                        boolean experienceMatches = filterRequest.getExperiences().stream()
+                                .anyMatch(exp -> matchesExperienceRange(mentor.getExperience(), exp));
+                        if (!experienceMatches) return false;
+                    }
+                    
+                    // MentoringType 필터링
+                    if (filterRequest.getMentoringTypes() != null && !filterRequest.getMentoringTypes().isEmpty()) {
+                        boolean mentoringTypeMatches = filterRequest.getMentoringTypes().stream()
+                                .anyMatch(type -> matchesMentoringType(mentor.getMentoringType(), type));
+                        if (!mentoringTypeMatches) return false;
+                    }
+                    
+                    return true;
+                })
+                .toList();
+
+        // 3. MentorSummaryResponseDto로 변환
+        return filteredMentors.stream()
+                .map(mentor -> {
+                    // 경력 정보 조회
+                    List<MentorCareer> careers = mentorCareerRepository.findByMentorOrderByDisplayOrderAscStartDateDesc(mentor);
+                    
+                    // 성향 태그 조회
+                    List<UserPersonalityTag> userPersonalityTags = userPersonalityTagRepository.findByUserId(mentor.getUser().getId());
+                    
+                    return MentorSummaryResponseDto.from(mentor, userPersonalityTags, careers);
+                })
+                .toList();
+    }
+
+    /**
+     * 멘토링 타입 매칭 확인
+     */
+    private boolean matchesMentoringType(MentoringType mentorType, MentoringType requestedType) {
+        if (mentorType == null || requestedType == null) {
+            return false;
+        }
+        
+        // BOTH는 모든 요청에 매칭됨
+        if (mentorType == MentoringType.BOTH) {
+            return true;
+        }
+        
+        // 정확히 같은 타입
+        return mentorType == requestedType;
     }
 }
