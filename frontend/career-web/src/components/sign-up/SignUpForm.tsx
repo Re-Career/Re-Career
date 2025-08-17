@@ -8,7 +8,7 @@ import { signUpAction } from '@/app/actions/sign-up/action'
 import { PersonalityTag } from '@/types/personality-tags'
 import { isWebView, sendAuthTokensToNative } from '@/utils/webview'
 import { getToken } from '@/app/actions/auth/action'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 interface SignUpFormProps {
   role: RoleType
