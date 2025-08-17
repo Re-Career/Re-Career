@@ -56,7 +56,7 @@ jwt:
 
 app:
   oauth2:
-    authorized-redirect-uri: https://re-career.onrender.com/oauth2/redirect
+    authorized-redirect-uri: https://re-career.vercel.app/oauth2/redirect
 
 cors:
   allowed-origins: "https://re-career.vercel.app,https://re-career.onrender.com"
