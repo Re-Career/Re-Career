@@ -21,7 +21,7 @@ public class Province {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "`key`", unique = true, nullable = false)
     private String key; // 'seoul', 'busan' 등
 
     @Column(nullable = false)
