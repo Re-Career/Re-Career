@@ -23,7 +23,7 @@ public interface MentorService {
 
     List<Mentor> getMentorsByPriorityFilters(String providerId, List<String> regions, String position, String experience, MentoringType mentoringType);
     
-    Optional<Mentor> updateMentor(Long id, String position, String description, List<String> skills);
+    Optional<Mentor> updateMentor(Long id, String position, String description, String introduction, List<String> skills);
     
     List<Reservation> getMentorReservations(Long mentorId);
 

@@ -17,6 +17,7 @@ public class MentorCreateRequestDto {
     private Long userId;
     private String position;
     private String description;
+    private String introduction;
     private Integer experience;
     private MentoringType mentoringType;
     private List<String> skills;

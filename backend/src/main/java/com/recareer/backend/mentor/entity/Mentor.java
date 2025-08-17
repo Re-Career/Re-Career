@@ -32,7 +32,10 @@ public class Mentor extends BaseTimeEntity {
   private String position;
 
   @Column(columnDefinition = "TEXT")
-  private String description;
+  private String description; // 간단한 소개 (shortDescription)
+
+  @Column(columnDefinition = "TEXT")
+  private String introduction; // 상세 소개
 
   @Builder.Default
   @Column(name = "is_verified", nullable = false)
@@ -59,9 +62,10 @@ public class Mentor extends BaseTimeEntity {
   @Builder.Default
   private List<MentorFeedback> feedbacks = new ArrayList<>();
 
-  public Mentor update(String position, String description, Integer experience, MentoringType mentoringType) {
+  public Mentor update(String position, String description, String introduction, Integer experience, MentoringType mentoringType) {
     this.position = position;
     this.description = description;
+    this.introduction = introduction;
     this.experience = experience;
     this.mentoringType = mentoringType;
     return this;
@@ -69,9 +73,11 @@ public class Mentor extends BaseTimeEntity {
 
   public Mentor updateSkills(List<String> skills) {
     this.skills.clear();
+
     if (skills != null) {
       this.skills.addAll(skills);
     }
+
     return this;
   }
 }

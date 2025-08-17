@@ -57,6 +57,7 @@ public class MentorServiceImpl implements MentorService {
                 .user(user)
                 .position(requestDto.getPosition())
                 .description(requestDto.getDescription())
+                .introduction(requestDto.getIntroduction())
                 .experience(requestDto.getExperience())
                 .mentoringType(requestDto.getMentoringType())
                 .skills(requestDto.getSkills() != null ? requestDto.getSkills() : List.of())
@@ -210,10 +211,10 @@ public class MentorServiceImpl implements MentorService {
 
     @Override
     @Transactional
-    public Optional<Mentor> updateMentor(Long id, String position, String description, List<String> skills) {
+    public Optional<Mentor> updateMentor(Long id, String position, String description, String introduction, List<String> skills) {
         return mentorRepository.findById(id)
                 .map(mentor -> {
-                    mentor.update(position, description, mentor.getExperience(), mentor.getMentoringType());
+                    mentor.update(position, description, introduction, mentor.getExperience(), mentor.getMentoringType());
                     if (skills != null) {
                         mentor.updateSkills(skills);
                     }
