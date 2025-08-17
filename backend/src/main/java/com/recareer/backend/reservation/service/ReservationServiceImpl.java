@@ -2,6 +2,7 @@ package com.recareer.backend.reservation.service;
 
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
+import com.recareer.backend.reservation.dto.ReservationCancelRequestDto;
 import com.recareer.backend.reservation.dto.ReservationRequestDto;
 import com.recareer.backend.reservation.dto.ReservationResponseDto;
 import com.recareer.backend.reservation.dto.ReservationUpdateRequestDto;
@@ -116,5 +117,34 @@ public class ReservationServiceImpl implements ReservationService {
     }
     
     reservationRepository.save(reservation);
+  }
+
+  @Override
+  @Transactional
+  public void cancelReservation(Long reservationId, ReservationCancelRequestDto cancelRequestDto) {
+    Reservation reservation = findById(reservationId);
+    
+    // 완료된 멘토링은 취소할 수 없음
+    if (reservation.getStatus() == ReservationStatus.COMPLETED) {
+      throw new IllegalStateException("완료된 멘토링은 취소할 수 없습니다.");
+    }
+    
+    // 이미 취소된 멘토링은 중복 취소할 수 없음
+    if (reservation.getStatus() == ReservationStatus.CANCELED) {
+      throw new IllegalStateException("이미 취소된 멘토링입니다.");
+    }
+    
+    // 취소 사유 검증
+    if (cancelRequestDto.getCancelReason() == null || cancelRequestDto.getCancelReason().trim().isEmpty()) {
+      throw new IllegalArgumentException("취소 사유는 필수입니다.");
+    }
+    
+    // 상태 변경
+    reservation.setStatus(ReservationStatus.CANCELED);
+    reservation.setCancelReason(cancelRequestDto.getCancelReason());
+    
+    reservationRepository.save(reservation);
+    
+    log.info("예약 취소 완료 - 예약 ID: {}, 취소 사유: {}", reservationId, cancelRequestDto.getCancelReason());
   }
 }
