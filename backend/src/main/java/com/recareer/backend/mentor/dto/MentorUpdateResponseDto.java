@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,12 +17,14 @@ public class MentorUpdateResponseDto {
     private Long id;
     private String position;
     private String description;
+    private List<String> skills;
 
     public static MentorUpdateResponseDto from(Mentor mentor) {
         return MentorUpdateResponseDto.builder()
                 .id(mentor.getId())
                 .position(mentor.getPosition())
                 .description(mentor.getDescription())
+                .skills(mentor.getSkills())
                 .build();
     }
 }

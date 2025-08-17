@@ -123,7 +123,7 @@ public class MentorController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "ID로 인증된 멘토 상세 조회", description = "멘토의 상세 정보를 조회합니다")
+    @Operation(summary = "멘토 프로필 조회", description = "멘토의 프로필을 조회합니다")
     public ResponseEntity<ApiResponse<MentorDetailResponseDto>> getMentorById(@PathVariable Long id) {
         return mentorService.getMentorDetailById(id)
                 .map(dto -> ResponseEntity.ok(ApiResponse.success(dto)))
@@ -131,12 +131,13 @@ public class MentorController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "멘토 정보 수정", description = "멘토의 마이 페이지에서 개인정보를 수정합니다 ")
+    @Operation(summary = "멘토 프로필 수정", description = "멘토의 프로필 정보를 수정합니다")
     public ResponseEntity<ApiResponse<MentorUpdateResponseDto>> updateMentor(
             @PathVariable Long id,
             @RequestParam String position,
-            @RequestParam String description) {
-        return mentorService.updateMentor(id, position, description)
+            @RequestParam String description,
+            @RequestParam(required = false) List<String> skills) {
+        return mentorService.updateMentor(id, position, description, skills)
                 .map(mentor -> ResponseEntity.ok(ApiResponse.success("멘토 정보가 성공적으로 수정되었습니다.", MentorUpdateResponseDto.from(mentor))))
                 .orElse(ResponseEntity.status(404).body(ApiResponse.error("해당 멘토를 찾을 수 없습니다.")));
     }

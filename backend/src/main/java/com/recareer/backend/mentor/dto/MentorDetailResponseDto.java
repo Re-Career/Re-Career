@@ -4,6 +4,7 @@ import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.entity.MentoringType;
+import com.recareer.backend.user.entity.UserPersonalityTag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,14 +26,23 @@ public class MentorDetailResponseDto {
     private String profileImageUrl;
     private String company;
     private Integer experience;
-    private String location;
+    private String region;
     private String meetingType;
-    private String personality;
+    private List<PersonalityTagDto> PersonalityTags;
     private String shortDescription;
     private String introduction;
     private List<String> skills;
     private List<String> career;
     private FeedbackDto feedback;
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class PersonalityTagDto {
+        private Long id;
+        private String name;
+    }
 
     @Getter
     @NoArgsConstructor
@@ -56,14 +66,14 @@ public class MentorDetailResponseDto {
         private String date;
     }
 
-    public static MentorDetailResponseDto from(Mentor mentor, List<MentorCareer> careers, List<MentorFeedback> feedbacks, Double averageRating, Integer feedbackCount) {
+    public static MentorDetailResponseDto from(Mentor mentor, List<MentorCareer> careers, List<MentorFeedback> feedbacks, Double averageRating, Integer feedbackCount, List<UserPersonalityTag> userPersonalityTags) {
         String meetingType = convertMentoringType(mentor.getMentoringType());
         
         // 경력 정보 변환
         List<String> careerList = careers.stream()
                 .map(career -> {
                     String period = formatCareerPeriod(career);
-                    return String.format("%s - %s (%s)", career.getCompany(), career.getPosition(), period);
+                    return String.format("%s: %s %s", period, career.getCompany(), career.getPosition());
                 })
                 .toList();
         
@@ -75,6 +85,14 @@ public class MentorDetailResponseDto {
                         .rating(feedback.getRating())
                         .comment(feedback.getComment())
                         .date(feedback.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                        .build())
+                .toList();
+
+        // 성향 태그 변환
+        List<PersonalityTagDto> personalityTagDtos = userPersonalityTags.stream()
+                .map(upt -> PersonalityTagDto.builder()
+                        .id(upt.getPersonalityTag().getId())
+                        .name(upt.getPersonalityTag().getName())
                         .build())
                 .toList();
         
@@ -93,9 +111,9 @@ public class MentorDetailResponseDto {
                 .profileImageUrl(mentor.getUser().getProfileImageUrl())
                 .company(currentCompany)
                 .experience(mentor.getExperience())
-                .location(mentor.getUser().getRegion())
+                .region(mentor.getUser().getRegion())
                 .meetingType(meetingType)
-                .personality(null) // 추후 PersonalityTag 매핑 로직 추가
+                .PersonalityTags(personalityTagDtos)
                 .shortDescription(mentor.getDescription())
                 .introduction(mentor.getDescription()) // 현재는 description을 introduction으로 사용
                 .skills(mentor.getSkills() != null ? mentor.getSkills() : List.of())
@@ -109,14 +127,14 @@ public class MentorDetailResponseDto {
     }
     
     private static String formatCareerPeriod(MentorCareer career) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM");
-        String startDate = career.getStartDate().format(formatter);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
+        String startYear = career.getStartDate().format(formatter);
         
         if (career.getIsCurrent() || career.getEndDate() == null) {
-            return startDate + " ~ 현재";
+            return startYear + "-현재";
         } else {
-            String endDate = career.getEndDate().format(formatter);
-            return startDate + " ~ " + endDate;
+            String endYear = career.getEndDate().format(formatter);
+            return startYear + "-" + endYear;
         }
     }
 
