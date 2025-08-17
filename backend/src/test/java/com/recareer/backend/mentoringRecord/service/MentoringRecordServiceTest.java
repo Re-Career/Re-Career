@@ -14,6 +14,8 @@ import com.recareer.backend.user.entity.User;
 import com.recareer.backend.user.repository.UserRepository;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
+import com.recareer.backend.common.entity.Job;
+import com.recareer.backend.common.repository.JobRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -51,6 +53,9 @@ class MentoringRecordServiceTest {
     @Mock
     private AudioTranscriptionService audioTranscriptionService;
 
+    @Mock
+    private JobRepository jobRepository;
+
     @InjectMocks
     private MentoringRecordServiceImpl mentoringRecordService;
 
@@ -87,7 +92,7 @@ class MentoringRecordServiceTest {
         mentor = Mentor.builder()
                 .id(mentorUser.getId())
                 .user(mentorUser)
-                .position("시니어 백엔드 개발자")
+                .job(createJob("시니어 백엔드 개발자"))
                 .description("5년차 백엔드 개발자입니다.")
                 .isVerified(true)
                 .build();
@@ -294,5 +299,12 @@ class MentoringRecordServiceTest {
 
         assertThat(result).isEmpty();
         verify(mentoringRecordRepository).findCompletedMentoringRecordsByUserId(2L);
+    }
+
+    private Job createJob(String name) {
+        Job job = Job.builder()
+                .name(name)
+                .build();
+        return job;
     }
 }

@@ -7,9 +7,13 @@ import com.recareer.backend.feedback.repository.MentorFeedbackRepository;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.repository.MentorRepository;
+import com.recareer.backend.common.entity.Job;
+import com.recareer.backend.common.repository.JobRepository;
 import com.recareer.backend.user.entity.Role;
 import com.recareer.backend.user.entity.User;
 import com.recareer.backend.user.repository.UserRepository;
+import com.recareer.backend.common.entity.Job;
+import com.recareer.backend.common.repository.JobRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,6 +45,9 @@ class MentorDetailControllerTest {
 
     @Autowired
     private MentorRepository mentorRepository;
+
+    @Autowired
+    private JobRepository jobRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -75,7 +82,7 @@ class MentorDetailControllerTest {
         mentor = Mentor.builder()
                 .id(mentorUser.getId())
                 .user(mentorUser)
-                .position("시니어 백엔드 개발자")
+                .job(createJob("시니어 백엔드 개발자"))
                 .description("5년차 백엔드 개발자로 Spring Boot, JPA 전문가입니다.")
                 .experience(5)
                 .mentoringType(MentoringType.BOTH)
@@ -303,7 +310,7 @@ class MentorDetailControllerTest {
         Mentor onlineMentor = Mentor.builder()
                 .id(onlineUser.getId())
                 .user(onlineUser)
-                .position("온라인 강사")
+                .job(createJob("온라인 강사"))
                 .description("온라인 전문가")
                 .mentoringType(MentoringType.ONLINE)
                 .isVerified(true)
@@ -324,7 +331,7 @@ class MentorDetailControllerTest {
         Mentor offlineMentor = Mentor.builder()
                 .id(offlineUser.getId())
                 .user(offlineUser)
-                .position("오프라인 강사")
+                .job(createJob("오프라인 강사"))
                 .description("오프라인 전문가")
                 .mentoringType(MentoringType.OFFLINE)
                 .isVerified(true)
@@ -402,5 +409,12 @@ class MentorDetailControllerTest {
                     System.out.println(jsonResponse);
                     System.out.println("==========================\n");
                 });
+    }
+
+    private Job createJob(String name) {
+        Job job = Job.builder()
+                .name(name)
+                .build();
+        return jobRepository.save(job);
     }
 }
