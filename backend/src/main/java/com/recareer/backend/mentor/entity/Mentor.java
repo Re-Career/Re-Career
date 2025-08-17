@@ -36,7 +36,7 @@ public class Mentor extends BaseTimeEntity {
 
   @Builder.Default
   @Column(name = "is_verified", nullable = false)
-  private Boolean isVerified = false;
+  private Boolean isVerified = true; // TODO: 건강보험 등록증 확인을 통한 멘토 인증 로직 구현 필요
 
   @Column(name = "experience")
   private Integer experience;
