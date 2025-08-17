@@ -74,7 +74,6 @@ class MentorDetailControllerTest {
                 .provider("google")
                 .providerId("mentor123")
                 .profileImageUrl("https://example.com/mentor.jpg")
-                .region("서울시 강남구")
                 .build();
         userRepository.save(mentorUser);
 
@@ -303,7 +302,6 @@ class MentorDetailControllerTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("online123")
-                .region("서울시")
                 .build();
         userRepository.save(onlineUser);
 
@@ -324,7 +322,6 @@ class MentorDetailControllerTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("offline123")
-                .region("서울시")
                 .build();
         userRepository.save(offlineUser);
 
