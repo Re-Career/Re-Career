@@ -1,4 +1,4 @@
-import Tabs from '@/components/common/Tabs'
+import Tabs from '@/components/layout/Tabs'
 
 export default function TabLayout({
   children,

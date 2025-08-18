@@ -1,6 +1,8 @@
-import React, { useState, useMemo } from 'react'
+'use client'
+
+import { useState, useMemo } from 'react'
 import { CITIES_LIST, PROVINCES } from '@/lib/constants/regions'
-import Dropdown from '@/components/ui/Dropdown'
+import Dropdown from '@/components/common/Dropdown'
 
 interface RegionSelectorProps {
   onRegionChange: (regionName: string) => void

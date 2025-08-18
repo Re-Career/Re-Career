@@ -1,10 +1,10 @@
 import React from 'react'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import Header from '@/components/common/Header'
+import Header from '@/components/layout/Header'
 import Link from 'next/link'
 import { getJobDetail } from '@/services/positions'
-import PageWithHeader from '@/components/ui/PageWithHeader'
+import PageWithHeader from '@/components/layout/PageWithHeader'
 
 const JobDescriptionPage = async ({
   params,

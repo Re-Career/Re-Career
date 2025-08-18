@@ -1,9 +1,8 @@
-import Header from '@/components/common/Header'
-import Image from 'next/image'
-import { notFound } from 'next/navigation'
+import { Header, PageWithHeader } from '@/components/layout'
 import { getMentor } from '@/services/mentor'
+import Image from 'next/image'
 import Link from 'next/link'
-import PageWithHeader from '@/components/ui/PageWithHeader'
+import { notFound } from 'next/navigation'
 
 const renderStars = (rating: number) => {
   return Array.from({ length: 5 }, (_, i) => (

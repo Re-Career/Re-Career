@@ -1,7 +1,5 @@
-import Header from '@/components/common/Header'
-import MentoringDesc from '@/components/common/MentoringDesc'
-import PageWithHeader from '@/components/ui/PageWithHeader'
-import React from 'react'
+import { MentoringDesc } from '@/components/common'
+import { Header, PageWithHeader } from '@/components/layout'
 
 const page = () => {
   return (

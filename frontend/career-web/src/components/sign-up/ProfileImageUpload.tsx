@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
+'use client'
+
 import Image from 'next/image'
+import { useState } from 'react'
 
 const ProfileImageUpload = () => {
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
@@ -28,7 +30,7 @@ const ProfileImageUpload = () => {
           <label className="cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-gray-100 px-4 py-2 text-center text-sm leading-tight font-medium text-neutral-900">
             {profileImagePreview ? '변경' : '추가'}
             <input
-              name="profileImageUrl"
+              name="profileImage"
               type="file"
               className="hidden"
               accept="image/*"
