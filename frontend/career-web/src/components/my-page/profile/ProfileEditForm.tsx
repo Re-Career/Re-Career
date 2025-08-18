@@ -35,13 +35,9 @@ const ProfileEditForm = ({ userData }: ProfileEditFormProps) => {
     setIsLoading(true)
 
     try {
-      // TODO: API 호출로 프로필 업데이트
-      console.log('Profile update:', { name, profileImage })
-
       // 성공 시 마이페이지로 이동
       router.push('/my-page')
-    } catch (error) {
-      console.error('Profile update failed:', error)
+    } catch {
     } finally {
       setIsLoading(false)
     }
