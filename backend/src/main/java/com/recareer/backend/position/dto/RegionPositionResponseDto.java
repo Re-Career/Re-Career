@@ -9,6 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class RegionPositionResponseDto {
-    private String region;
+    private String province;
+    private String city;
     private List<PositionSimpleDto> positions;
 }
