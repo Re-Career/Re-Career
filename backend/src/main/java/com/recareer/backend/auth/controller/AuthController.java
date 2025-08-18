@@ -56,15 +56,16 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success(userInfo));
     }
 
-    @PostMapping("/signup")
+    @PostMapping(value = "/signup", consumes = "multipart/form-data")
     @Operation(summary = "회원가입 추가 정보 입력")
     public ResponseEntity<ApiResponse<UserInfoDto>> completeSignup(
-            @RequestHeader("Authorization") String accessToken,
-            @Valid @RequestBody SignupRequestDto signupRequest) {
+        @RequestHeader("Authorization") String accessToken,
+        @Valid @RequestBody SignupRequestDto signupRequest) {
         
         String token = accessToken.replace("Bearer ", "");
         
         if (!jwtTokenProvider.validateToken(token)) {
+            log.warn("⚠️ 유효하지 않은 토큰으로 signup 시도");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.error("Invalid access token"));
         }
@@ -72,7 +73,7 @@ public class AuthController {
         String providerId = jwtTokenProvider.getProviderIdFromToken(token);
         UserInfoDto userInfo = authService.signup(providerId, signupRequest);
         
+        log.info("🎉 Signup 성공 - userId: {}, role: {}", userInfo.getId(), userInfo.getRole());
         return ResponseEntity.ok(ApiResponse.success(userInfo));
     }
-
 }

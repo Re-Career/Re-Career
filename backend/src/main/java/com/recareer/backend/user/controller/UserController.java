@@ -83,7 +83,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/profile/image")
+    @PutMapping(value = "/profile/image", consumes = "multipart/form-data")
     @Operation(summary = "프로필 이미지 업로드", description = "사용자의 프로필 이미지를 업로드합니다.")
     public ResponseEntity<ApiResponse<String>> updateProfileImage(
             @RequestHeader("Authorization") String accessToken,
