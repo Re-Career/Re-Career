@@ -1,7 +1,5 @@
-import Header from '@/components/common/Header'
-import PageWithHeader from '@/components/ui/PageWithHeader'
+import { Header, PageWithHeader } from '@/components/layout'
 import Image from 'next/image'
-import React from 'react'
 
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   await params

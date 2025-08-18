@@ -1,7 +1,6 @@
 'use client'
 
-import Header from '@/components/common/Header'
-import PageWithHeader from '@/components/ui/PageWithHeader'
+import { Header, PageWithHeader } from '@/components/layout'
 import Image from 'next/image'
 
 export default function Login() {

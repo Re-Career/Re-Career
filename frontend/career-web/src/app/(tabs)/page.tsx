@@ -1,11 +1,10 @@
-import Header from '@/components/common/Header'
 import {
   ReginalJobList,
   TrendJobList,
   MentorList,
   IndustryNews,
 } from '@/components/home'
-import PageWithHeader from '@/components/ui/PageWithHeader'
+import { Header, PageWithHeader } from '@/components/layout'
 
 const HomePage = async () => {
   return (

@@ -1,11 +1,9 @@
-import React from 'react'
-import Image from 'next/image'
-import Header from '@/components/common/Header'
-import Link from 'next/link'
-import HorizontalScroll from '@/components/common/HorizontalScroll'
+import { HorizontalScroll } from '@/components/common'
+import { Header, PageWithHeader } from '@/components/layout'
 import Filter from '@/components/matching/Filter'
 import { getFilteredMenters, getRecommenedMentors } from '@/services/mentor'
-import PageWithHeader from '@/components/ui/PageWithHeader'
+import Image from 'next/image'
+import Link from 'next/link'
 
 interface MatchingPageProps {
   searchParams: Promise<Record<string, string>>

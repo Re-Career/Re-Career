@@ -1,10 +1,8 @@
-import Header from '@/components/common/Header'
-import { mentorDetails } from '@/mocks/home/mentor-details'
-import { redirect } from 'next/navigation'
-import Image from 'next/image'
-import React from 'react'
+import { Header, PageWithHeader } from '@/components/layout'
 import { ReservationForm } from '@/components/mentor/reservation'
-import PageWithHeader from '@/components/ui/PageWithHeader'
+import { mentorDetails } from '@/mocks/home/mentor-details'
+import Image from 'next/image'
+import { redirect } from 'next/navigation'
 
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params

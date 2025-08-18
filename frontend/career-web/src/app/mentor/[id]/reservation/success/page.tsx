@@ -1,6 +1,4 @@
-import Header from '@/components/common/Header'
-import PageWithHeader from '@/components/ui/PageWithHeader'
-import React from 'react'
+import { Header, PageWithHeader } from '@/components/layout'
 
 const columns = [
   { key: 'date' as const, name: '날짜' },
