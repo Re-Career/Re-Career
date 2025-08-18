@@ -1,6 +1,7 @@
 package com.recareer.backend.mentor.dto;
 
 import com.recareer.backend.mentor.entity.Mentor;
+import com.recareer.backend.position.dto.PositionDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +17,7 @@ public class MentorCreateResponseDto {
 
     private Long id;
     private Long userId;
-    private JobDto job;
+    private PositionDto position;
     private CompanyDto company;
     private ProvinceDto province;
     private CityDto city;
@@ -75,9 +76,9 @@ public class MentorCreateResponseDto {
         return MentorCreateResponseDto.builder()
                 .id(mentor.getId())
                 .userId(mentor.getUser().getId())
-                .job(mentor.getJob() != null ? JobDto.builder()
-                        .id(mentor.getJob().getId())
-                        .name(mentor.getJob().getName())
+                .position(mentor.getPositionEntity() != null ? PositionDto.builder()
+                        .id(mentor.getPositionEntity().getId())
+                        .name(mentor.getPositionEntity().getName())
                         .build() : null)
                 .company(mentor.getCompany() != null ? CompanyDto.builder()
                         .id(mentor.getCompany().getId())

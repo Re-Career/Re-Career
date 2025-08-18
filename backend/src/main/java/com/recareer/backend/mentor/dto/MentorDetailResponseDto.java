@@ -3,6 +3,7 @@ package com.recareer.backend.mentor.dto;
 import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.mentor.entity.Mentor;
+import com.recareer.backend.position.dto.PositionDto;
 import com.recareer.backend.user.entity.UserPersonalityTag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,7 @@ public class MentorDetailResponseDto {
 
     private Long id;
     private String name;
-    private JobDto job;
+    private PositionDto position;
     private String email;
     private String profileImageUrl;
     private CompanyDto company;
@@ -35,14 +36,6 @@ public class MentorDetailResponseDto {
     private List<String> career;
     private FeedbackDto feedback;
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class JobDto {
-        private Long id;
-        private String name;
-    }
 
     @Getter
     @NoArgsConstructor
@@ -166,9 +159,9 @@ public class MentorDetailResponseDto {
         return MentorDetailResponseDto.builder()
                 .id(mentor.getId())
                 .name(mentor.getUser().getName())
-                .job(mentor.getJob() != null ? JobDto.builder()
-                        .id(mentor.getJob().getId())
-                        .name(mentor.getJob().getName())
+                .position(mentor.getPositionEntity() != null ? PositionDto.builder()
+                        .id(mentor.getPositionEntity().getId())
+                        .name(mentor.getPositionEntity().getName())
                         .build() : null)
                 .email(mentor.getUser().getEmail())
                 .profileImageUrl(mentor.getUser().getProfileImageUrl())

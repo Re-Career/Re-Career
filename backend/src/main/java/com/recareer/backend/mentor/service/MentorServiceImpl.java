@@ -5,11 +5,10 @@ import com.recareer.backend.availableTime.repository.AvailableTimeRepository;
 import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.career.repository.MentorCareerRepository;
 import com.recareer.backend.common.entity.Company;
-import com.recareer.backend.common.entity.Job;
+import com.recareer.backend.position.entity.Position;
 import com.recareer.backend.common.repository.CompanyRepository;
-import com.recareer.backend.common.repository.JobRepository;
+import com.recareer.backend.position.repository.PositionRepository;
 import com.recareer.backend.common.repository.ProvinceRepository;
-import com.recareer.backend.common.repository.CityRepository;
 import com.recareer.backend.common.entity.Province;
 import com.recareer.backend.skill.entity.MentorSkill;
 import com.recareer.backend.skill.entity.Skill;
@@ -56,7 +55,7 @@ public class MentorServiceImpl implements MentorService {
     private final UserRepository userRepository;
     private final MentorCareerRepository mentorCareerRepository;
     private final MentorFeedbackRepository mentorFeedbackRepository;
-    private final JobRepository jobRepository;
+    private final PositionRepository positionRepository;
     private final CompanyRepository companyRepository;
     private final ProvinceRepository provinceRepository;
     private final SkillRepository skillRepository;
@@ -70,10 +69,10 @@ public class MentorServiceImpl implements MentorService {
         User user = userRepository.findById(requestDto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + requestDto.getUserId()));
         
-        // Job, Company, Region 조회
-        Job job = requestDto.getJobId() != null ? 
-            jobRepository.findById(requestDto.getJobId())
-                .orElseThrow(() -> new IllegalArgumentException("Job not found with id: " + requestDto.getJobId())) : null;
+        // Position, Company, Region 조회
+        Position position = requestDto.getJobId() != null ? 
+            positionRepository.findById(requestDto.getJobId())
+                .orElseThrow(() -> new IllegalArgumentException("Position not found with id: " + requestDto.getJobId())) : null;
                 
         Company company = requestDto.getCompanyId() != null ? 
             companyRepository.findById(requestDto.getCompanyId())
@@ -83,7 +82,7 @@ public class MentorServiceImpl implements MentorService {
         Mentor mentor = Mentor.builder()
                 .id(user.getId()) // User와 동일한 ID 사용
                 .user(user)
-                .job(job)
+                .position(position)
                 .company(company)
                 // region 필드 제거됨 - User 엔티티에서 Province/City로 관리
                 .description(requestDto.getDescription())
@@ -274,13 +273,13 @@ public class MentorServiceImpl implements MentorService {
     public Optional<Mentor> updateMentor(Long id, Long jobId, String description, String introduction, Integer experience, List<Long> skillIds) {
         return mentorRepository.findById(id)
                 .map(mentor -> {
-                    Job job = null;
+                    Position position = null;
                     if (jobId != null) {
-                        job = jobRepository.findById(jobId)
-                                .orElseThrow(() -> new IllegalArgumentException("Job not found with id: " + jobId));
+                        position = positionRepository.findById(jobId)
+                                .orElseThrow(() -> new IllegalArgumentException("Position not found with id: " + jobId));
                     }
 
-                    mentor.update(job, mentor.getCompany(), description, introduction, experience);
+                    mentor.update(position, mentor.getCompany(), description, introduction, experience);
 
                     // 기존 MentorSkill 관계 제거 후 새로 생성
                     mentor.getMentorSkills().clear();
@@ -395,12 +394,12 @@ public class MentorServiceImpl implements MentorService {
         // 2. 필터링 적용
         List<Mentor> filteredMentors = allMentors.stream()
                 .filter(mentor -> {
-                    // Job 필터링
+                    // Position 필터링
                     if (finalFilterRequest.getJobs() != null && !finalFilterRequest.getJobs().isEmpty()) {
-                        boolean jobMatches = finalFilterRequest.getJobs().stream()
-                                .anyMatch(job -> mentor.getJob() != null && 
-                                        mentor.getJob().getName().toLowerCase().contains(job.toLowerCase()));
-                        if (!jobMatches) return false;
+                        boolean positionMatches = finalFilterRequest.getJobs().stream()
+                                .anyMatch(job -> mentor.getPositionEntity() != null && 
+                                        mentor.getPositionEntity().getName().toLowerCase().contains(job.toLowerCase()));
+                        if (!positionMatches) return false;
                     }
                     
                     // Experience 필터링
@@ -450,12 +449,12 @@ public class MentorServiceImpl implements MentorService {
     public List<FilterOptionsResponseDto> getFilterOptions() {
         List<FilterOptionsResponseDto> filterOptions = new ArrayList<>();
         
-        // 직업 필터 옵션 (Job에서 동적으로 가져오기)
-        List<Job> jobs = jobRepository.findAll();
-        List<FilterOptionDto> jobOptions = jobs.stream()
-                .map(job -> FilterOptionDto.builder()
-                        .id(job.getId())
-                        .name(job.getName())
+        // 직업 필터 옵션 (Position에서 동적으로 가져오기)
+        List<Position> positions = positionRepository.findAll();
+        List<FilterOptionDto> jobOptions = positions.stream()
+                .map(position -> FilterOptionDto.builder()
+                        .id(position.getId())
+                        .name(position.getName())
                         .build())
                 .collect(Collectors.toList());
         

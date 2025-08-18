@@ -46,15 +46,15 @@ public class LocationController {
         }
     }
     
-    @GetMapping("/provinces/{provinceId}/cities")
-    @Operation(summary = "시/군/구 목록 조회", description = "특정 시/도에 속한 시/군/구 목록을 조회합니다")
-    public ResponseEntity<ApiResponse<List<CityResponseDto>>> getCitiesByProvinceId(@PathVariable Long provinceId) {
-        try {
-            List<CityResponseDto> cities = locationService.getCitiesByProvinceId(provinceId);
-            return ResponseEntity.ok(ApiResponse.success(cities));
-        } catch (Exception e) {
-            log.error("Get cities by province id failed: {}", e.getMessage());
-            return ResponseEntity.internalServerError().body(ApiResponse.error("시/군/구 목록 조회에 실패했습니다."));
-        }
-    }
+//    @GetMapping("/provinces/{provinceId}/cities")
+//    @Operation(summary = "시/군/구 목록 조회", description = "특정 시/도에 속한 시/군/구 목록을 조회합니다")
+//    public ResponseEntity<ApiResponse<List<CityResponseDto>>> getCitiesByProvinceId(@PathVariable Long provinceId) {
+//        try {
+//            List<CityResponseDto> cities = locationService.getCitiesByProvinceId(provinceId);
+//            return ResponseEntity.ok(ApiResponse.success(cities));
+//        } catch (Exception e) {
+//            log.error("Get cities by province id failed: {}", e.getMessage());
+//            return ResponseEntity.internalServerError().body(ApiResponse.error("시/군/구 목록 조회에 실패했습니다."));
+//        }
+//    }
 }

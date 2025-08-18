@@ -1,6 +1,7 @@
 package com.recareer.backend.mentor.dto;
 
 import com.recareer.backend.mentor.entity.Mentor;
+import com.recareer.backend.position.dto.PositionDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import java.util.List;
 public class MentorUpdateResponseDto {
 
     private Long id;
-    private JobDto job;
+    private PositionDto position;
     private CompanyDto company;
     private ProvinceDto province;
     private CityDto city;
@@ -71,9 +72,9 @@ public class MentorUpdateResponseDto {
     public static MentorUpdateResponseDto from(Mentor mentor) {
         return MentorUpdateResponseDto.builder()
                 .id(mentor.getId())
-                .job(mentor.getJob() != null ? JobDto.builder()
-                        .id(mentor.getJob().getId())
-                        .name(mentor.getJob().getName())
+                .position(mentor.getPositionEntity() != null ? PositionDto.builder()
+                        .id(mentor.getPositionEntity().getId())
+                        .name(mentor.getPositionEntity().getName())
                         .build() : null)
                 .company(mentor.getCompany() != null ? CompanyDto.builder()
                         .id(mentor.getCompany().getId())
