@@ -9,5 +9,7 @@ public interface LocationService {
     
     List<ProvinceResponseDto> getAllProvinces();
     
+    List<CityResponseDto> getAllCities();
+    
     List<CityResponseDto> getCitiesByProvinceId(Long provinceId);
 }

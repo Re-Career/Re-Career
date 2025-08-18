@@ -3,8 +3,9 @@ package com.recareer.backend.mentor.entity;
 import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.common.entity.BaseTimeEntity;
 import com.recareer.backend.common.entity.Company;
-import com.recareer.backend.common.entity.Job;
+import com.recareer.backend.position.entity.Position;
 import com.recareer.backend.feedback.entity.MentorFeedback;
+import com.recareer.backend.skill.entity.MentorSkill;
 import com.recareer.backend.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,17 +25,18 @@ import java.util.List;
 public class Mentor extends BaseTimeEntity {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "user_id")
   private User user;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "job_id")
-  private Job job;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "position_id")
+  private Position position;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "company_id")
   private Company company;
 
@@ -51,15 +53,10 @@ public class Mentor extends BaseTimeEntity {
   @Column(name = "experience")
   private Integer experience;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "mentoring_type")
-  private MentoringType mentoringType;
 
-  @ElementCollection
-  @CollectionTable(name = "mentor_skills", joinColumns = @JoinColumn(name = "mentor_id"))
-  @Column(name = "skill", length = 50)
+  @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Builder.Default
-  private List<String> skills = new ArrayList<>();
+  private List<MentorSkill> mentorSkills = new ArrayList<>();
 
   @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Builder.Default
@@ -69,29 +66,29 @@ public class Mentor extends BaseTimeEntity {
   @Builder.Default
   private List<MentorFeedback> feedbacks = new ArrayList<>();
 
-  public Mentor update(Job job, Company company, String description, String introduction, Integer experience, MentoringType mentoringType) {
-    this.job = job;
+  public Mentor update(Position position, Company company, String description, String introduction, Integer experience) {
+    this.position = position;
     this.company = company;
     this.description = description;
     this.introduction = introduction;
     this.experience = experience;
-    this.mentoringType = mentoringType;
     return this;
   }
 
-  public Mentor updateSkills(List<String> skills) {
-    this.skills.clear();
-
-    if (skills != null) {
-      this.skills.addAll(skills);
-    }
-
-    return this;
-  }
 
   // 호환성을 위한 메서드들
+  public String getPositionName() {
+    return position != null ? position.getName() : null;
+  }
+  
+  // 기존 getPosition() 메서드도 유지 (호환성)
   public String getPosition() {
-    return job != null ? job.getName() : null;
+    return getPositionName();
+  }
+  
+  // Position 엔티티 반환 메서드
+  public Position getPositionEntity() {
+    return position;
   }
 
   public String getCompanyName() {
