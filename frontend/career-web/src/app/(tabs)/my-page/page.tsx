@@ -1,13 +1,10 @@
 import { Header, PageWithHeader } from '@/components/layout'
-import { MyMentoringList } from '@/components/my-page'
+import { MyMentoringList, ProfileImage } from '@/components/my-page'
+import { LogoutButton } from '@/components/my-page/LogoutButton'
 import { getUserProfile } from '@/services/user'
-import { hasProfileImage } from '@/lib/constants/images'
-import Image from 'next/image'
 import Link from 'next/link'
 import { GoPerson as PersonIcon } from 'react-icons/go'
-import { IoCameraOutline } from 'react-icons/io5'
 import { LuLogOut as LogoutIcon } from 'react-icons/lu'
-import { LogoutButton } from '@/components/my-page/LogoutButton'
 
 const MyPagePage = async () => {
   const data = await getUserProfile()
@@ -21,31 +18,7 @@ const MyPagePage = async () => {
       <Header title="마이페이지" />
       <PageWithHeader>
         <section className="flex flex-col items-center gap-4 p-4">
-          <div className="relative">
-            {hasProfileImage(data.profileImageUrl) ? (
-              <div className="relative h-32 w-32">
-                <Image
-                  src={data.profileImageUrl!}
-                  alt={`my_page_image_${data.id}`}
-                  fill
-                  className="rounded-full object-cover"
-                />
-                <Link
-                  href="/settings/profile"
-                  className="absolute right-0 bottom-0 rounded-full bg-white p-2 shadow-lg"
-                >
-                  <IoCameraOutline className="h-4 w-4 text-gray-600" />
-                </Link>
-              </div>
-            ) : (
-              <Link
-                href="/settings/profile"
-                className="flex h-32 w-32 items-center justify-center rounded-full bg-gray-200"
-              >
-                <IoCameraOutline className="h-12 w-12 text-gray-400" />
-              </Link>
-            )}
-          </div>
+          <ProfileImage user={data} />
           <p className="text-xl font-bold">{data.name}</p>
         </section>
         <section>
