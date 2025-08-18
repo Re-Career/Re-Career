@@ -169,6 +169,7 @@ export const signUpAction = async (
       formData: { name, email },
     }
   } catch (error) {
+    console.log(error)
     if (error instanceof z.ZodError) {
       const fieldErrors: Record<string, string> = {}
 
