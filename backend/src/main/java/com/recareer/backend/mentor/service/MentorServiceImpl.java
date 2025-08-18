@@ -454,13 +454,13 @@ public class MentorServiceImpl implements MentorService {
         List<Job> jobs = jobRepository.findAll();
         List<FilterOptionDto> jobOptions = jobs.stream()
                 .map(job -> FilterOptionDto.builder()
-                        .key(job.getId().toString())
+                        .id(job.getId())
                         .name(job.getName())
                         .build())
                 .collect(Collectors.toList());
         
         FilterOptionsResponseDto jobFilter = FilterOptionsResponseDto.builder()
-                .key("job")
+                .id("job")
                 .title("직업")
                 .options(jobOptions)
                 .build();
@@ -468,29 +468,39 @@ public class MentorServiceImpl implements MentorService {
         
         // 경험 필터 옵션
         FilterOptionsResponseDto experienceFilter = FilterOptionsResponseDto.builder()
-                .key("experience")
+                .id("experience")
                 .title("경험")
                 .options(Arrays.asList(
-                        FilterOptionDto.builder().key("1-3").name("1-3년").build(),
-                        FilterOptionDto.builder().key("4-7").name("4-7년").build(),
-                        FilterOptionDto.builder().key("8-10").name("8-10년").build(),
-                        FilterOptionDto.builder().key("10+").name("10년 이상").build()
+                        FilterOptionDto.builder().id("1-3").name("1-3년").build(),
+                        FilterOptionDto.builder().id("4-7").name("4-7년").build(),
+                        FilterOptionDto.builder().id("8-10").name("8-10년").build(),
+                        FilterOptionDto.builder().id("10+").name("10년 이상").build()
                 ))
                 .build();
         filterOptions.add(experienceFilter);
         
         
-        // 지역 필터 옵션 (Province에서 동적으로 가져오기)
-        List<Province> provinces = provinceRepository.findAll();
+        // 지역 필터 옵션 (Province와 City를 계층 구조로 가져오기)
+        List<Province> provinces = provinceRepository.findAllWithCities(); // City를 Fetch Join하는 메소드 필요
         List<FilterOptionDto> regionOptions = provinces.stream()
-                .map(province -> FilterOptionDto.builder()
-                        .key(province.getKey())
-                        .name(province.getName())
-                        .build())
+                .map(province -> {
+                    List<FilterOptionDto> cityOptions = province.getCities().stream()
+                            .map(city -> FilterOptionDto.builder()
+                                    .id(city.getId())
+                                    .name(city.getName())
+                                    .build())
+                            .collect(Collectors.toList());
+                    
+                    return FilterOptionDto.builder()
+                            .id(province.getId())
+                            .name(province.getName())
+                            .cities(cityOptions)
+                            .build();
+                })
                 .collect(Collectors.toList());
         
         FilterOptionsResponseDto regionFilter = FilterOptionsResponseDto.builder()
-                .key("region")
+                .id("region")
                 .title("지역")
                 .options(regionOptions)
                 .build();
