@@ -1,4 +1,4 @@
-import { WebViewMessageTypes } from '@/lib/constants/global'
+import { WEBVIEW_MESSAGE_TYPES } from '@/lib/constants/global'
 import { WebViewMessage } from '@/types/global'
 
 export const sendMessageToNative = ({ type, data }: WebViewMessage) => {
@@ -12,7 +12,7 @@ export const sendAuthTokensToNative = (
   refreshToken: string
 ) => {
   sendMessageToNative({
-    type: WebViewMessageTypes.SAVE_AUTH,
+    type: WEBVIEW_MESSAGE_TYPES.SAVE_AUTH,
     data: {
       accessToken,
       refreshToken,
