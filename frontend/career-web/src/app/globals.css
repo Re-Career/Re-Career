@@ -62,6 +62,25 @@ button {
   cursor: pointer;
 }
 
+input {
+  outline: none;
+}
+
+input:focus {
+  box-shadow: 0 0 0 2px #a8cce8;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgb(243 244 246) inset !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px rgb(243 244 246) inset, 0 0 0 2px #a8cce8 !important;
+}
+
 .react-calendar {
   width: 100%;
   padding: 0px 16px 16px 16px;
