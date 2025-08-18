@@ -72,7 +72,6 @@ class MentorDetailControllerTest {
                 .job(testJob)
                 .description("5년차 백엔드 개발자입니다.")
                 .experience(5)
-                .mentoringType(MentoringType.BOTH)
                 .isVerified(true)
                 .build();
         mentorRepository.save(mentor);
