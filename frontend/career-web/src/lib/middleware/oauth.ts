@@ -14,10 +14,10 @@ export async function handleOAuth2Redirect(
   }
 
   try {
-    const { isSuccess, errorMessage, data: auth } = await getAuthMe(accessToken)
+    const { errorMessage, data: auth } = await getAuthMe(accessToken)
 
-    if (!isSuccess || errorMessage) {
-      throw new Error('접근 권한이 없습니다.')
+    if (errorMessage) {
+      throw new Error(errorMessage)
     }
 
     if (!auth) {

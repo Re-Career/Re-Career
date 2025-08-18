@@ -13,17 +13,17 @@ export const getAuthMe = async (
   })
 
   const isSuccess = res.ok
-  const responseData = await res.json().catch(() => ({}))
-  const errorData = responseData
-  const data = responseData
+  const data = await res.json().catch(() => {})
 
   let errorMessage: string = ''
+  let errors = {}
 
-  if (errorData.errors && typeof errorData.errors === 'object') {
-    errorMessage = errorData.message || '입력 정보를 확인해주세요.'
+  if (!isSuccess) {
+    errors = data?.errors
+    errorMessage = data?.message || `접근 권한이 없습니다.`
   }
 
-  return { isSuccess, errorMessage, data }
+  return { errorMessage, data, errors }
 }
 
 export const postSignUp = async ({
@@ -32,7 +32,7 @@ export const postSignUp = async ({
 }: {
   accessToken: string
   requestData: SignUpFormData
-}) => {
+}): Promise<FetchResponse<User>> => {
   const res = await fetchUrl('/auth/signup', {
     method: 'POST',
     headers: {
@@ -40,6 +40,21 @@ export const postSignUp = async ({
     },
     body: JSON.stringify(requestData),
   })
-  
-  return res
+
+  const isSuccess = res.ok
+  const data = await res.json().catch(() => {})
+
+  let errorMessage: string = ''
+  let errors = {}
+
+  if (!isSuccess) {
+    errors = data?.errors
+
+    errorMessage =
+      errors && typeof errors === 'object'
+        ? data?.message || '입력 정보를 확인해주세요.'
+        : data?.message || `회원가입에 실패했습니다.`
+  }
+
+  return { errorMessage, data, errors, status: res.status }
 }

@@ -49,7 +49,11 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
   }, [])
 
   useEffect(() => {
-    const { success } = state
+    const { success, status } = state
+
+    if (status === 401) {
+      router.replace('/login')
+    }
 
     if (success) {
       if (isWebView()) {
