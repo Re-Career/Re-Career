@@ -7,7 +7,6 @@ import z from 'zod'
 import { setCookie } from '../global/action'
 import { putProfileImage } from '@/services/user'
 import { clearPendingTokens, getPendingTokens } from '../auth/action'
-import { CITIES_LIST, PROVINCES } from '@/lib/constants/regions'
 
 interface DefaultFormData {
   name: string
@@ -61,16 +60,22 @@ export const signUpAction = async (
   const cityId = formData.get('cityId') as string
   const profileImageFile = formData.get('profileImageFile') as File
   const personalityTagIds = formData.getAll('personalityTagIds') as string[]
+  const position = formData.get('position') as string
+  const description = formData.get('description') as string
 
   const schema = z.object({
     name: z.string().min(1, '이름을 입력해주세요.'),
     email: z.email('올바른 이메일 형식을 입력해주세요.'),
     role: z.string().min(1, '역할을 선택해주세요.'),
-    region: z.string().min(1, '지역을 선택해주세요.'),
+    provinceId: z.number().min(1, '지역을 선택해주세요.'),
+    cityId: z.number().optional(),
     profileImageFile: z.file(),
     personalityTagIds: z
-      .array(z.string())
-      .min(1, '성격 태그를 최소 1개 이상 선택해주세요.'),
+      .array(z.number())
+      .min(1, '성격 태그를 최소 1개 이상 선택해주세요.')
+      .max(5, '성격 태그는 최대 5개까지 선택할 수 있습니다.'),
+    position: z.string().optional(),
+    description: z.string().optional(),
   })
 
   const defaultFormData = { name, email }
@@ -93,22 +98,16 @@ export const signUpAction = async (
       })
     }
 
-    //temp
-    const selectedProvinceName =
-      PROVINCES.find((province) => province.id === Number(provinceId))?.name ||
-      ''
-    const selectedCityName =
-      CITIES_LIST.find((city) => city.id === Number(cityId))?.name || ''
-
     const requestData: SignUpFormData = {
       name,
       email,
       role,
-      region: selectedCityName
-        ? `${selectedProvinceName} ${selectedCityName}`
-        : selectedProvinceName,
+      provinceId: Number(provinceId),
+      ...(cityId && { cityId: Number(cityId) }),
       profileImageFile,
-      personalityTagIds,
+      personalityTagIds: personalityTagIds.map(id => Number(id)),
+      ...(role === 'MENTOR' && position && { position }),
+      ...(role === 'MENTOR' && description && { description }),
     }
 
     const parseResult = schema.safeParse(requestData)
