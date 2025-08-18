@@ -17,4 +17,66 @@ jobs:
 
       - name: Deploy to Render via Deploy Hook
         run: |
-          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+          echo "🚀 Starting deployment to Render..."
+          DEPLOY_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}")
+          HTTP_CODE=$(echo "$DEPLOY_RESPONSE" | tail -n1)
+          RESPONSE_BODY=$(echo "$DEPLOY_RESPONSE" | head -n -1)
+          
+          if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ]; then
+            echo "✅ Deploy hook triggered successfully (HTTP $HTTP_CODE)"
+            echo "Response: $RESPONSE_BODY"
+          else
+            echo "❌ Deploy hook failed (HTTP $HTTP_CODE)"
+            echo "Response: $RESPONSE_BODY"
+            exit 1
+          fi
+
+      - name: Wait for deployment to complete
+        run: |
+          echo "⏳ Waiting for deployment to complete..."
+          SERVICE_URL="${{ secrets.RENDER_SERVICE_URL }}"
+          HEALTH_ENDPOINT="$SERVICE_URL/health"
+          MAX_ATTEMPTS=30
+          ATTEMPT=1
+          
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: Checking service health..."
+            
+            if HEALTH_RESPONSE=$(curl -s -f "$HEALTH_ENDPOINT" 2>/dev/null); then
+              echo "✅ Service is healthy and responding!"
+              echo "Health check response: $HEALTH_RESPONSE"
+              break
+            else
+              if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+                echo "❌ Service health check failed after $MAX_ATTEMPTS attempts"
+                echo "Service URL: $SERVICE_URL"
+                exit 1
+              fi
+              echo "⏳ Service not ready yet, waiting 30 seconds..."
+              sleep 30
+              ATTEMPT=$((ATTEMPT + 1))
+            fi
+          done
+
+      - name: Verify deployment
+        run: |
+          echo "🔍 Verifying deployment..."
+          SERVICE_URL="${{ secrets.RENDER_SERVICE_URL }}"
+          
+          # Test basic connectivity
+          if curl -s -f "$SERVICE_URL" > /dev/null; then
+            echo "✅ Service is accessible at $SERVICE_URL"
+          else
+            echo "❌ Service is not accessible at $SERVICE_URL"
+            exit 1
+          fi
+          
+          # Test health endpoint
+          if HEALTH_RESPONSE=$(curl -s -f "$SERVICE_URL/health"); then
+            echo "✅ Health endpoint is working"
+            echo "Health status: $HEALTH_RESPONSE"
+          else
+            echo "⚠️ Health endpoint check failed, but service is accessible"
+          fi
+          
+          echo "🎉 Deployment verification completed successfully!"
