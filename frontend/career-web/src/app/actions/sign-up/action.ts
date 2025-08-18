@@ -145,7 +145,7 @@ export const signUpAction = async (
       options: { maxAge: 7 * ONE_DAY },
     })
 
-    pendingTokenList.forEach(tokenName => deleteCookie(tokenName))
+    pendingTokenList.forEach(async (tokenName) => await deleteCookie(tokenName))
 
     return {
       success: true,
@@ -153,7 +153,6 @@ export const signUpAction = async (
       formData: { name, email },
     }
   } catch (error) {
-    console.log(error)
     if (error instanceof z.ZodError) {
       const fieldErrors: Record<string, string> = {}
 

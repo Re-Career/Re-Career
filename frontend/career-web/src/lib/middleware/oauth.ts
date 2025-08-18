@@ -61,9 +61,7 @@ export async function handleOAuth2Redirect(
     response.cookies.delete('redirectUrl')
 
     return response
-  } catch (error) {
-    console.error('OAuth2 redirect error:', error)
-
+  } catch {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 }
