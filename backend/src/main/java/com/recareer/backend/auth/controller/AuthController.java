@@ -56,7 +56,7 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success(userInfo));
     }
 
-    @PostMapping(value = "/signup", consumes = "multipart/form-data")
+    @PostMapping(value = "/signup")
     @Operation(summary = "회원가입 추가 정보 입력")
     public ResponseEntity<ApiResponse<UserInfoDto>> completeSignup(
         @RequestHeader("Authorization") String accessToken,
