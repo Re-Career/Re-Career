@@ -21,7 +21,7 @@ public class MentorUpdateResponseDto {
     private CityDto city;
     private String description;
     private String introduction;
-    private List<String> skills;
+    private List<SkillDto> skills;
 
     @Getter
     @NoArgsConstructor
@@ -59,6 +59,15 @@ public class MentorUpdateResponseDto {
         private String name;
     }
 
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class SkillDto {
+        private Long id;
+        private String name;
+    }
+
     public static MentorUpdateResponseDto from(Mentor mentor) {
         return MentorUpdateResponseDto.builder()
                 .id(mentor.getId())
@@ -80,7 +89,13 @@ public class MentorUpdateResponseDto {
                         .build() : null)
                 .description(mentor.getDescription())
                 .introduction(mentor.getIntroduction())
-                .skills(mentor.getSkills())
+                .skills(mentor.getMentorSkills() != null ? 
+                        mentor.getMentorSkills().stream()
+                                .map(mentorSkill -> SkillDto.builder()
+                                        .id(mentorSkill.getSkill().getId())
+                                        .name(mentorSkill.getSkill().getName())
+                                        .build())
+                                .toList() : List.of())
                 .build();
     }
 }

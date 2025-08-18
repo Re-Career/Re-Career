@@ -5,6 +5,7 @@ import com.recareer.backend.common.entity.BaseTimeEntity;
 import com.recareer.backend.common.entity.Company;
 import com.recareer.backend.common.entity.Job;
 import com.recareer.backend.feedback.entity.MentorFeedback;
+import com.recareer.backend.skill.entity.MentorSkill;
 import com.recareer.backend.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -52,11 +53,9 @@ public class Mentor extends BaseTimeEntity {
   private Integer experience;
 
 
-  @ElementCollection
-  @CollectionTable(name = "mentor_skills", joinColumns = @JoinColumn(name = "mentor_id"))
-  @Column(name = "skill", length = 50)
+  @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Builder.Default
-  private List<String> skills = new ArrayList<>();
+  private List<MentorSkill> mentorSkills = new ArrayList<>();
 
   @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Builder.Default
@@ -75,15 +74,6 @@ public class Mentor extends BaseTimeEntity {
     return this;
   }
 
-  public Mentor updateSkills(List<String> skills) {
-    this.skills.clear();
-
-    if (skills != null) {
-      this.skills.addAll(skills);
-    }
-
-    return this;
-  }
 
   // 호환성을 위한 메서드들
   public String getPosition() {
