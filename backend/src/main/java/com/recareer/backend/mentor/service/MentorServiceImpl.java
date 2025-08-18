@@ -301,54 +301,7 @@ public class MentorServiceImpl implements MentorService {
         return mentorFeedbackRepository.findByMentorIdAndIsVisibleTrue(mentorId);
     }
 
-    private long getPersonalityMatches(Long mentorUserId, Set<Long> userTagIds) {
-        List<UserPersonalityTag> mentorPersonalityTags = userPersonalityTagRepository.findByUserId(mentorUserId);
-        return mentorPersonalityTags.stream()
-                .mapToLong(mpt -> userTagIds.contains(mpt.getPersonalityTag().getId()) ? 1 : 0)
-                .sum();
-    }
 
-    /**
-     * 직접 personalityTagIds를 받아서 멘토 조회 (기존 로직)
-     */
-    private List<Mentor> getMentorsByRegionAndPersonalityTagIds(List<String> regions, List<Long> personalityTagIds) {
-        if (regions == null || regions.isEmpty()) {
-            regions = List.of("서울");
-        }
-
-        log.info("Finding mentors in regions: {} with personality tags: {}", regions, personalityTagIds);
-        
-        // 1. 지역별 멘토 조회 (User 정보까지 Fetch Join)
-        List<Mentor> allMentors = getMentorsByRegionsWithUser(regions);
-        
-        // 2. 모든 멘토의 UserId 추출
-        List<Long> userIds = allMentors.stream()
-                .map(mentor -> mentor.getUser().getId())
-                .distinct()
-                .toList();
-        
-        // 3. 배치로 모든 UserPersonalityTag를 한 번에 조회하여 Map으로 그룹화 (N+1 방지)
-        Map<Long, List<UserPersonalityTag>> userPersonalityTagMap = userPersonalityTagRepository
-                .findByUserIdInWithPersonalityTag(userIds)
-                .stream()
-                .collect(Collectors.groupingBy(upt -> upt.getUser().getId()));
-        
-        // 4. 성향 매칭을 기반으로 정렬 (추가 쿼리 없이 메모리에서 계산)
-        return allMentors.stream()
-                .sorted((mentor1, mentor2) -> {
-                    // 각 멘토의 성향 태그와 요청된 성향 태그 매칭 수 계산 (메모리에서)
-                    long matches1 = calculatePersonalityMatchesFromMap(mentor1.getUser().getId(), userPersonalityTagMap, personalityTagIds);
-                    long matches2 = calculatePersonalityMatchesFromMap(mentor2.getUser().getId(), userPersonalityTagMap, personalityTagIds);
-                    
-                    // 매칭 수 내림차순, 그 다음 생성일 오름차순
-                    int matchComparison = Long.compare(matches2, matches1);
-                    if (matchComparison != 0) {
-                        return matchComparison;
-                    }
-                    return mentor1.getCreatedDate().compareTo(mentor2.getCreatedDate());
-                })
-                .toList();
-    }
 
     /**
      * 배치로 조회한 Map을 이용해 메모리에서 성향 매칭 수 계산
@@ -381,16 +334,6 @@ public class MentorServiceImpl implements MentorService {
                 .toList();
     }
 
-    /**
-     * @deprecated N+1 문제가 있는 기존 메서드. calculatePersonalityMatches 사용 권장
-     */
-    @Deprecated
-    private long getPersonalityMatchesByTags(Long mentorUserId, List<Long> personalityTagIds) {
-        List<UserPersonalityTag> mentorPersonalityTags = userPersonalityTagRepository.findByUserId(mentorUserId);
-        return mentorPersonalityTags.stream()
-                .mapToLong(mpt -> personalityTagIds.contains(mpt.getPersonalityTag().getId()) ? 1 : 0)
-                .sum();
-    }
 
     @Override
     @Transactional(readOnly = true)
