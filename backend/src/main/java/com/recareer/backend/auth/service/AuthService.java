@@ -11,12 +11,14 @@ import com.recareer.backend.user.repository.UserRepository;
 import com.recareer.backend.user.repository.UserPersonalityTagRepository;
 import com.recareer.backend.personality.entity.PersonalityTag;
 import com.recareer.backend.personality.repository.PersonalityTagRepository;
+import com.recareer.backend.common.service.S3Service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,6 +31,7 @@ public class AuthService {
     private final MentorRepository mentorRepository;
     private final UserPersonalityTagRepository userPersonalityTagRepository;
     private final PersonalityTagRepository personalityTagRepository;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public UserInfoDto getUserInfo(String providerId) {
@@ -54,6 +57,21 @@ public class AuthService {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
+        // 프로필 이미지 업로드 처리
+        String profileImageUrl = user.getProfileImageUrl(); // 기존 이미지 유지
+        
+        if (signupRequest.getProfileImage() != null && !signupRequest.getProfileImage().isEmpty()) {
+            try {
+                // S3에 이미지 업로드 (profiles 폴더에 저장)
+                String uploadedImageUrl = s3Service.uploadFile(signupRequest.getProfileImage(), "profiles");
+                profileImageUrl = uploadedImageUrl;
+                log.info("✅ 프로필 이미지 업로드 성공: {}", uploadedImageUrl);
+            } catch (Exception e) {
+                log.error("❌ 프로필 이미지 업로드 실패", e);
+                throw new IllegalArgumentException("프로필 이미지 업로드에 실패했습니다.");
+            }
+        }
+
         // MENTOR일 때 필수 필드 검증
         if (signupRequest.getRole() == Role.MENTOR) {
             if (signupRequest.getPosition() == null || signupRequest.getPosition().trim().isEmpty()) {
@@ -62,7 +80,7 @@ public class AuthService {
             if (signupRequest.getDescription() == null || signupRequest.getDescription().trim().isEmpty()) {
                 throw new IllegalArgumentException("멘토는 자기소개가 필수입니다.");
             }
-            if (signupRequest.getProfileImageUrl() == null || signupRequest.getProfileImageUrl().trim().isEmpty()) {
+            if (profileImageUrl == null || profileImageUrl.trim().isEmpty()) {
                 throw new IllegalArgumentException("멘토는 프로필 이미지가 필수입니다.");
             }
         }
@@ -75,8 +93,8 @@ public class AuthService {
                 .role(signupRequest.getRole())
                 .provider(user.getProvider())
                 .providerId(user.getProviderId())
-                .profileImageUrl(signupRequest.getProfileImageUrl() != null ? signupRequest.getProfileImageUrl() : user.getProfileImageUrl())
-                // TODO: Province와 City 설정 로직 추가 필요
+                .profileImageUrl(profileImageUrl)
+                // TODO: region을 province/city로 파싱해서 저장하는 로직 추가 필요
                 .build();
 
         User savedUser = userRepository.save(updatedUser);
