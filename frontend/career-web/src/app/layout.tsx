@@ -30,6 +30,7 @@ export default function RootLayout({
     <html lang="ko">
       <body
         className={`${notoSans.variable} ${notoSansKR.variable} mx-auto flex min-h-screen w-full max-w-[450px] flex-col bg-neutral-50`}
+        suppressHydrationWarning={true}
       >
         <div className="flex-1 bg-white">{children}</div>
         <div className="h-4 bg-white" />
