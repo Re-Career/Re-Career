@@ -13,14 +13,18 @@ export const getTokens = async () => {
   return { accessToken, refreshToken }
 }
 
-export const clearTokens = async () => {
-  return tokenList.forEach((key) => deleteCookie(key))
-}
-
 export const getPendingTokens = async () => {
   const [pendingAccessToken, pendingRefreshToken] = await Promise.all(
     pendingTokenList.map((key) => getCookie(key))
   )
 
   return { pendingAccessToken, pendingRefreshToken }
+}
+
+export const clearTokens = async () => {
+  return tokenList.forEach((key) => deleteCookie(key))
+}
+
+export const clearPendingTokens = async () => {
+  return pendingTokenList.forEach((key) => deleteCookie(key))
 }
