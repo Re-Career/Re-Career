@@ -1,7 +1,6 @@
 package com.recareer.backend.mentor.dto;
 
 import com.recareer.backend.mentor.entity.Mentor;
-import com.recareer.backend.mentor.entity.MentoringType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +22,6 @@ public class MentorCreateResponseDto {
     private String description;
     private String introduction;
     private Integer experience;
-    private MentoringType mentoringType;
     private List<String> skills;
     private Boolean isVerified;
 
@@ -73,7 +71,6 @@ public class MentorCreateResponseDto {
                 .description(mentor.getDescription())
                 .introduction(mentor.getIntroduction())
                 .experience(mentor.getExperience())
-                .mentoringType(mentor.getMentoringType())
                 .skills(mentor.getSkills())
                 .isVerified(mentor.getIsVerified())
                 .build();

@@ -3,7 +3,6 @@ package com.recareer.backend.mentor.dto;
 import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.mentor.entity.Mentor;
-import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.user.entity.UserPersonalityTag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -94,7 +93,7 @@ public class MentorDetailResponseDto {
     }
 
     public static MentorDetailResponseDto from(Mentor mentor, List<MentorCareer> careers, List<MentorFeedback> feedbacks, Double averageRating, Integer feedbackCount, List<UserPersonalityTag> userPersonalityTags) {
-        String meetingType = convertMentoringType(mentor.getMentoringType());
+        String meetingType = "온라인"; // 미팅 방식은 온라인으로 통일
         
         // 경력 정보 변환
         List<String> careerList = careers.stream()
@@ -186,14 +185,4 @@ public class MentorDetailResponseDto {
         }
     }
 
-    private static String convertMentoringType(MentoringType mentoringType) {
-        if (mentoringType == null) {
-            return null;
-        }
-        return switch (mentoringType) {
-            case ONLINE -> "online";
-            case OFFLINE -> "offline";
-            case BOTH -> "both";
-        };
-    }
 }

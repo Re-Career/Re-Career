@@ -8,7 +8,6 @@ import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
 import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.dto.FilterOptionsResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
-import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.reservation.entity.Reservation;
 
 import java.time.LocalDateTime;
@@ -27,7 +26,7 @@ public interface MentorService {
 
     List<Mentor> getMentorsByRegionAndPersonalityTags(List<String> regions, String providerId);
 
-    List<Mentor> getMentorsByPriorityFilters(String providerId, List<String> regions, String position, String experience, MentoringType mentoringType);
+    List<Mentor> getMentorsByPriorityFilters(String providerId, List<String> regions, String position, String experience);
     
     List<MentorSummaryResponseDto> getMentorsByFilters(MentorFilterRequestDto filterRequest);
     

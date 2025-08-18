@@ -1,7 +1,6 @@
 package com.recareer.backend.mentor.controller;
 
 import com.recareer.backend.mentor.entity.Mentor;
-import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.repository.MentorRepository;
 import com.recareer.backend.common.entity.Job;
 import com.recareer.backend.common.entity.Province;
@@ -92,7 +91,6 @@ class MentorControllerTest {
                 .job(testJob)
                 .description("5년차 백엔드 개발자입니다.")
                 .experience(5)
-                .mentoringType(MentoringType.BOTH)
                 .isVerified(true)
                 .build();
         mentorRepository.save(mentor);
@@ -129,11 +127,11 @@ class MentorControllerTest {
                 .andExpect(jsonPath("$.data[0].options").isArray())
                 .andExpect(jsonPath("$.data[0].options[0].key").value("software"))
                 .andExpect(jsonPath("$.data[0].options[0].name").value("소프트웨어"))
-                // 지역 필터 검증 (DB에서 가져온 데이터)
-                .andExpect(jsonPath("$.data[3].key").value("region"))
-                .andExpect(jsonPath("$.data[3].title").value("지역"))
-                .andExpect(jsonPath("$.data[3].options").isArray())
-                .andExpect(jsonPath("$.data[3].options[0].key").value("seoul"))
-                .andExpect(jsonPath("$.data[3].options[0].name").value("서울특별시"));
+                // 지역 필터 검증 (DB에서 가져온 데이터) - 미팅방식 필터 제거로 인덱스가 2로 변경
+                .andExpect(jsonPath("$.data[2].key").value("region"))
+                .andExpect(jsonPath("$.data[2].title").value("지역"))
+                .andExpect(jsonPath("$.data[2].options").isArray())
+                .andExpect(jsonPath("$.data[2].options[0].key").value("seoul"))
+                .andExpect(jsonPath("$.data[2].options[0].name").value("서울특별시"));
     }
 }

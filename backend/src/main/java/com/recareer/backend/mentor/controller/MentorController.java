@@ -75,8 +75,7 @@ public class MentorController {
             @RequestHeader("Authorization") String accessToken,
             @RequestParam(required = false) List<String> regions,
             @RequestParam(required = false) String position,
-            @RequestParam(required = false) String experience,
-            @RequestParam(required = false) MentoringType mentoringType) {
+            @RequestParam(required = false) String experience) {
         
         try {
             String token = accessToken.replace("Bearer ", "");
@@ -90,7 +89,7 @@ public class MentorController {
             
             // 필터링 우선순위대로 멘토 추천
             List<Mentor> mentors = mentorService.getMentorsByPriorityFilters(
-                providerId, regions, position, experience, mentoringType);
+                providerId, regions, position, experience);
             
             List<MentorListResponseDto> mentorDtos = mentors.stream()
                     .map(MentorListResponseDto::from)

@@ -51,9 +51,6 @@ public class Mentor extends BaseTimeEntity {
   @Column(name = "experience")
   private Integer experience;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "mentoring_type")
-  private MentoringType mentoringType;
 
   @ElementCollection
   @CollectionTable(name = "mentor_skills", joinColumns = @JoinColumn(name = "mentor_id"))
@@ -69,13 +66,12 @@ public class Mentor extends BaseTimeEntity {
   @Builder.Default
   private List<MentorFeedback> feedbacks = new ArrayList<>();
 
-  public Mentor update(Job job, Company company, String description, String introduction, Integer experience, MentoringType mentoringType) {
+  public Mentor update(Job job, Company company, String description, String introduction, Integer experience) {
     this.job = job;
     this.company = company;
     this.description = description;
     this.introduction = introduction;
     this.experience = experience;
-    this.mentoringType = mentoringType;
     return this;
   }
 

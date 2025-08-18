@@ -1,6 +1,5 @@
 package com.recareer.backend.mentor.dto;
 
-import com.recareer.backend.mentor.entity.MentoringType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +20,5 @@ public class MentorCreateRequestDto {
     private String description;
     private String introduction;
     private Integer experience;
-    private MentoringType mentoringType;
     private List<String> skills;
 }

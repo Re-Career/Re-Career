@@ -23,7 +23,6 @@ import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.dto.FilterOptionsResponseDto;
 import com.recareer.backend.mentor.dto.FilterOptionDto;
 import com.recareer.backend.mentor.entity.Mentor;
-import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.repository.MentorRepository;
 import com.recareer.backend.reservation.entity.Reservation;
 import com.recareer.backend.reservation.repository.ReservationRepository;
@@ -95,7 +94,6 @@ public class MentorServiceImpl implements MentorService {
                 .description(requestDto.getDescription())
                 .introduction(requestDto.getIntroduction())
                 .experience(requestDto.getExperience())
-                .mentoringType(requestDto.getMentoringType())
                 .skills(requestDto.getSkills() != null ? requestDto.getSkills() : List.of())
                 .isVerified(true) // TODO: 건강보험 등록증 확인 로직 추가 시 false로 변경
                 .build();
@@ -218,21 +216,20 @@ public class MentorServiceImpl implements MentorService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Mentor> getMentorsByPriorityFilters(String providerId, List<String> regions, String position, String experience, MentoringType mentoringType) {
-        log.info("Finding mentors by priority filters - providerId: {}, regions: {}, position: {}, experience: {}, mentoringType: {}", 
-                providerId, regions, position, experience, mentoringType);
+    public List<Mentor> getMentorsByPriorityFilters(String providerId, List<String> regions, String position, String experience) {
+        log.info("Finding mentors by priority filters - providerId: {}, regions: {}, position: {}, experience: {}", 
+                providerId, regions, position, experience);
 
         // 1순위: 사용자 기반 지역/성향 매칭
         List<Mentor> primaryMentors = getMentorsByRegionAndPersonalityTags(regions, providerId);
         
         // 2순위 필터링이 없으면 1순위 결과만 반환
         if ((position == null || position.trim().isEmpty()) && 
-            (experience == null || experience.trim().isEmpty()) && 
-            mentoringType == null) {
+            (experience == null || experience.trim().isEmpty())) {
             return primaryMentors;
         }
         
-        // 2순위 필터링 적용
+        // 2순위 필터링 적용 (미팅 방식은 모두 온라인으로 통일되었으므로 제거)
         return primaryMentors.stream()
                 .filter(mentor -> {
                     if (position != null && !position.trim().isEmpty()) {
@@ -244,14 +241,6 @@ public class MentorServiceImpl implements MentorService {
                 .filter(mentor -> {
                     if (experience != null && !experience.trim().isEmpty()) {
                         return matchesExperienceRange(mentor.getExperience(), experience);
-                    }
-                    return true;
-                })
-                .filter(mentor -> {
-                    if (mentoringType != null) {
-                        return mentor.getMentoringType() != null && 
-                               (mentor.getMentoringType().equals(mentoringType) || 
-                                mentor.getMentoringType().equals(MentoringType.BOTH));
                     }
                     return true;
                 })
@@ -276,7 +265,7 @@ public class MentorServiceImpl implements MentorService {
     public Optional<Mentor> updateMentor(Long id, String position, String description, String introduction, List<String> skills) {
         return mentorRepository.findById(id)
                 .map(mentor -> {
-                    mentor.update(mentor.getJob(), mentor.getCompany(), description, introduction, mentor.getExperience(), mentor.getMentoringType());
+                    mentor.update(mentor.getJob(), mentor.getCompany(), description, introduction, mentor.getExperience());
                     if (skills != null) {
                         mentor.updateSkills(skills);
                     }
@@ -420,7 +409,6 @@ public class MentorServiceImpl implements MentorService {
             finalFilterRequest = MentorFilterRequestDto.builder()
                     .jobs(filterRequest.getJobs())
                     .experiences(filterRequest.getExperiences())
-                    .mentoringTypes(filterRequest.getMentoringTypes())
                     .provinceId(DEFAULT_PROVINCE_ID)
                     .cityId(filterRequest.getCityId())
                     .build();
@@ -428,8 +416,8 @@ public class MentorServiceImpl implements MentorService {
             finalFilterRequest = filterRequest;
         }
         
-        log.info("Finding mentors by filters - jobs: {}, experiences: {}, mentoringTypes: {}, provinceId: {}, cityId: {}", 
-                finalFilterRequest.getJobs(), finalFilterRequest.getExperiences(), finalFilterRequest.getMentoringTypes(),
+        log.info("Finding mentors by filters - jobs: {}, experiences: {}, provinceId: {}, cityId: {}", 
+                finalFilterRequest.getJobs(), finalFilterRequest.getExperiences(),
                 finalFilterRequest.getProvinceId(), finalFilterRequest.getCityId());
 
         // 1. 전체 검증된 멘토 조회 (User 정보까지 Fetch Join)
@@ -453,12 +441,6 @@ public class MentorServiceImpl implements MentorService {
                         if (!experienceMatches) return false;
                     }
                     
-                    // MentoringType 필터링
-                    if (finalFilterRequest.getMentoringTypes() != null && !finalFilterRequest.getMentoringTypes().isEmpty()) {
-                        boolean mentoringTypeMatches = finalFilterRequest.getMentoringTypes().stream()
-                                .anyMatch(type -> matchesMentoringType(mentor.getMentoringType(), type));
-                        if (!mentoringTypeMatches) return false;
-                    }
                     
                     // Province 필터링
                     if (finalFilterRequest.getProvinceId() != null) {
@@ -494,22 +476,6 @@ public class MentorServiceImpl implements MentorService {
                 .toList();
     }
 
-    /**
-     * 멘토링 타입 매칭 확인
-     */
-    private boolean matchesMentoringType(MentoringType mentorType, MentoringType requestedType) {
-        if (mentorType == null || requestedType == null) {
-            return false;
-        }
-        
-        // BOTH는 모든 요청에 매칭됨
-        if (mentorType == MentoringType.BOTH) {
-            return true;
-        }
-        
-        // 정확히 같은 타입
-        return mentorType == requestedType;
-    }
 
     @Override
     public List<FilterOptionsResponseDto> getFilterOptions() {
@@ -542,17 +508,6 @@ public class MentorServiceImpl implements MentorService {
                 .build();
         filterOptions.add(experienceFilter);
         
-        // 멘토링 타입 필터 옵션
-        FilterOptionsResponseDto mentoringTypeFilter = FilterOptionsResponseDto.builder()
-                .key("mentoringType")
-                .title("미팅 방식")
-                .options(Arrays.asList(
-                        FilterOptionDto.builder().key("ONLINE").name("온라인").build(),
-                        FilterOptionDto.builder().key("OFFLINE").name("오프라인").build(),
-                        FilterOptionDto.builder().key("BOTH").name("온오프라인").build()
-                ))
-                .build();
-        filterOptions.add(mentoringTypeFilter);
         
         // 지역 필터 옵션 (Province에서 동적으로 가져오기)
         List<Province> provinces = provinceRepository.findAll();
