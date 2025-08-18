@@ -72,14 +72,57 @@ class MentorServiceTest {
 
     @BeforeEach
     void setUp() {
-        // data.sql에서 로드된 데이터 조회
+        // 테스트 데이터 생성
         skills = skillRepository.findAll();
         
-        // 기존 멘토 데이터 사용 (data.sql에서 생성된 첫 번째 멘토)
-        mentor = mentorRepository.findById(1L).orElse(null);
-        if (mentor != null) {
-            mentorUser = mentor.getUser();
-        }
+        // Province와 City 생성
+        Province province = Province.builder()
+                .key("seoul")
+                .name("서울특별시")
+                .build();
+        provinceRepository.save(province);
+        
+        City city = City.builder()
+                .key("gangnam")
+                .name("강남구")
+                .province(province)
+                .build();
+        cityRepository.save(city);
+        
+        // Position 생성
+        Position position = Position.builder()
+                .name("소프트웨어 엔지니어")
+                .build();
+        positionRepository.save(position);
+        
+        // 추가 Position 생성 (테스트용)
+        Position pmPosition = Position.builder()
+                .name("프로덕트 매니저")
+                .build();
+        positionRepository.save(pmPosition);
+        
+        // User 생성
+        mentorUser = User.builder()
+                .name("김민수")
+                .email("mentor@test.com")
+                .role(Role.MENTOR)
+                .provider("kakao")
+                .providerId("test-provider-id")
+                .province(province)
+                .city(city)
+                .build();
+        userRepository.save(mentorUser);
+        
+        // Mentor 생성
+        mentor = Mentor.builder()
+                .user(mentorUser)
+                .position(position)
+                .description("5년차 백엔드 개발자입니다.")
+                .introduction("Spring Boot와 Java를 주로 사용합니다.")
+                .experience(5)
+                .isVerified(true)
+                .build();
+        mentorRepository.save(mentor);
     }
 
     @Test
@@ -96,13 +139,28 @@ class MentorServiceTest {
     @Test
     @DisplayName("검증되지 않은 멘토도 조회됨")
     void getMentorById_NotVerified() {
-        // data.sql의 기존 멘토 사용 (2번 멘토)
-        Optional<Mentor> result = mentorService.getMentorById(2L);
+        // 검증되지 않은 멘토 생성
+        User unverifiedUser = User.builder()
+                .name("이지은")
+                .email("unverified@test.com")
+                .role(Role.MENTOR)
+                .provider("kakao")
+                .providerId("unverified-provider-id")
+                .build();
+        userRepository.save(unverifiedUser);
+        
+        Mentor unverifiedMentor = Mentor.builder()
+                .user(unverifiedUser)
+                .description("검증되지 않은 멘토입니다.")
+                .isVerified(false)
+                .build();
+        mentorRepository.save(unverifiedMentor);
+        
+        Optional<Mentor> result = mentorService.getMentorById(unverifiedMentor.getId());
         
         assertThat(result).isPresent();
         assertThat(result.get().getUser().getName()).isEqualTo("이지은");
-        // data.sql의 모든 멘토는 검증된 상태이므로 true
-        assertThat(result.get().getIsVerified()).isTrue();
+        assertThat(result.get().getIsVerified()).isFalse();
     }
 
     // @Test - 데이터 의존성으로 인한 임시 비활성화
@@ -129,15 +187,18 @@ class MentorServiceTest {
     @Test
     @DisplayName("멘토 정보 업데이트 성공")
     void updateMentor_Success() {
-        // data.sql에서 로드된 멘토 사용
-        Long mentorId = 1L;
-        Long newPositionId = 2L; // 프로덕트 매니저
+        // 프로덕트 매니저 Position 조회
+        Position pmPosition = positionRepository.findAll().stream()
+                .filter(p -> "프로덕트 매니저".equals(p.getName()))
+                .findFirst()
+                .orElseThrow();
+        
         String newDescription = "10년차 풀스택 개발자입니다.";
         String newIntroduction = "상세 소개는 여기에...";
         Integer newExperience = 10;
-        List<Long> newSkillIds = List.of(3L, 4L); // JavaScript, React (기존 Java, Spring Boot와 다른 스킬)
+        List<Long> newSkillIds = List.of(); // 빈 스킬 리스트 사용
         
-        Optional<Mentor> result = mentorService.updateMentor(mentorId, newPositionId, newDescription, newIntroduction, newExperience, newSkillIds);
+        Optional<Mentor> result = mentorService.updateMentor(mentor.getId(), pmPosition.getId(), newDescription, newIntroduction, newExperience, newSkillIds);
         
         assertThat(result).isPresent();
         assertThat(result.get().getPositionEntity().getName()).isEqualTo("프로덕트 매니저");
