@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -65,7 +64,7 @@ public class AuthService {
             if (signupRequest.getDescription() == null || signupRequest.getDescription().trim().isEmpty()) {
                 throw new IllegalArgumentException("멘토는 자기소개가 필수입니다.");
             }
-            if (user.getProfileImageUrl() == null) {
+            if (signupRequest.getProfileImageUrl() == null || signupRequest.getProfileImageUrl().trim().isEmpty()) {
                 throw new IllegalArgumentException("멘토는 프로필 이미지가 필수입니다.");
             }
         }
@@ -78,7 +77,8 @@ public class AuthService {
                 .role(signupRequest.getRole())
                 .provider(user.getProvider())
                 .providerId(user.getProviderId())
-                // TODO: region을 province/city로 파싱해서 저장하는 로직 추가 필요
+                .profileImageUrl(signupRequest.getProfileImageUrl())
+                // TODO: province/city 정보 추가 필요
                 .build();
 
         User savedUser = userRepository.save(updatedUser);
