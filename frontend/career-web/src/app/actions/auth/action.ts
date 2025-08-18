@@ -1,17 +1,15 @@
 'use server'
 
-import { cookies } from 'next/headers'
+import { deleteCookie, getCookie } from '@/app/actions/global/action'
+
+const tokenList = ['accessToken', 'refreshToken']
 
 export const getToken = async (): Promise<string> => {
-  const cookieStore = await cookies()
+  const token = await getCookie('accessToken')
 
-  return cookieStore.get('accessToken')?.value || ''
+  return token ?? ''
 }
 
 export const clearToken = async () => {
-  const cookieStore = await cookies()
-
-  const deleteList = ['accessToken', 'refreshToken']
-
-  return deleteList.forEach((key) => cookieStore.delete(key))
+  return tokenList.forEach((key) => deleteCookie(key))
 }

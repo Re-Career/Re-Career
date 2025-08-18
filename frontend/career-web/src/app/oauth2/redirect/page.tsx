@@ -1,24 +1,32 @@
 'use client'
 
-import { sendAuthTokensToNative } from '@/utils/webview'
+import { isWebView, sendAuthTokensToNative } from '@/utils/webview'
 import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useEffect, Suspense } from 'react'
 
 const AuthRedirectContent = () => {
-  const searchParams = useSearchParams()
-  const accessToken = searchParams.get('accessToken')
-  const refreshToken = searchParams.get('refreshToken')
+  const router = useRouter()
+  const params = useSearchParams()
+
+  const accessToken = params.get('accessToken') ?? ''
+  const refreshToken = params.get('refreshToken') ?? ''
+  const redirectUrl = params.get('redirectUrl') ?? '/'
 
   useEffect(() => {
-    sendAuthTokensToNative(accessToken as string, refreshToken as string)
-  }, [accessToken, refreshToken])
+    if (isWebView()) {
+      sendAuthTokensToNative(accessToken, refreshToken)
+    }
+
+    router.replace(redirectUrl)
+  }, [accessToken, refreshToken, redirectUrl, router])
 
   return <></>
 }
 
 const AuthRedirectPage = () => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<></>}>
       <AuthRedirectContent />
     </Suspense>
   )

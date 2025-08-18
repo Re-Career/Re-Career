@@ -1,14 +1,14 @@
 'use client'
 
 import { clearToken } from '@/app/actions/auth/action'
-import { WebViewMessageTypes } from '@/lib/constants/global'
+import { WEBVIEW_MESSAGE_TYPES } from '@/lib/constants/global'
 import { sendMessageToNative } from '@/utils/webview'
 import React from 'react'
 
 const LogoutButton = () => {
   const handleLogout = async () => {
     if (window.ReactNativeWebView) {
-      sendMessageToNative({ type: WebViewMessageTypes.CLEAR_TOKEN })
+      sendMessageToNative({ type: WEBVIEW_MESSAGE_TYPES.CLEAR_TOKEN })
     }
 
     await clearToken()
