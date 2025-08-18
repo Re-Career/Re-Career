@@ -45,6 +45,8 @@ public class SecurityConfig {
                 "/user/**",
                 "/personality-tags/**",
                 "/mentors/**",
+                "/locations/**",
+                "/cities/**",
                 "/positions/**",
                 "/news/**",
                 "/swagger-ui/**",

@@ -6,8 +6,8 @@ import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
 import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
 import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
+import com.recareer.backend.mentor.dto.FilterOptionsResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
-import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.reservation.entity.Reservation;
 
 import java.time.LocalDateTime;
@@ -18,7 +18,7 @@ public interface MentorService {
     
     Mentor createMentor(MentorCreateRequestDto requestDto);
     
-    Optional<Mentor> getVerifiedMentorById(Long id);
+    Optional<Mentor> getMentorById(Long id);
     
     Optional<MentorDetailResponseDto> getMentorDetailById(Long id);
 
@@ -26,11 +26,11 @@ public interface MentorService {
 
     List<Mentor> getMentorsByRegionAndPersonalityTags(List<String> regions, String providerId);
 
-    List<Mentor> getMentorsByPriorityFilters(String providerId, List<String> regions, String position, String experience, MentoringType mentoringType);
+    List<Mentor> getMentorsByPriorityFilters(String providerId, List<String> regions, String position, String experience);
     
     List<MentorSummaryResponseDto> getMentorsByFilters(MentorFilterRequestDto filterRequest);
     
-    Optional<Mentor> updateMentor(Long id, String position, String description, String introduction, List<String> skills);
+    Optional<Mentor> updateMentor(Long id, Long jobId, String description, String introduction, Integer experience, List<Long> skillIds);
     
     List<Reservation> getMentorReservations(Long mentorId);
 
@@ -39,4 +39,6 @@ public interface MentorService {
     AvailableTime createMentorAvailableTime(Long mentorId, LocalDateTime availableTime);
     
     List<MentorFeedback> getMentorFeedbacks(Long mentorId);
+    
+    List<FilterOptionsResponseDto> getFilterOptions();
 }
