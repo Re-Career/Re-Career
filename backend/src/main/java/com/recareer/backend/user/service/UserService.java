@@ -54,7 +54,8 @@ public class UserService {
                     .name(userInfo.getName())
                     .email(userInfo.getEmail())
                     .role(userInfo.getRole())
-                    .region(userInfo.getRegion())
+                    .provinceName(userInfo.getProvinceName())
+                    .cityName(userInfo.getCityName())
                     .profileImageUrl(userInfo.getProfileImageUrl())
                     .isSignupCompleted(userInfo.isSignupCompleted())
                     .mentorId(userInfo.getMentorId())
@@ -71,7 +72,8 @@ public class UserService {
                 .name(userInfo.getName())
                 .email(userInfo.getEmail())
                 .role(userInfo.getRole())
-                .region(userInfo.getRegion())
+                .provinceName(userInfo.getProvinceName())
+                .cityName(userInfo.getCityName())
                 .profileImageUrl(userInfo.getProfileImageUrl())
                 .isSignupCompleted(userInfo.isSignupCompleted())
                 .personalityTags(personalityTags)
@@ -153,7 +155,7 @@ public class UserService {
             Mentor mentor = mentorRepository.findByUser(user)
                     .orElseThrow(() -> new RuntimeException("멘토 정보를 찾을 수 없습니다."));
             
-            mentor.update(mentor.getJob(), mentor.getCompany(), request.getDescription(), mentor.getIntroduction(), mentor.getExperience(), mentor.getMentoringType());
+            mentor.update(mentor.getPositionEntity(), mentor.getCompany(), request.getDescription(), mentor.getIntroduction(), mentor.getExperience());
             mentorRepository.save(mentor);
             
             log.info("User and mentor profile updated for user: {}", providerId);

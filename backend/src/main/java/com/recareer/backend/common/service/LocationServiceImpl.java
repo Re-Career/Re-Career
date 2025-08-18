@@ -30,6 +30,15 @@ public class LocationServiceImpl implements LocationService {
     
     @Override
     @Transactional(readOnly = true)
+    public List<CityResponseDto> getAllCities() {
+        log.info("Getting all cities");
+        return cityRepository.findAll().stream()
+                .map(CityResponseDto::from)
+                .toList();
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
     public List<CityResponseDto> getCitiesByProvinceId(Long provinceId) {
         log.info("Getting cities for province id: {}", provinceId);
         return cityRepository.findByProvinceId(provinceId).stream()

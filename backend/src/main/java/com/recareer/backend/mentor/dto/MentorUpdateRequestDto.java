@@ -11,11 +11,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MentorCreateRequestDto {
+public class MentorUpdateRequestDto {
 
-    private Long userId;
     private Long jobId;
-    private Long companyId;
     private String description;
     private String introduction;
     private Integer experience;
