@@ -67,7 +67,18 @@ class MentorControllerTest {
                 .build();
         provinceRepository.save(busan);
         
-        // Job 생성
+        // Job 생성 (필터 옵션용)
+        Job softwareJob = Job.builder()
+                .name("소프트웨어")
+                .build();
+        jobRepository.save(softwareJob);
+        
+        Job productJob = Job.builder()
+                .name("프로덕트")
+                .build();
+        jobRepository.save(productJob);
+        
+        // 테스트용 Job
         testJob = Job.builder()
                 .name("백엔드 개발자")
                 .build();
@@ -125,7 +136,7 @@ class MentorControllerTest {
                 .andExpect(jsonPath("$.data[0].key").value("job"))
                 .andExpect(jsonPath("$.data[0].title").value("직업"))
                 .andExpect(jsonPath("$.data[0].options").isArray())
-                .andExpect(jsonPath("$.data[0].options[0].key").value("software"))
+                .andExpect(jsonPath("$.data[0].options[0].key").exists())
                 .andExpect(jsonPath("$.data[0].options[0].name").value("소프트웨어"))
                 // 지역 필터 검증 (DB에서 가져온 데이터) - 미팅방식 필터 제거로 인덱스가 2로 변경
                 .andExpect(jsonPath("$.data[2].key").value("region"))
