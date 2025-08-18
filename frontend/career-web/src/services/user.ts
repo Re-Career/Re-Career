@@ -126,3 +126,41 @@ export const putUser = async ({
 
   return { errorMessage, data: data.data, errors, status: res.status }
 }
+
+export const putUserPersonalityTags = async ({
+  accessToken,
+  personalityTagIds,
+}: {
+  accessToken?: string
+  personalityTagIds: number[]
+}): Promise<FetchResponse<ResponseMessage>> => {
+  let token = accessToken
+
+  if (!token) {
+    const { accessToken } = await getTokens()
+
+    token = accessToken
+  }
+
+  const res = await fetchUrl('/user/personality-tags', {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ personalityTagIds }),
+  })
+
+  const isSuccess = res.ok
+  const data = await res.json().catch(() => {})
+
+  let errorMessage: string = ''
+  let errors = {}
+
+  if (!isSuccess) {
+    errors = data?.errors
+    errorMessage = data?.message || '성향 태그 업데이트에 실패했습니다.'
+  }
+
+  return { errorMessage, data: data.data, errors, status: res.status }
+}
