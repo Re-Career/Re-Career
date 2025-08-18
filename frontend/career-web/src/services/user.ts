@@ -57,7 +57,7 @@ export const putProfileImage = async ({
     errorMessage = data?.message || '이미지 업로드에 실패했습니다.'
   }
 
-  return { errorMessage, data, errors }
+  return { errorMessage, data: data.data, errors }
 }
 
 export const putUser = async ({
@@ -94,5 +94,5 @@ export const putUser = async ({
     errorMessage = data?.message || '프로필 업데이트에 실패했습니다.'
   }
 
-  return { errorMessage, data, errors, status: res.status }
+  return { errorMessage, data: data.data, errors, status: res.status }
 }
