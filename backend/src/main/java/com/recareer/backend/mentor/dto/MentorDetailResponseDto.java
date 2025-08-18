@@ -31,7 +31,7 @@ public class MentorDetailResponseDto {
     private List<PersonalityTagDto> personalityTags;
     private String shortDescription;
     private String introduction;
-    private List<String> skills;
+    private List<SkillDto> skills;
     private List<String> career;
     private FeedbackDto feedback;
 
@@ -76,6 +76,15 @@ public class MentorDetailResponseDto {
     @AllArgsConstructor
     @Builder
     public static class PersonalityTagDto {
+        private Long id;
+        private String name;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class SkillDto {
         private Long id;
         private String name;
     }
@@ -177,7 +186,13 @@ public class MentorDetailResponseDto {
                 .personalityTags(personalityTagDtos)
                 .shortDescription(mentor.getDescription())
                 .introduction(mentor.getIntroduction())
-                .skills(mentor.getSkills() != null ? mentor.getSkills() : List.of())
+                .skills(mentor.getMentorSkills() != null ? 
+                        mentor.getMentorSkills().stream()
+                                .map(mentorSkill -> SkillDto.builder()
+                                        .id(mentorSkill.getSkill().getId())
+                                        .name(mentorSkill.getSkill().getName())
+                                        .build())
+                                .toList() : List.of())
                 .career(careerList)
                 .feedback(FeedbackDto.builder()
                         .rating(averageRating != null ? averageRating : 0.0)
