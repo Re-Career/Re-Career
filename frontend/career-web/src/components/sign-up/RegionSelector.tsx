@@ -1,80 +1,58 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { CITIES_LIST, PROVINCES } from '@/lib/constants/regions'
 import Dropdown from '@/components/common/Dropdown'
+import { City, Province } from '@/types/location'
 
 interface RegionSelectorProps {
   onProvinceChange: (provinceId: number) => void
   onCityChange: (cityId: number) => void
-}
-
-export const getCitiesByProvinceId = (provinceId: number) => {
-  return CITIES_LIST.filter((city) => city.provinceId === provinceId)
-}
-
-export const getCitiesByProvinceKey = (provinceKey: string) => {
-  const province = PROVINCES.find((p) => p.key === provinceKey)
-
-  return province ? getCitiesByProvinceId(province.id) : []
+  provinces: Province[]
+  cities: City[]
 }
 
 const RegionSelector = ({
   onProvinceChange,
   onCityChange,
+  provinces,
+  cities,
 }: RegionSelectorProps) => {
   const [selectedProvinceKey, setSelectedProvinceKey] = useState<string>('')
   const [selectedCityKey, setSelectedCityKey] = useState<string>('')
 
-  const selectedProvince = useMemo(
-    () => PROVINCES.find((p) => p.key === selectedProvinceKey),
-    [selectedProvinceKey]
-  )
-
-  const availableCities = useMemo(
-    () =>
-      selectedProvinceKey ? getCitiesByProvinceKey(selectedProvinceKey) : [],
-    [selectedProvinceKey]
-  )
-
   const provinceOptions = useMemo(
     () =>
-      PROVINCES.map((province) => ({
+      provinces.map((province) => ({
         value: province.key,
         label: province.name,
       })),
     []
   )
 
-  const cityOptions = useMemo(
-    () =>
-      availableCities.map((city) => ({
+  const cityOptions = useMemo(() => {
+    const currentProvince = provinces.find(
+      (province) => province.key === selectedProvinceKey
+    )
+
+    return cities
+      .filter((city) => city.provinceId === currentProvince?.id)
+      .map((city) => ({
         value: city.key,
         label: city.name,
-      })),
-    [availableCities]
-  )
+      }))
+  }, [selectedProvinceKey])
 
   const handleProvinceChange = (value: string) => {
     setSelectedProvinceKey(value)
     setSelectedCityKey('')
 
-    const province = PROVINCES.find((p) => p.key === value)
-
-    if (province) {
-      onProvinceChange(province.id)
-    }
+    onProvinceChange(provinces.find((p) => p.key === value)?.id || 0)
   }
 
   const handleCityChange = (value: string) => {
     setSelectedCityKey(value)
 
-    const selectedCityId =
-      availableCities.find((c) => c.key === value)?.id ||
-      selectedProvince?.id ||
-      0
-
-    onCityChange(selectedCityId)
+    onCityChange(cities.find((city) => city.key === value)?.id || 0)
   }
 
   return (
