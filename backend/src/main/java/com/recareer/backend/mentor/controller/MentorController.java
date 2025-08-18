@@ -27,6 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.recareer.backend.auth.util.AuthUtil;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,6 +43,7 @@ public class MentorController {
 
     private final MentorService mentorService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AuthUtil authUtil;
 
     @PostMapping
     @Operation(summary = "멘토 등록", description = "새로운 멘토를 등록합니다")
@@ -146,7 +151,12 @@ public class MentorController {
     @Operation(summary = "멘토 프로필 수정", description = "멘토의 프로필 정보를 수정합니다")
     public ResponseEntity<ApiResponse<MentorUpdateResponseDto>> updateMentor(
             @PathVariable Long id,
+            @RequestHeader("Authorization") String accessToken,
             @RequestBody MentorUpdateRequestDto requestDto) {
+        Long userId = authUtil.validateTokenAndGetUserId(accessToken);
+        if (!userId.equals(id)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
+        }
         return mentorService.updateMentor(id, requestDto.getJobId(), requestDto.getDescription(), requestDto.getIntroduction(), requestDto.getExperience(), requestDto.getSkillIds())
                 .map(mentor -> ResponseEntity.ok(ApiResponse.success("멘토 정보가 성공적으로 수정되었습니다.", MentorUpdateResponseDto.from(mentor))))
                 .orElse(ResponseEntity.status(404).body(ApiResponse.error("해당 멘토를 찾을 수 없습니다.")));
@@ -154,7 +164,11 @@ public class MentorController {
 
     @GetMapping("/{id}/reservations")
     @Operation(summary = "멘토별 예약 목록 조회", description = "멘토별 예정된 상담을 조회합니다")
-    public ResponseEntity<ApiResponse<List<ReservationListResponseDto>>> getMentorReservations(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<List<ReservationListResponseDto>>> getMentorReservations(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
+        Long userId = authUtil.validateTokenAndGetUserId(accessToken);
+        if (!userId.equals(id)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
+        }
         List<Reservation> reservations = mentorService.getMentorReservations(id);
         List<ReservationListResponseDto> reservationDtos = reservations.stream()
                 .map(ReservationListResponseDto::from)
@@ -178,7 +192,12 @@ public class MentorController {
     @Operation(summary = "멘토링 가능한 시간대 생성", description = "각 멘토 별 멘토링이 가능한 시간대를 추가합니다")
     public ResponseEntity<ApiResponse<AvailableTimeResponseDto>> createMentorAvailableTime(
             @PathVariable Long id,
+            @RequestHeader("Authorization") String accessToken,
             @RequestParam String availableTime) {
+        Long userId = authUtil.validateTokenAndGetUserId(accessToken);
+        if (!userId.equals(id)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
+        }
         try {
             LocalDateTime dateTime = LocalDateTime.parse(availableTime);
             AvailableTime newAvailableTime = mentorService.createMentorAvailableTime(id, dateTime);
