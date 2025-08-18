@@ -12,6 +12,7 @@ import { isWebView, sendAuthTokensToNative } from '@/utils/webview'
 import { getTokens } from '@/app/actions/auth/action'
 import { BsExclamationCircle } from 'react-icons/bs'
 import { deleteCookie, getCookie } from '@/app/actions/global/action'
+import { ROLE_TYPES } from '@/lib/constants/global'
 
 interface SignUpFormProps {
   role: RoleType
@@ -22,8 +23,8 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
   const router = useRouter()
 
   const [selectedTags, setSelectedTags] = useState<number[]>([])
-  const [selectedProvince, setSelectedProvince] = useState<number>(0)
-  const [selectedCity, setSelectedCity] = useState<number>(0)
+  const [selectedProvinceId, setSelectedProvinceId] = useState<number>(0)
+  const [selectedCityId, setSelectedCityId] = useState<number>(0)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const [state, formAction] = useActionState(signUpAction, {
@@ -90,20 +91,20 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
   }
 
   const handleProvinceChange = (provinceId: number) => {
-    setSelectedProvince(provinceId)
+    setSelectedProvinceId(provinceId)
     setErrors((prev) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { region, ...rest } = prev
+      const { provinceId: prevProvinceId, ...rest } = prev
 
       return rest
     })
   }
 
   const handleCityChange = (cityId: number) => {
-    setSelectedCity(cityId)
+    setSelectedCityId(cityId)
     setErrors((prev) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { region, ...rest } = prev
+      const { cityId: prevCityId, ...rest } = prev
 
       return rest
     })
@@ -140,8 +141,12 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
                   value={tagId.toString()}
                 />
               ))}
-              <input type="hidden" name="provinceId" value={selectedProvince} />
-              <input type="hidden" name="cityId" value={selectedCity} />
+              <input
+                type="hidden"
+                name="provinceId"
+                value={selectedProvinceId}
+              />
+              <input type="hidden" name="cityId" value={selectedCityId} />
 
               {/* Form fields */}
               <div className="flex flex-col gap-1">
@@ -175,10 +180,46 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
                   onProvinceChange={handleProvinceChange}
                   onCityChange={handleCityChange}
                 />
-                {errors?.region && (
-                  <span className="text-sm text-red-600">{errors.region}</span>
+                {errors?.provinceId && (
+                  <span className="text-sm text-red-600">
+                    {errors.provinceId}
+                  </span>
+                )}
+                {errors?.cityId && (
+                  <span className="text-sm text-red-600">{errors.cityId}</span>
                 )}
               </div>
+
+              {/* 멘토 전용 필드 */}
+              {role === ROLE_TYPES.MENTOR && (
+                <>
+                  <div className="flex flex-col gap-1">
+                    <input
+                      name="position"
+                      placeholder="직책/포지션 (예: 백엔드 개발자)"
+                      className="h-14 rounded-xl bg-gray-100 p-4"
+                    />
+                    {errors?.position && (
+                      <span className="text-sm text-red-600">
+                        {errors.position}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <textarea
+                      name="description"
+                      placeholder="자기소개 (예: 5년차 백엔드 개발자입니다. Spring Boot와 AWS 경험이 풍부합니다.)"
+                      className="min-h-20 resize-none rounded-xl bg-gray-100 p-4"
+                      rows={3}
+                    />
+                    {errors?.description && (
+                      <span className="text-sm text-red-600">
+                        {errors.description}
+                      </span>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
