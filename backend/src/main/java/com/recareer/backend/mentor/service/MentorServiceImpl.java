@@ -95,7 +95,7 @@ public class MentorServiceImpl implements MentorService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Mentor> getVerifiedMentorById(Long id) {
+    public Optional<Mentor> getMentorById(Long id) {
         return mentorRepository.findById(id);
     }
 
@@ -109,7 +109,7 @@ public class MentorServiceImpl implements MentorService {
         log.info("Finding mentors by region: {}", region);
 
         // 1. 지역별 멘토 조회 (User 정보까지 Fetch Join)
-        List<Mentor> mentors = mentorRepository.findByIsVerifiedTrueAndUserRegionContainsWithUser(region);
+        List<Mentor> mentors = mentorRepository.findByUserLocationContainsWithUser(region);
 
         // 2. 각 멘토에 대한 추가 정보 조회
         return mentors.stream()
@@ -366,7 +366,7 @@ public class MentorServiceImpl implements MentorService {
      */
     private List<Mentor> getMentorsByRegions(List<String> regions) {
         return regions.stream()
-                .flatMap(region -> mentorRepository.findByIsVerifiedTrueAndUserRegionContains(region).stream())
+                .flatMap(region -> mentorRepository.findByUserLocationContains(region).stream())
                 .distinct()
                 .toList();
     }
@@ -376,7 +376,7 @@ public class MentorServiceImpl implements MentorService {
      */
     private List<Mentor> getMentorsByRegionsWithUser(List<String> regions) {
         return regions.stream()
-                .flatMap(region -> mentorRepository.findByIsVerifiedTrueAndUserRegionContainsWithUser(region).stream())
+                .flatMap(region -> mentorRepository.findByUserLocationContainsWithUser(region).stream())
                 .distinct()
                 .toList();
     }
@@ -413,7 +413,7 @@ public class MentorServiceImpl implements MentorService {
                 finalFilterRequest.getProvinceId(), finalFilterRequest.getCityId());
 
         // 1. 전체 검증된 멘토 조회 (User 정보까지 Fetch Join)
-        List<Mentor> allMentors = mentorRepository.findAllByIsVerifiedTrueWithUser();
+        List<Mentor> allMentors = mentorRepository.findAllWithUser();
         
         // 2. 필터링 적용
         List<Mentor> filteredMentors = allMentors.stream()

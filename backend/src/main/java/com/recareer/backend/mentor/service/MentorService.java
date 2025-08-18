@@ -18,7 +18,7 @@ public interface MentorService {
     
     Mentor createMentor(MentorCreateRequestDto requestDto);
     
-    Optional<Mentor> getVerifiedMentorById(Long id);
+    Optional<Mentor> getMentorById(Long id);
     
     Optional<MentorDetailResponseDto> getMentorDetailById(Long id);
 

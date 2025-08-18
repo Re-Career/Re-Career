@@ -13,8 +13,10 @@ import com.recareer.backend.personality.entity.PersonalityTag;
 import com.recareer.backend.personality.repository.PersonalityTagRepository;
 import com.recareer.backend.common.entity.Job;
 import com.recareer.backend.common.entity.Province;
+import com.recareer.backend.common.entity.City;
 import com.recareer.backend.common.repository.JobRepository;
 import com.recareer.backend.common.repository.ProvinceRepository;
+import com.recareer.backend.common.repository.CityRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.test.annotation.Commit;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,6 +58,9 @@ class MentorServiceTest {
     @Autowired
     private ProvinceRepository provinceRepository;
     
+    @Autowired
+    private CityRepository cityRepository;
+    
     private User mentorUser;
     private Mentor mentor;
 
@@ -68,6 +72,14 @@ class MentorServiceTest {
                 .name("서울특별시")
                 .build();
         provinceRepository.save(seoul);
+        
+        // City 생성
+        City gangnam = City.builder()
+                .key("gangnam")
+                .name("강남구")
+                .province(seoul)
+                .build();
+        cityRepository.save(gangnam);
         
         // PersonalityTag 생성
         PersonalityTag tag1 = PersonalityTag.builder()
@@ -87,6 +99,7 @@ class MentorServiceTest {
                 .providerId("mentor123")
                 .profileImageUrl("https://example.com/mentor.jpg")
                 .province(seoul)
+                .city(gangnam)
                 .build();
         
         userRepository.save(mentorUser);
@@ -111,9 +124,9 @@ class MentorServiceTest {
     }
 
     @Test
-    @DisplayName("검증된 멘토 ID로 멘토 조회 성공")
-    void getVerifiedMentorById_Success() {
-        Optional<Mentor> result = mentorService.getVerifiedMentorById(mentor.getId());
+    @DisplayName("멘토 ID로 멘토 조회 성공")
+    void getMentorById_Success() {
+        Optional<Mentor> result = mentorService.getMentorById(mentor.getId());
         
         assertThat(result).isPresent();
         assertThat(result.get().getId()).isEqualTo(mentor.getId());
@@ -122,8 +135,8 @@ class MentorServiceTest {
     }
 
     @Test
-    @DisplayName("검증되지 않은 멘토는 조회되지 않음")
-    void getVerifiedMentorById_NotVerified() {
+    @DisplayName("검증되지 않은 멘토도 조회됨")
+    void getMentorById_NotVerified() {
         User unverifiedMentorUser = User.builder()
                 .name("미인증 멘토")
                 .email("unverified@test.com")
@@ -143,9 +156,10 @@ class MentorServiceTest {
                 .build();
         mentorRepository.save(unverifiedMentor);
         
-        Optional<Mentor> result = mentorService.getVerifiedMentorById(unverifiedMentor.getId());
+        Optional<Mentor> result = mentorService.getMentorById(unverifiedMentor.getId());
         
-        assertThat(result).isEmpty();
+        assertThat(result).isPresent();
+        assertThat(result.get().getIsVerified()).isFalse();
     }
 
     @Test
@@ -153,7 +167,6 @@ class MentorServiceTest {
     void getMentorsByRegion_Success() {
         List<Mentor> result = mentorService.getMentorsByPriorityFilters("mentor123", List.of("강남"), null, null);
         
-        assertThat(result).hasSize(1);
         assertThat(result).hasSize(1);
     }
 
@@ -325,6 +338,10 @@ class MentorServiceTest {
     @Test
     @DisplayName("경력 범위 필터링 테스트 - 1-3년")
     void getMentorsByPriorityFilters_ExperienceRange_1To3Years() {
+        // Province와 City 조회
+        Province seoul = provinceRepository.findAll().get(0);
+        City gangnam = cityRepository.findAll().get(0);
+        
         // 3년 경력 멘토 추가
         User mentor2User = User.builder()
                 .name("3년차 멘토")
@@ -332,6 +349,8 @@ class MentorServiceTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("3years123")
+                .province(seoul)
+                .city(gangnam)
                 .build();
         userRepository.save(mentor2User);
 
@@ -355,6 +374,10 @@ class MentorServiceTest {
     @Test
     @DisplayName("경력 범위 필터링 테스트 - 7년 이상")
     void getMentorsByPriorityFilters_ExperienceRange_7YearsPlus() {
+        // Province와 City 조회
+        Province seoul = provinceRepository.findAll().get(0);
+        City gangnam = cityRepository.findAll().get(0);
+        
         // 10년 경력 멘토 추가
         User mentor3User = User.builder()
                 .name("10년차 멘토")
@@ -362,6 +385,8 @@ class MentorServiceTest {
                 .role(Role.MENTOR)
                 .provider("google")
                 .providerId("10years123")
+                .province(seoul)
+                .city(gangnam)
                 .build();
         userRepository.save(mentor3User);
 
