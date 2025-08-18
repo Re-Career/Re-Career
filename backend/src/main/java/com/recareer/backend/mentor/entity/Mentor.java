@@ -25,6 +25,7 @@ import java.util.List;
 public class Mentor extends BaseTimeEntity {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
