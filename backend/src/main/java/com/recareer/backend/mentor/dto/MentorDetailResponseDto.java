@@ -25,7 +25,8 @@ public class MentorDetailResponseDto {
     private String profileImageUrl;
     private CompanyDto company;
     private Integer experience;
-    private RegionDto region;
+    private ProvinceDto province;
+    private CityDto city;
     private String meetingType;
     private List<PersonalityTagDto> personalityTags;
     private String shortDescription;
@@ -56,7 +57,16 @@ public class MentorDetailResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class RegionDto {
+    public static class ProvinceDto {
+        private Long id;
+        private String name;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class CityDto {
         private Long id;
         private String name;
     }
@@ -155,9 +165,13 @@ public class MentorDetailResponseDto {
                 .profileImageUrl(mentor.getUser().getProfileImageUrl())
                 .company(companyDto)
                 .experience(mentor.getExperience())
-                .region(mentor.getUser() != null && mentor.getUser().getProvince() != null ? RegionDto.builder()
+                .province(mentor.getUser() != null && mentor.getUser().getProvince() != null ? ProvinceDto.builder()
                         .id(mentor.getUser().getProvince().getId())
                         .name(mentor.getUser().getProvince().getName())
+                        .build() : null)
+                .city(mentor.getUser() != null && mentor.getUser().getCity() != null ? CityDto.builder()
+                        .id(mentor.getUser().getCity().getId())
+                        .name(mentor.getUser().getCity().getName())
                         .build() : null)
                 .meetingType(meetingType)
                 .personalityTags(personalityTagDtos)

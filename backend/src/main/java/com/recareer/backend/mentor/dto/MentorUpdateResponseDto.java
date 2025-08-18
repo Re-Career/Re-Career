@@ -17,7 +17,8 @@ public class MentorUpdateResponseDto {
     private Long id;
     private JobDto job;
     private CompanyDto company;
-    private RegionDto region;
+    private ProvinceDto province;
+    private CityDto city;
     private String description;
     private String introduction;
     private List<String> skills;
@@ -44,7 +45,16 @@ public class MentorUpdateResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class RegionDto {
+    public static class ProvinceDto {
+        private Long id;
+        private String name;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class CityDto {
         private Long id;
         private String name;
     }
@@ -60,9 +70,13 @@ public class MentorUpdateResponseDto {
                         .id(mentor.getCompany().getId())
                         .name(mentor.getCompany().getName())
                         .build() : null)
-                .region(mentor.getUser() != null && mentor.getUser().getProvince() != null ? RegionDto.builder()
+                .province(mentor.getUser() != null && mentor.getUser().getProvince() != null ? ProvinceDto.builder()
                         .id(mentor.getUser().getProvince().getId())
                         .name(mentor.getUser().getProvince().getName())
+                        .build() : null)
+                .city(mentor.getUser() != null && mentor.getUser().getCity() != null ? CityDto.builder()
+                        .id(mentor.getUser().getCity().getId())
+                        .name(mentor.getUser().getCity().getName())
                         .build() : null)
                 .description(mentor.getDescription())
                 .introduction(mentor.getIntroduction())
