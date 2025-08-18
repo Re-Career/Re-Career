@@ -14,8 +14,8 @@ import com.recareer.backend.reservation.service.ReservationService;
 import com.recareer.backend.response.ApiResponse;
 import com.recareer.backend.user.entity.Role;
 import com.recareer.backend.user.entity.User;
-import com.recareer.backend.common.entity.Job;
-import com.recareer.backend.common.repository.JobRepository;
+import com.recareer.backend.position.entity.Position;
+import com.recareer.backend.position.repository.PositionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -57,7 +57,7 @@ class MentoringRecordControllerTest {
     private ReservationService reservationService;
 
     @Mock
-    private JobRepository jobRepository;
+    private PositionRepository positionRepository;
 
     @InjectMocks
     private MentoringRecordController mentoringRecordController;
@@ -88,7 +88,7 @@ class MentoringRecordControllerTest {
         mentor = Mentor.builder()
                 .id(mentorUser.getId())
                 .user(mentorUser)
-                .job(createJob("시니어 백엔드 개발자"))
+                .position(createPosition("시니어 백엔드 개발자"))
                 .description("5년차 백엔드 개발자입니다.")
                 .isVerified(true)
                 .build();
@@ -368,10 +368,12 @@ class MentoringRecordControllerTest {
         }
     }
 
-    private Job createJob(String name) {
-        Job job = Job.builder()
+    private Position createPosition(String name) {
+        Position position = Position.builder()
                 .name(name)
+                .category("IT")
+                .description(name + " 포지션")
                 .build();
-        return job;
+        return position;
     }
 }
