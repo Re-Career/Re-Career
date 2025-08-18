@@ -14,10 +14,14 @@ export async function handleOAuth2Redirect(
   }
 
   try {
-    const auth = await getAuthMe(accessToken)
+    const { isSuccess, errorMessage, data: auth } = await getAuthMe(accessToken)
+
+    if (!isSuccess || errorMessage) {
+      throw new Error('접근 권한이 없습니다.')
+    }
 
     if (!auth) {
-      throw new Error('접근권한이 없습니다.')
+      throw new Error('접근 권한이 없습니다.')
     }
 
     // 가입을 안한 유저

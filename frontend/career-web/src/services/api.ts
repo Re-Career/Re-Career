@@ -7,7 +7,10 @@ export const api = axios.create({
   },
 })
 
-export const fetchUrl = async (url: string, init?: RequestInit) => {
+export const fetchUrl = async (
+  url: string,
+  init?: RequestInit
+): Promise<Response> => {
   const { headers, ...rest } = init || {}
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
@@ -16,7 +19,7 @@ export const fetchUrl = async (url: string, init?: RequestInit) => {
       ...headers,
     },
     ...rest,
-  }).then((res) => res.json())
+  })
 
   return res
 }
