@@ -46,20 +46,20 @@ public class PositionService {
     }
 
     @Transactional(readOnly = true)
-    public RegionPositionResponseDto getPositionsByRegion(String region) {
+    public RegionPositionResponseDto getPositionsByLocation(String location) {
         List<PositionSimpleDto> positions;
-        String resultRegion;
+        String resultLocation;
         
-        if ("all".equalsIgnoreCase(region)) {
-            // region이 "all"이면 trendRank가 null인 것들을 랜덤으로 4개 조회
+        if ("all".equalsIgnoreCase(location)) {
+            // location이 "all"이면 trendRank가 null인 것들을 랜덤으로 4개 조회
             List<Position> randomPositions = positionRepository.findRandomPositionsWithNullTrendRank(4);
             positions = randomPositions.stream()
                     .map(this::convertToSimpleDto)
                     .collect(Collectors.toList());
-            resultRegion = "all";
+            resultLocation = "all";
         } else {
-            // 특정 지역의 멘토들의 position count 조회 (상위 4개)
-            List<Object[]> positionCounts = mentorRepository.countPositionsByRegion(region);
+            // 특정 지역(province/city)의 멘토들의 position count 조회 (상위 4개)
+            List<Object[]> positionCounts = mentorRepository.countPositionsByLocation(location);
             
             if (positionCounts.size() >= 4) {
                 // 4개 이상이면 상위 4개의 position name으로 Position 조회
@@ -72,19 +72,19 @@ public class PositionService {
                 positions = topPositions.stream()
                         .map(this::convertToSimpleDto)
                         .collect(Collectors.toList());
-                resultRegion = region;
+                resultLocation = location;
             } else {
                 // 4개 미만이면 trendRank가 null인 것들을 랜덤으로 4개 조회
                 List<Position> randomPositions = positionRepository.findRandomPositionsWithNullTrendRank(4);
                 positions = randomPositions.stream()
                         .map(this::convertToSimpleDto)
                         .collect(Collectors.toList());
-                resultRegion = "all";
+                resultLocation = "all";
             }
         }
         
         return RegionPositionResponseDto.builder()
-                .region(resultRegion)
+                .region(resultLocation)
                 .positions(positions)
                 .build();
     }
