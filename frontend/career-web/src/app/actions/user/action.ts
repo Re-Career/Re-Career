@@ -1,9 +1,10 @@
 'use server'
 
-import { putUser, putProfileImage } from '@/services/user'
+import { putUser, putProfileImage, deleteProfileImage } from '@/services/user'
 import { getTokens } from '../auth/action'
 import z from 'zod'
 import { PutUserPayload } from '@/types/user'
+import { revalidatePath } from 'next/cache'
 
 interface ProfileFormData {
   name: string
@@ -170,5 +171,13 @@ export const updateProfileAction = async (
       message: '프로필 업데이트에 실패했습니다. 다시 시도해주세요.',
       formData: defaultFormData,
     }
+  }
+}
+
+export const deleteProfileImageAction = async () => {
+  const { errorMessage } = await deleteProfileImage()
+
+  if (!errorMessage) {
+    revalidatePath('/my-page')
   }
 }

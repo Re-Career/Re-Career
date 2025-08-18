@@ -5,9 +5,9 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { IoCameraOutline } from 'react-icons/io5'
 import { User } from '@/types/user'
-import { updateProfileAction } from '@/app/actions/profile/action'
 import { BsExclamationCircle } from 'react-icons/bs'
 import { hasProfileImage } from '@/lib/constants/images'
+import { updateProfileAction } from '@/app/actions/user/action'
 
 interface ProfileEditFormProps {
   userData: User

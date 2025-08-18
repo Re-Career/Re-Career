@@ -60,6 +60,36 @@ export const putProfileImage = async ({
   return { errorMessage, data: data.data, errors }
 }
 
+export const deleteProfileImage = async (
+  accessToken?: string
+): Promise<FetchResponse<ResponseMessage>> => {
+  let token = accessToken
+
+  if (!token) {
+    const { accessToken: tokenFromCookies } = await getTokens()
+
+    token = tokenFromCookies
+  }
+
+  const res = await fetchUrl('/user/profile/image', {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
+  const isSuccess = res.ok
+  const data = await res.json().catch(() => {})
+
+  let errorMessage: string = ''
+
+  if (!isSuccess) {
+    errorMessage = data?.message || '이미지 삭제에 실패했습니다.'
+  }
+
+  return { errorMessage, data: data.data }
+}
+
 export const putUser = async ({
   accessToken,
   userData,
