@@ -34,6 +34,7 @@ export const putProfileImage = async ({
   }
 
   const res = await fetchUrl('/user/profile/image', {
+    method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
