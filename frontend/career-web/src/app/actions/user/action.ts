@@ -1,6 +1,11 @@
 'use server'
 
-import { putUser, putProfileImage, deleteProfileImage } from '@/services/user'
+import {
+  putUser,
+  putProfileImage,
+  deleteProfileImage,
+  putUserPersonalityTags,
+} from '@/services/user'
 import { getTokens } from '../auth/action'
 import z from 'zod'
 import { PutUserPayload } from '@/types/user'
@@ -179,5 +184,50 @@ export const deleteProfileImageAction = async () => {
 
   if (!errorMessage) {
     revalidatePath('/my-page')
+  }
+}
+
+export const updatePersonalityTagsAction = async (
+  personalityTagIds: number[]
+) => {
+  try {
+    const { accessToken } = await getTokens()
+
+    if (!accessToken) {
+      return {
+        success: false,
+        message: '로그인이 필요합니다.',
+        status: 401,
+      }
+    }
+
+    const { errorMessage, status } = await putUserPersonalityTags({
+      accessToken,
+      personalityTagIds,
+    })
+
+    if (!errorMessage) {
+      revalidatePath('/my-page')
+    }
+
+    if (status === 401 || errorMessage) {
+      return {
+        success: false,
+        message: errorMessage,
+        status,
+      }
+    }
+
+    return {
+      success: true,
+      message: '성향 태그가 성공적으로 업데이트되었습니다.',
+    }
+  } catch (error) {
+    console.log(error)
+
+    return {
+      success: false,
+      message: '성향 태그 업데이트에 실패했습니다. 다시 시도해주세요.',
+    }
   }
 }
