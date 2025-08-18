@@ -481,17 +481,19 @@ public class MentorServiceImpl implements MentorService {
     public List<FilterOptionsResponseDto> getFilterOptions() {
         List<FilterOptionsResponseDto> filterOptions = new ArrayList<>();
         
-        // 직업 필터 옵션
+        // 직업 필터 옵션 (Job에서 동적으로 가져오기)
+        List<Job> jobs = jobRepository.findAll();
+        List<FilterOptionDto> jobOptions = jobs.stream()
+                .map(job -> FilterOptionDto.builder()
+                        .key(job.getId().toString())
+                        .name(job.getName())
+                        .build())
+                .collect(Collectors.toList());
+        
         FilterOptionsResponseDto jobFilter = FilterOptionsResponseDto.builder()
                 .key("job")
                 .title("직업")
-                .options(Arrays.asList(
-                        FilterOptionDto.builder().key("software").name("소프트웨어").build(),
-                        FilterOptionDto.builder().key("product").name("프로덕트").build(),
-                        FilterOptionDto.builder().key("designer").name("디자이너").build(),
-                        FilterOptionDto.builder().key("data").name("데이터").build(),
-                        FilterOptionDto.builder().key("marketing").name("마케팅").build()
-                ))
+                .options(jobOptions)
                 .build();
         filterOptions.add(jobFilter);
         
