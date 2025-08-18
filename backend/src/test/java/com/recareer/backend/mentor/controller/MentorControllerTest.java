@@ -4,8 +4,10 @@ import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
 import com.recareer.backend.common.entity.Job;
 import com.recareer.backend.common.entity.Province;
+import com.recareer.backend.common.entity.City;
 import com.recareer.backend.common.repository.JobRepository;
 import com.recareer.backend.common.repository.ProvinceRepository;
+import com.recareer.backend.common.repository.CityRepository;
 import com.recareer.backend.user.entity.Role;
 import com.recareer.backend.user.entity.User;
 import com.recareer.backend.user.repository.UserRepository;
@@ -46,6 +48,9 @@ class MentorControllerTest {
     @Autowired
     private ProvinceRepository provinceRepository;
 
+    @Autowired
+    private CityRepository cityRepository;
+
     private User mentorUser;
     private Mentor mentor;
     private Job testJob;
@@ -66,6 +71,21 @@ class MentorControllerTest {
                 .name("부산광역시")
                 .build();
         provinceRepository.save(busan);
+        
+        // City 데이터 추가
+        City gangnam = City.builder()
+                .key("gangnam")
+                .name("강남구")
+                .province(seoul)
+                .build();
+        cityRepository.save(gangnam);
+        
+        City seocho = City.builder()
+                .key("seocho")
+                .name("서초구")
+                .province(seoul)
+                .build();
+        cityRepository.save(seocho);
         
         // Job 생성 (필터 옵션용)
         Job softwareJob = Job.builder()
@@ -133,16 +153,16 @@ class MentorControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data[0].key").value("job"))
+                .andExpect(jsonPath("$.data[0].id").value("job"))
                 .andExpect(jsonPath("$.data[0].title").value("직업"))
                 .andExpect(jsonPath("$.data[0].options").isArray())
-                .andExpect(jsonPath("$.data[0].options[0].key").exists())
+                .andExpect(jsonPath("$.data[0].options[0].id").exists())
                 .andExpect(jsonPath("$.data[0].options[0].name").value("소프트웨어"))
                 // 지역 필터 검증 (DB에서 가져온 데이터) - 미팅방식 필터 제거로 인덱스가 2로 변경
-                .andExpect(jsonPath("$.data[2].key").value("region"))
+                .andExpect(jsonPath("$.data[2].id").value("region"))
                 .andExpect(jsonPath("$.data[2].title").value("지역"))
                 .andExpect(jsonPath("$.data[2].options").isArray())
-                .andExpect(jsonPath("$.data[2].options[0].key").value("seoul"))
+                .andExpect(jsonPath("$.data[2].options[0].id").exists())
                 .andExpect(jsonPath("$.data[2].options[0].name").value("서울특별시"));
     }
 }
