@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { IoArrowBack } from 'react-icons/io5'
 import { deleteCookie, getCookie } from '@/app/actions/global/action'
 
@@ -23,11 +23,15 @@ const Header: React.FC<HeaderProps> = ({
   rightElement,
 }) => {
   const router = useRouter()
+  const pathname = usePathname()
 
   const defaultOnCancelPress = async () => {
-    const redirectUrl = await getCookie('redirectUrl')
+    let redirectUrl = await getCookie('redirectUrl')
 
     if (redirectUrl) {
+      if (pathname === '/login') {
+        redirectUrl = '/'
+      }
       await deleteCookie('redirectUrl')
 
       router.replace(redirectUrl)
