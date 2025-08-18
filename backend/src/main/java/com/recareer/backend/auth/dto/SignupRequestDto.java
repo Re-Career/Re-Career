@@ -32,7 +32,7 @@ public class SignupRequestDto {
     @NotNull(message = "멘토와 멘티 중 하나를 선택해주세요.")
     private Role role;
 
-    @Schema(description = "프로필 이미지 URL (MENTOR일 때 필수)", example = "https://example.com/profile.jpg")
+    @Schema(description = "프로필 이미지 URL (멘토일 때 필수, 멘티일 때 선택)", example = "https://example.com/profile.jpg")
     private String profileImageUrl;
 
     @Schema(description = "시/도 ID", example = "1")
