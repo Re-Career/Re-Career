@@ -22,7 +22,8 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
   const router = useRouter()
 
   const [selectedTags, setSelectedTags] = useState<number[]>([])
-  const [selectedRegion, setSelectedRegion] = useState<string>('')
+  const [selectedProvince, setSelectedProvince] = useState<number>(0)
+  const [selectedCity, setSelectedCity] = useState<number>(0)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const [state, formAction] = useActionState(signUpAction, {
@@ -88,9 +89,18 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
     })
   }
 
-  const handleRegionChange = (regionName: string) => {
-    setSelectedRegion(regionName)
+  const handleProvinceChange = (provinceId: number) => {
+    setSelectedProvince(provinceId)
+    setErrors((prev) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { region, ...rest } = prev
 
+      return rest
+    })
+  }
+
+  const handleCityChange = (cityId: number) => {
+    setSelectedCity(cityId)
     setErrors((prev) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { region, ...rest } = prev
@@ -130,7 +140,8 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
                   value={tagId.toString()}
                 />
               ))}
-              <input type="hidden" name="region" value={selectedRegion} />
+              <input type="hidden" name="provinceId" value={selectedProvince} />
+              <input type="hidden" name="cityId" value={selectedCity} />
 
               {/* Form fields */}
               <div className="flex flex-col gap-1">
@@ -160,7 +171,10 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
               </div>
 
               <div className="flex flex-col gap-1">
-                <RegionSelector onRegionChange={handleRegionChange} />
+                <RegionSelector
+                  onProvinceChange={handleProvinceChange}
+                  onCityChange={handleCityChange}
+                />
                 {errors?.region && (
                   <span className="text-sm text-red-600">{errors.region}</span>
                 )}

@@ -5,7 +5,8 @@ import { CITIES_LIST, PROVINCES } from '@/lib/constants/regions'
 import Dropdown from '@/components/common/Dropdown'
 
 interface RegionSelectorProps {
-  onRegionChange: (regionName: string) => void
+  onProvinceChange: (provinceId: number) => void
+  onCityChange: (cityId: number) => void
 }
 
 export const getCitiesByProvinceId = (provinceId: number) => {
@@ -18,7 +19,10 @@ export const getCitiesByProvinceKey = (provinceKey: string) => {
   return province ? getCitiesByProvinceId(province.id) : []
 }
 
-const RegionSelector = ({ onRegionChange }: RegionSelectorProps) => {
+const RegionSelector = ({
+  onProvinceChange,
+  onCityChange,
+}: RegionSelectorProps) => {
   const [selectedProvinceKey, setSelectedProvinceKey] = useState<string>('')
   const [selectedCityKey, setSelectedCityKey] = useState<string>('')
 
@@ -58,19 +62,19 @@ const RegionSelector = ({ onRegionChange }: RegionSelectorProps) => {
     const province = PROVINCES.find((p) => p.key === value)
 
     if (province) {
-      onRegionChange(province.name)
+      onProvinceChange(province.id)
     }
   }
 
   const handleCityChange = (value: string) => {
     setSelectedCityKey(value)
 
-    const selectedRegionName =
-      availableCities.find((c) => c.key === value)?.name ||
-      selectedProvince?.name ||
-      ''
+    const selectedCityId =
+      availableCities.find((c) => c.key === value)?.id ||
+      selectedProvince?.id ||
+      0
 
-    onRegionChange(selectedRegionName)
+    onCityChange(selectedCityId)
   }
 
   return (

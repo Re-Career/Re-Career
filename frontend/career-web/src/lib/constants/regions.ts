@@ -1,5 +1,7 @@
+import { City, Province } from '@/types/location'
+
 // 도/시 데이터
-export const PROVINCES = [
+export const PROVINCES: Province[] = [
   { id: 1, key: 'seoul', name: '서울특별시' },
   { id: 2, key: 'busan', name: '부산광역시' },
   { id: 3, key: 'daegu', name: '대구광역시' },
@@ -19,7 +21,7 @@ export const PROVINCES = [
   { id: 17, key: 'jeju', name: '제주특별자치도' },
 ] as const
 
-export const CITIES_LIST = [
+export const CITIES_LIST: City[] = [
   // 서울특별시 (provinceId: 1)
   { id: 101, key: 'gangnam', name: '강남구', provinceId: 1 },
   { id: 102, key: 'gangdong', name: '강동구', provinceId: 1 },

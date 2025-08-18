@@ -4,11 +4,10 @@ import { ONE_DAY } from '@/lib/constants/global'
 import { postSignUp } from '@/services/auth'
 import { SignUpFormData } from '@/types/auth'
 import z from 'zod'
-import { deleteCookie, setCookie } from '../global/action'
+import { setCookie } from '../global/action'
 import { putProfileImage } from '@/services/user'
-import { getPendingTokens } from '../auth/action'
-
-const pendingTokenList = ['pendingAccessToken', 'pendingRefreshToken']
+import { clearPendingTokens, getPendingTokens } from '../auth/action'
+import { CITIES_LIST, PROVINCES } from '@/lib/constants/regions'
 
 interface DefaultFormData {
   name: string
@@ -58,7 +57,8 @@ export const signUpAction = async (
   const name = formData.get('name') as string
   const role = formData.get('role') as string
   const email = formData.get('email') as string
-  const region = formData.get('region') as string
+  const provinceId = formData.get('provinceId') as string
+  const cityId = formData.get('cityId') as string
   const profileImageFile = formData.get('profileImageFile') as File
   const personalityTagIds = formData.getAll('personalityTagIds') as string[]
 
@@ -86,11 +86,27 @@ export const signUpAction = async (
       })
     }
 
+    if (!provinceId) {
+      return handleErrorResponse({
+        errorMessage: '지역을 선택해주세요.',
+        defaultFormData,
+      })
+    }
+
+    //temp
+    const selectedProvinceName =
+      PROVINCES.find((province) => province.id === Number(provinceId))?.name ||
+      ''
+    const selectedCityName =
+      CITIES_LIST.find((city) => city.id === Number(cityId))?.name || ''
+
     const requestData: SignUpFormData = {
       name,
       email,
       role,
-      region,
+      region: selectedCityName
+        ? `${selectedProvinceName} ${selectedCityName}`
+        : selectedProvinceName,
       profileImageFile,
       personalityTagIds,
     }
@@ -145,7 +161,7 @@ export const signUpAction = async (
       options: { maxAge: 7 * ONE_DAY },
     })
 
-    pendingTokenList.forEach(async (tokenName) => await deleteCookie(tokenName))
+    await clearPendingTokens()
 
     return {
       success: true,
