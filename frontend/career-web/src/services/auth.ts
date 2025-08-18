@@ -23,7 +23,7 @@ export const getAuthMe = async (
     errorMessage = data?.message || `접근 권한이 없습니다.`
   }
 
-  return { errorMessage, data, errors }
+  return { errorMessage, data: data.data, errors }
 }
 
 export const postSignUp = async ({
@@ -56,5 +56,5 @@ export const postSignUp = async ({
         : data?.message || `회원가입에 실패했습니다.`
   }
 
-  return { errorMessage, data, errors, status: res.status }
+  return { errorMessage, data: data.data, errors, status: res.status }
 }
