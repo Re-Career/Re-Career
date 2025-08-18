@@ -10,12 +10,18 @@ import com.recareer.backend.common.entity.Region;
 import com.recareer.backend.common.repository.CompanyRepository;
 import com.recareer.backend.common.repository.JobRepository;
 import com.recareer.backend.common.repository.RegionRepository;
+import com.recareer.backend.common.repository.ProvinceRepository;
+import com.recareer.backend.common.repository.CityRepository;
+import com.recareer.backend.common.entity.Province;
+import com.recareer.backend.common.entity.City;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.feedback.repository.MentorFeedbackRepository;
 import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
 import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
 import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
+import com.recareer.backend.mentor.dto.FilterOptionsResponseDto;
+import com.recareer.backend.mentor.dto.FilterOptionDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.repository.MentorRepository;
@@ -35,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -52,6 +60,8 @@ public class MentorServiceImpl implements MentorService {
     private final JobRepository jobRepository;
     private final CompanyRepository companyRepository;
     private final RegionRepository regionRepository;
+    private final ProvinceRepository provinceRepository;
+    private final CityRepository cityRepository;
 
     private static final Long DEFAULT_PROVINCE_ID = 1L; // 서울특별시
 
@@ -499,5 +509,67 @@ public class MentorServiceImpl implements MentorService {
         
         // 정확히 같은 타입
         return mentorType == requestedType;
+    }
+
+    @Override
+    public List<FilterOptionsResponseDto> getFilterOptions() {
+        List<FilterOptionsResponseDto> filterOptions = new ArrayList<>();
+        
+        // 직업 필터 옵션
+        FilterOptionsResponseDto jobFilter = FilterOptionsResponseDto.builder()
+                .key("job")
+                .title("직업")
+                .options(Arrays.asList(
+                        FilterOptionDto.builder().key("software").name("소프트웨어").build(),
+                        FilterOptionDto.builder().key("product").name("프로덕트").build(),
+                        FilterOptionDto.builder().key("designer").name("디자이너").build(),
+                        FilterOptionDto.builder().key("data").name("데이터").build(),
+                        FilterOptionDto.builder().key("marketing").name("마케팅").build()
+                ))
+                .build();
+        filterOptions.add(jobFilter);
+        
+        // 경험 필터 옵션
+        FilterOptionsResponseDto experienceFilter = FilterOptionsResponseDto.builder()
+                .key("experience")
+                .title("경험")
+                .options(Arrays.asList(
+                        FilterOptionDto.builder().key("1-3").name("1-3년").build(),
+                        FilterOptionDto.builder().key("4-7").name("4-7년").build(),
+                        FilterOptionDto.builder().key("8-10").name("8-10년").build(),
+                        FilterOptionDto.builder().key("10+").name("10년 이상").build()
+                ))
+                .build();
+        filterOptions.add(experienceFilter);
+        
+        // 멘토링 타입 필터 옵션
+        FilterOptionsResponseDto mentoringTypeFilter = FilterOptionsResponseDto.builder()
+                .key("mentoringType")
+                .title("미팅 방식")
+                .options(Arrays.asList(
+                        FilterOptionDto.builder().key("ONLINE").name("온라인").build(),
+                        FilterOptionDto.builder().key("OFFLINE").name("오프라인").build(),
+                        FilterOptionDto.builder().key("BOTH").name("온오프라인").build()
+                ))
+                .build();
+        filterOptions.add(mentoringTypeFilter);
+        
+        // 지역 필터 옵션 (Province에서 동적으로 가져오기)
+        List<Province> provinces = provinceRepository.findAll();
+        List<FilterOptionDto> regionOptions = provinces.stream()
+                .map(province -> FilterOptionDto.builder()
+                        .key(province.getKey())
+                        .name(province.getName())
+                        .build())
+                .collect(Collectors.toList());
+        
+        FilterOptionsResponseDto regionFilter = FilterOptionsResponseDto.builder()
+                .key("region")
+                .title("지역")
+                .options(regionOptions)
+                .build();
+        filterOptions.add(regionFilter);
+        
+        return filterOptions;
     }
 }
