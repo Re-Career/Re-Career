@@ -18,7 +18,7 @@ export default function Login() {
     <div>
       <Header title="로그인" showCancelButton />
       <PageWithHeader>
-        <main className="flex flex-col items-center justify-center">
+        <main className="flex flex-col items-center justify-center pt-10">
           <Image src="/logo_lg.png" alt="login_logo" width={260} height={240} />
           <div className="my-10 flex flex-col items-center justify-center">
             <p>일을 넘어 삶을 설계하는 </p>

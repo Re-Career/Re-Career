@@ -1,7 +1,7 @@
 export interface User {
   id: number
   name: string
-  email: null | string
+  email: string
   role: string
   profileImageUrl: null | string
   region: null | string
@@ -11,4 +11,11 @@ export interface User {
   mentorIsVerified: null | boolean
   personalityTags: []
   signupCompleted: boolean
+}
+
+export interface PutUserPayload {
+  name: string
+  email: string
+  mentorPosition?: string
+  mentorDescription?: string
 }

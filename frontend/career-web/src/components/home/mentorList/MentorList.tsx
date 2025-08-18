@@ -15,7 +15,7 @@ const MentorList = () => {
             <Link
               key={mentor.id}
               className="flex flex-col items-center gap-3"
-              href={`mentor/${mentor.id}/profile`}
+              href={`/mentor/${mentor.id}/profile`}
             >
               <div className="h-32 w-32 flex-shrink-0 overflow-hidden rounded-full">
                 <Image
@@ -29,7 +29,7 @@ const MentorList = () => {
 
               <div className="text-center">
                 <h3 className="font-medium text-neutral-900">{mentor.name}</h3>
-                <p className="text-sm text-gray-600">{mentor.job}</p>
+                <p className="text-sm text-gray-600">{mentor.job.name}</p>
               </div>
             </Link>
           ))}

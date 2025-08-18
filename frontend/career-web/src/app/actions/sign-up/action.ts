@@ -67,7 +67,7 @@ export const signUpAction = async (
     email: z.email('올바른 이메일 형식을 입력해주세요.'),
     role: z.string().min(1, '역할을 선택해주세요.'),
     region: z.string().min(1, '지역을 선택해주세요.'),
-    profileImageFile: z.file().nullable().optional(),
+    profileImageFile: z.file(),
     personalityTagIds: z
       .array(z.string())
       .min(1, '성격 태그를 최소 1개 이상 선택해주세요.'),
@@ -119,7 +119,7 @@ export const signUpAction = async (
 
     const { profileImageFile: imageFile, ...signUpFormData } = requestData
 
-    if (imageFile) {
+    if (imageFile && imageFile.size > 0) {
       const { errorMessage, errors, status } = await putProfileImage({
         accessToken: pendingAccessToken,
         imageFile,
