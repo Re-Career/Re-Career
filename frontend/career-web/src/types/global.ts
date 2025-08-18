@@ -38,3 +38,8 @@ export interface FetchResponse<T> {
   errors?: Record<string, string>
   status?: number
 }
+
+export interface ResponseMessage {
+  message: string
+  data: string
+}

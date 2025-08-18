@@ -1,8 +1,11 @@
-export interface SignUpFormData {
+export interface DefaultSignUpFormData {
   name: string
   email: string
   role: string
   region: string
-  profileImageUrl: string
   personalityTagIds: string[]
+}
+
+export interface SignUpFormData extends DefaultSignUpFormData {
+  profileImageFile?: File
 }

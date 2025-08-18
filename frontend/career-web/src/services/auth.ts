@@ -28,17 +28,17 @@ export const getAuthMe = async (
 
 export const postSignUp = async ({
   accessToken,
-  requestData,
+  formData,
 }: {
   accessToken: string
-  requestData: SignUpFormData
+  formData: SignUpFormData
 }): Promise<FetchResponse<User>> => {
   const res = await fetchUrl('/auth/signup', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
-    body: JSON.stringify(requestData),
+    body: JSON.stringify(formData),
   })
 
   const isSuccess = res.ok
