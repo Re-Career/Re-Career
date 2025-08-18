@@ -123,6 +123,7 @@ export const updateProfileAction = async (
 
     // 사용자 정보 업데이트
     const userData: PutUserPayload = { name, email }
+
     if (mentorPosition) userData.mentorPosition = mentorPosition
     if (mentorDescription) userData.mentorDescription = mentorDescription
 
@@ -152,6 +153,7 @@ export const updateProfileAction = async (
 
       error.issues.forEach((issue) => {
         const fieldName = issue.path[0] as string
+
         fieldErrors[fieldName] = issue.message || '유효하지 않은 값입니다.'
       })
 

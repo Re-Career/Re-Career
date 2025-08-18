@@ -34,6 +34,7 @@ export const putProfileImage = async ({
   }
 
   const formData = new FormData()
+
   formData.append('file', imageFile)
 
   const res = await fetchUrl('/user/profile/image', {
@@ -70,6 +71,7 @@ export const putUser = async ({
 
   if (!token) {
     const { accessToken } = await getTokens()
+
     token = accessToken
   }
 
