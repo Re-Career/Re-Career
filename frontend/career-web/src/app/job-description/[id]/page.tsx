@@ -82,7 +82,7 @@ const JobDescriptionPage = async ({
 
         <div className="flex w-full items-center justify-center px-4">
           <Link
-            className="bg-primary w-full rounded-xl py-3 text-center font-bold"
+            className="bg-primary-500 w-full rounded-xl py-3 text-center font-bold"
             href={`/matching?jobId=${id}`}
           >
             멘토 찾기
