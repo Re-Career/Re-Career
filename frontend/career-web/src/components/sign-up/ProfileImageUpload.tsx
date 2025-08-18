@@ -30,7 +30,7 @@ const ProfileImageUpload = () => {
           <label className="cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-gray-100 px-4 py-2 text-center text-sm leading-tight font-medium text-neutral-900">
             {profileImagePreview ? '변경' : '추가'}
             <input
-              name="profileImage"
+              name="profileImageFile"
               type="file"
               className="hidden"
               accept="image/*"
