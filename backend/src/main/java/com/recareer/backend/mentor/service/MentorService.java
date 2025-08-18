@@ -6,6 +6,7 @@ import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
 import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
 import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
+import com.recareer.backend.mentor.dto.FilterOptionsResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.reservation.entity.Reservation;
@@ -39,4 +40,6 @@ public interface MentorService {
     AvailableTime createMentorAvailableTime(Long mentorId, LocalDateTime availableTime);
     
     List<MentorFeedback> getMentorFeedbacks(Long mentorId);
+    
+    List<FilterOptionsResponseDto> getFilterOptions();
 }

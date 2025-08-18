@@ -4,7 +4,9 @@ import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.repository.MentorRepository;
 import com.recareer.backend.common.entity.Job;
+import com.recareer.backend.common.entity.Province;
 import com.recareer.backend.common.repository.JobRepository;
+import com.recareer.backend.common.repository.ProvinceRepository;
 import com.recareer.backend.user.entity.Role;
 import com.recareer.backend.user.entity.User;
 import com.recareer.backend.user.repository.UserRepository;
@@ -42,6 +44,9 @@ class MentorControllerTest {
     @Autowired
     private JobRepository jobRepository;
 
+    @Autowired
+    private ProvinceRepository provinceRepository;
+
     private User mentorUser;
     private Mentor mentor;
     private Job testJob;
@@ -49,6 +54,19 @@ class MentorControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        
+        // Province 데이터 추가
+        Province seoul = Province.builder()
+                .key("seoul")
+                .name("서울특별시")
+                .build();
+        provinceRepository.save(seoul);
+        
+        Province busan = Province.builder()
+                .key("busan")
+                .name("부산광역시")
+                .build();
+        provinceRepository.save(busan);
         
         // Job 생성
         testJob = Job.builder()
@@ -97,5 +115,25 @@ class MentorControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(mentor.getId()))
                 .andExpect(jsonPath("$.data.name").value("테스트 멘토"));
+    }
+
+    @Test
+    @DisplayName("멘토 필터 옵션 조회 테스트")
+    void getFilterOptions_Success() throws Exception {
+        mockMvc.perform(get("/mentors/filter-options")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data[0].key").value("job"))
+                .andExpect(jsonPath("$.data[0].title").value("직업"))
+                .andExpect(jsonPath("$.data[0].options").isArray())
+                .andExpect(jsonPath("$.data[0].options[0].key").value("software"))
+                .andExpect(jsonPath("$.data[0].options[0].name").value("소프트웨어"))
+                // 지역 필터 검증 (DB에서 가져온 데이터)
+                .andExpect(jsonPath("$.data[3].key").value("region"))
+                .andExpect(jsonPath("$.data[3].title").value("지역"))
+                .andExpect(jsonPath("$.data[3].options").isArray())
+                .andExpect(jsonPath("$.data[3].options[0].key").value("seoul"))
+                .andExpect(jsonPath("$.data[3].options[0].name").value("서울특별시"));
     }
 }

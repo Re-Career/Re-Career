@@ -11,6 +11,7 @@ import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
 import com.recareer.backend.mentor.dto.MentorListResponseDto;
 import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.dto.MentorUpdateResponseDto;
+import com.recareer.backend.mentor.dto.FilterOptionsResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.service.MentorService;
@@ -210,6 +211,18 @@ public class MentorController {
         } catch (Exception e) {
             log.error("Get mentor feedbacks failed: {}", e.getMessage());
             return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 피드백 조회에 실패했습니다."));
+        }
+    }
+
+    @GetMapping("/filter-options")
+    @Operation(summary = "멘토 필터 옵션 조회", description = "멘토 검색에 사용할 수 있는 필터 옵션들을 조회합니다")
+    public ResponseEntity<ApiResponse<List<FilterOptionsResponseDto>>> getFilterOptions() {
+        try {
+            List<FilterOptionsResponseDto> filterOptions = mentorService.getFilterOptions();
+            return ResponseEntity.ok(ApiResponse.success(filterOptions));
+        } catch (Exception e) {
+            log.error("Get filter options failed: {}", e.getMessage());
+            return ResponseEntity.internalServerError().body(ApiResponse.error("필터 옵션 조회에 실패했습니다."));
         }
     }
 }
