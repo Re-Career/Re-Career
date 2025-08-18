@@ -7,5 +7,5 @@ export interface DefaultSignUpFormData {
 }
 
 export interface SignUpFormData extends DefaultSignUpFormData {
-  profileImageFile?: File
+  profileImageFile: File
 }

@@ -48,18 +48,21 @@ const ReservationForm = ({ mentorId }: { mentorId: string }) => {
         <CustomCalendar value={date} onChange={handleDate} />
         <CustomTimePicker value={timeValue} onChange={setTimeValue} />
       </section>
-      <section className="px-4 py-3">
+      {/* <section className="px-4 py-3">
         <h4 className="py-4 text-lg font-bold">알림</h4>
         <label className="flex justify-between">
           <span>이메일 알림</span>
           <input name="emailAlert" type="checkbox" className="h-5 w-5" />
         </label>
-      </section>
-      <section className="px-4 py-3">
-        <button className="bg-primary-500 h-12 w-full rounded-2xl text-lg font-bold">
+      </section> */}
+      <div className="sticky bottom-0 flex border-t border-gray-100 bg-white p-4">
+        <button
+          className="bg-primary-500 flex-1 rounded-lg py-3 text-center font-bold"
+          type="submit"
+        >
           상담 예약하기
         </button>
-      </section>
+      </div>
     </form>
   )
 }

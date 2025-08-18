@@ -1,9 +1,15 @@
-import { FilterOptions, Mentor } from '@/types/mentor'
+import { FilterOptions, Mentor, MentorDetail } from '@/types/mentor'
 import { fetchUrl } from './api'
 import { searchMentors } from '@/mocks/home/mentors-search'
+import { mentorDetails } from '@/mocks/home/mentor-details'
 
-export const getMentor = async (id: string): Promise<Mentor> => {
+export const getMentor = async (id: string): Promise<MentorDetail> => {
   const res = await fetchUrl(`/mentors/${id}`)
+
+  if (!res.ok) {
+    return mentorDetails[0]
+  }
+
   const { data } = await res.json()
 
   return data

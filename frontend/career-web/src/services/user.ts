@@ -1,6 +1,6 @@
 import { getTokens } from '@/app/actions/auth/action'
 import { fetchUrl } from './api'
-import { User } from '@/types/user'
+import { PutUserPayload, User } from '@/types/user'
 import { FetchResponse, ResponseMessage } from '@/types/global'
 
 export const getUserProfile = async (): Promise<User> => {
@@ -33,16 +33,19 @@ export const putProfileImage = async ({
     token = accessToken
   }
 
+  const formData = new FormData()
+  formData.append('file', imageFile)
+
   const res = await fetchUrl('/user/profile/image', {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
     },
-    body: imageFile,
+    body: formData,
   })
 
   const isSuccess = res.ok
+
   const data = await res.json().catch(() => {})
 
   let errorMessage: string = ''
@@ -54,4 +57,40 @@ export const putProfileImage = async ({
   }
 
   return { errorMessage, data, errors }
+}
+
+export const putUser = async ({
+  accessToken,
+  userData,
+}: {
+  accessToken?: string
+  userData: PutUserPayload
+}): Promise<FetchResponse<ResponseMessage>> => {
+  let token = accessToken
+
+  if (!token) {
+    const { accessToken } = await getTokens()
+    token = accessToken
+  }
+
+  const res = await fetchUrl('/user/profile', {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(userData),
+  })
+
+  const isSuccess = res.ok
+  const data = await res.json().catch(() => {})
+
+  let errorMessage: string = ''
+  let errors = {}
+
+  if (!isSuccess) {
+    errors = data?.errors
+    errorMessage = data?.message || '프로필 업데이트에 실패했습니다.'
+  }
+
+  return { errorMessage, data, errors, status: res.status }
 }

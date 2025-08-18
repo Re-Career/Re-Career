@@ -1,8 +1,10 @@
 import { Header, PageWithHeader } from '@/components/layout'
 import { getMentor } from '@/services/mentor'
+import { hasProfileImage } from '@/lib/constants/images'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { IoCameraOutline } from 'react-icons/io5'
 
 const renderStars = (rating: number) => {
   return Array.from({ length: 5 }, (_, i) => (
@@ -34,13 +36,19 @@ const MentorProfilePage = async ({
         {/* 프로필 상단 */}
         <div className="bg-white p-6 text-center">
           <div className="mx-auto mb-4 h-32 w-32 overflow-hidden rounded-full">
-            <Image
-              src={mentor.profileImageUrl}
-              alt={mentor.name}
-              width={128}
-              height={128}
-              className="h-full w-full object-cover"
-            />
+            {hasProfileImage(mentor.profileImageUrl) ? (
+              <Image
+                src={mentor.profileImageUrl}
+                alt={mentor.name}
+                width={128}
+                height={128}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gray-200">
+                <IoCameraOutline className="h-12 w-12 text-gray-400" />
+              </div>
+            )}
           </div>
 
           <h1 className="mb-1 text-xl font-bold text-gray-900">
@@ -63,7 +71,7 @@ const MentorProfilePage = async ({
           </div>
 
           <div className="text-sm text-gray-500">
-            {mentor.company} • {mentor.experience}년 • {mentor.location}
+            {mentor.company.name} • {mentor.experience}년 • {mentor.region.name}
           </div>
         </div>
 
@@ -159,9 +167,9 @@ const MentorProfilePage = async ({
         </div>
 
         {/* 하단 상담 예약 버튼 */}
-        <div className="sticky bottom-0 border-t border-gray-100 bg-white p-4">
+        <div className="sticky bottom-0 flex border-t border-gray-100 bg-white p-4">
           <Link
-            className="bg-primary-500 w-full rounded-lg py-3 font-bold"
+            className="bg-primary-500 flex-1 rounded-lg py-3 text-center font-bold"
             href={`/mentor/${id}/reservation`}
           >
             상담 예약하기

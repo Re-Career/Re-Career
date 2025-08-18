@@ -1,4 +1,4 @@
-import { SignUpFormData } from '@/types/auth'
+import { DefaultSignUpFormData } from '@/types/auth'
 import { fetchUrl } from './api'
 import { User } from '@/types/user'
 import { FetchResponse } from '@/types/global'
@@ -31,7 +31,7 @@ export const postSignUp = async ({
   formData,
 }: {
   accessToken: string
-  formData: SignUpFormData
+  formData: DefaultSignUpFormData
 }): Promise<FetchResponse<User>> => {
   const res = await fetchUrl('/auth/signup', {
     method: 'POST',

@@ -11,13 +11,18 @@ export const fetchUrl = async (
   url: string,
   init?: RequestInit
 ): Promise<Response> => {
-  const { headers, ...rest } = init || {}
+  const { headers, body, ...rest } = init || {}
 
+  const isFormData = body instanceof FormData
+
+  const finalHeaders: HeadersInit = {
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+    ...headers,
+  }
+  
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
+    headers: finalHeaders,
+    body,
     ...rest,
   })
 
