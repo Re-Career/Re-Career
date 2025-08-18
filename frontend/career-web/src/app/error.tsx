@@ -34,14 +34,14 @@ export default function Error({ reset }: { reset: () => void }) {
       <div className="space-y-3">
         <button
           onClick={() => reset()}
-          className="bg-primary w-full rounded-lg px-4 py-3 font-medium"
+          className="bg-primary-500 w-full rounded-lg px-4 py-3 font-medium"
         >
           다시 시도
         </button>
 
         <button
           onClick={() => router.replace('/')}
-          className="bg-secondary 0 w-full rounded-lg px-4 py-3 font-medium"
+          className="bg-secondary-500 w-full rounded-lg px-4 py-3 font-medium"
         >
           홈으로 돌아가기
         </button>

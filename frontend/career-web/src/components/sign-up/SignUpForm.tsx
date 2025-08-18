@@ -190,7 +190,7 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
         <div className="flex items-center justify-center p-4">
           <button
             type="submit"
-            className="bg-primary h-12 w-full max-w-[480px] min-w-20 items-center justify-center overflow-hidden rounded-3xl px-5 font-bold text-neutral-900"
+            className="bg-primary-500 h-12 w-full max-w-[480px] min-w-20 items-center justify-center overflow-hidden rounded-3xl px-5 font-bold text-neutral-900"
           >
             가입 완료
           </button>

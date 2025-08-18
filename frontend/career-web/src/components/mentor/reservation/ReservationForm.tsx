@@ -56,7 +56,7 @@ const ReservationForm = ({ mentorId }: { mentorId: string }) => {
         </label>
       </section>
       <section className="px-4 py-3">
-        <button className="bg-primary h-12 w-full rounded-2xl text-lg font-bold">
+        <button className="bg-primary-500 h-12 w-full rounded-2xl text-lg font-bold">
           상담 예약하기
         </button>
       </section>

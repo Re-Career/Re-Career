@@ -8,7 +8,7 @@ const renderStars = (rating: number) => {
   return Array.from({ length: 5 }, (_, i) => (
     <span
       key={i}
-      className={`text-lg ${i < rating ? 'text-secondary' : 'text-gray-300'}`}
+      className={`text-lg ${i < rating ? 'text-secondary-500' : 'text-gray-300'}`}
     >
       ★
     </span>
@@ -161,7 +161,7 @@ const MentorProfilePage = async ({
         {/* 하단 상담 예약 버튼 */}
         <div className="sticky bottom-0 border-t border-gray-100 bg-white p-4">
           <Link
-            className="bg-primary w-full rounded-lg py-3 font-bold"
+            className="bg-primary-500 w-full rounded-lg py-3 font-bold"
             href={`/mentor/${id}/reservation`}
           >
             상담 예약하기

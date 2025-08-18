@@ -76,7 +76,7 @@ const Dropdown = ({
         disabled={disabled}
         className={`flex h-14 w-full items-center justify-between rounded-xl bg-gray-100 p-4 text-left ${
           disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
-        } ${isOpen ? 'ring-2 ring-blue-500' : ''}`}
+        } ${isOpen ? 'ring-primary-500 ring-2' : ''}`}
       >
         <span className={selectedOption ? 'text-black' : 'text-gray-500'}>
           {selectedOption ? selectedOption.label : placeholder}
@@ -105,7 +105,7 @@ const Dropdown = ({
               onClick={() => handleSelect(option)}
               className={`w-full px-4 py-3 text-left hover:bg-gray-50 ${
                 option.value === value
-                  ? 'bg-blue-50 text-blue-600'
+                  ? 'bg-primary-50 text-blue-500'
                   : 'text-gray-900'
               }`}
             >

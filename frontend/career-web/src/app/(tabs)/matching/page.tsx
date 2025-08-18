@@ -107,7 +107,7 @@ const MatchingPage = async ({ searchParams }: MatchingPageProps) => {
 
                       <Link
                         href={`mentor/${mentor.id}/profile`}
-                        className="bg-primary flex-shrink-0 rounded-xl px-4 py-1.5 text-sm"
+                        className="bg-primary-500 flex-shrink-0 rounded-xl px-4 py-1.5 text-sm"
                       >
                         1:1 예약
                       </Link>

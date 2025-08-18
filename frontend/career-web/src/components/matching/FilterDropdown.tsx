@@ -64,7 +64,7 @@ const FilterDropdown = ({
                     onClick={() => onFilterChange(key, option.key)}
                     className={`rounded-full border px-4 py-2 text-sm transition-all duration-200 ease-in-out ${
                       isSelected
-                        ? 'bg-secondary border-secondary'
+                        ? 'bg-secondary-500 border-secondary-500'
                         : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                   >
@@ -85,7 +85,7 @@ const FilterDropdown = ({
         </button>
         <Link
           href={`/matching${handleSearch()}`}
-          className="bg-primary flex-3 rounded p-2 text-center font-semibold"
+          className="bg-primary-500 flex-3 rounded p-2 text-center font-semibold"
           onClick={onClose}
         >
           적용하기
