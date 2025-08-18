@@ -1,9 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { handleOAuth2Redirect } from '@/lib/middleware/oauth'
-import { COOKIE_OPTIONS } from './lib/constants/global'
+import { COOKIE_OPTIONS, ROLE_TYPES } from './lib/constants/global'
+import { RoleType } from '@/types/global'
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  if (pathname.startsWith('/sign-up/')) {
+    const role = pathname.split('/sign-up/')[1]
+    const accessToken = request.cookies.get('accessToken')
+    const refreshToken = request.cookies.get('refreshToken')
+
+    const _role = role?.toLocaleUpperCase() as RoleType
+
+    if (
+      !accessToken ||
+      !refreshToken ||
+      !Object.values(ROLE_TYPES).includes(_role)
+    ) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
 
   switch (pathname) {
     case '/oauth2/redirect':
@@ -22,6 +39,7 @@ export async function middleware(request: NextRequest) {
 
         return response
       }
+      break
   }
 
   return NextResponse.next()

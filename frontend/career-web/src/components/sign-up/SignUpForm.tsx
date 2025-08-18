@@ -9,7 +9,7 @@ import { RoleType } from '@/types/global'
 import { PersonalityTag } from '@/types/personality-tags'
 import { signUpAction } from '@/app/actions/sign-up/action'
 import { isWebView, sendAuthTokensToNative } from '@/utils/webview'
-import { getToken } from '@/app/actions/auth/action'
+import { getTokens } from '@/app/actions/auth/action'
 import { BsExclamationCircle } from 'react-icons/bs'
 import { deleteCookie, getCookie } from '@/app/actions/global/action'
 
@@ -32,9 +32,9 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
   })
 
   const saveNativeAuth = useCallback(async () => {
-    const accessToken = await getToken()
+    const { accessToken } = await getTokens()
 
-    sendAuthTokensToNative(accessToken, '')
+    sendAuthTokensToNative(accessToken || '', '')
   }, [])
 
   const checkRedirectUrl = useCallback(async () => {

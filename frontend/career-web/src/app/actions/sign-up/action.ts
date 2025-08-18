@@ -4,17 +4,51 @@ import { ONE_DAY } from '@/lib/constants/global'
 import { postSignUp } from '@/services/auth'
 import { SignUpFormData } from '@/types/auth'
 import z from 'zod'
-import { deleteCookie, getCookie, setCookie } from '../global/action'
+import { deleteCookie, setCookie } from '../global/action'
+import { putProfileImage } from '@/services/user'
+import { getPendingTokens } from '../auth/action'
+
+const pendingTokenList = ['pendingAccessToken', 'pendingRefreshToken']
+
+interface DefaultFormData {
+  name: string
+  email: string
+}
 
 interface FormState {
   success: boolean
   message: string
-  formData: {
-    name: string
-    email: string
-  }
+  formData: DefaultFormData
   status?: number
   errors?: Record<string, string>
+}
+
+const handleErrorResponse = ({
+  errorMessage,
+  defaultFormData,
+  status,
+  errors,
+}: {
+  errorMessage: string
+  defaultFormData: DefaultFormData
+  status?: number
+  errors?: Record<string, string>
+}): FormState => {
+  const baseResponse: FormState = {
+    success: false,
+    message: errorMessage,
+    formData: defaultFormData,
+  }
+
+  if (status) {
+    baseResponse.status = status
+  }
+
+  if (errors) {
+    baseResponse.errors = errors
+  }
+
+  return baseResponse
 }
 
 export const signUpAction = async (
@@ -25,7 +59,7 @@ export const signUpAction = async (
   const role = formData.get('role') as string
   const email = formData.get('email') as string
   const region = formData.get('region') as string
-  const profileImageUrl = formData.get('profileImageUrl') as string
+  const profileImageFile = formData.get('profileImageFile') as File
   const personalityTagIds = formData.getAll('personalityTagIds') as string[]
 
   const schema = z.object({
@@ -33,18 +67,23 @@ export const signUpAction = async (
     email: z.email('올바른 이메일 형식을 입력해주세요.'),
     role: z.string().min(1, '역할을 선택해주세요.'),
     region: z.string().min(1, '지역을 선택해주세요.'),
-    profileImageUrl: z.string().nullable().optional(),
+    profileImageFile: z.file().nullable().optional(),
     personalityTagIds: z
       .array(z.string())
       .min(1, '성격 태그를 최소 1개 이상 선택해주세요.'),
   })
 
-  try {
-    const accessToken = await getCookie('pendingAccessToken')
-    const refreshToken = await getCookie('pendingRefreshToken')
+  const defaultFormData = { name, email }
 
-    if (!accessToken || !refreshToken) {
-      throw new Error('회원 정보가 없습니다.')
+  try {
+    const { pendingAccessToken, pendingRefreshToken } = await getPendingTokens()
+
+    if (!pendingAccessToken || !pendingRefreshToken) {
+      return handleErrorResponse({
+        errorMessage: '회원 정보가 없습니다.',
+        status: 401,
+        defaultFormData,
+      })
     }
 
     const requestData: SignUpFormData = {
@@ -52,7 +91,7 @@ export const signUpAction = async (
       email,
       role,
       region,
-      profileImageUrl,
+      profileImageFile,
       personalityTagIds,
     }
 
@@ -62,49 +101,51 @@ export const signUpAction = async (
       throw new z.ZodError(parseResult.error.issues)
     }
 
-    const { errorMessage, errors, status } = await postSignUp({
-      accessToken,
-      requestData,
-    })
+    const { profileImageFile: imageFile, ...signUpFormData } = requestData
 
-    if (status === 401) {
-      return {
-        success: false,
-        message: errorMessage,
-        status,
-        formData: { name, email },
+    if (imageFile) {
+      const { errorMessage, errors, status } = await putProfileImage({
+        accessToken: pendingAccessToken,
+        imageFile,
+      })
+
+      if (status === 401 || errorMessage) {
+        return handleErrorResponse({
+          errorMessage,
+          status,
+          errors,
+          defaultFormData,
+        })
       }
     }
 
-    if (errorMessage) {
-      const defaultResponse = {
-        success: false,
-        message: errorMessage,
+    const { errorMessage, errors, status } = await postSignUp({
+      accessToken: pendingAccessToken,
+      formData: signUpFormData,
+    })
 
-        formData: { name, email },
-      }
-
-      if (errors) {
-        return { ...defaultResponse, errors }
-      }
-
-      return defaultResponse
+    if (status === 401 || errorMessage) {
+      return handleErrorResponse({
+        errorMessage,
+        status,
+        errors,
+        defaultFormData,
+      })
     }
 
     setCookie({
       name: 'accessToken',
-      value: accessToken,
+      value: pendingAccessToken,
       options: { maxAge: ONE_DAY },
     })
 
     setCookie({
       name: 'refreshToken',
-      value: refreshToken,
+      value: pendingRefreshToken,
       options: { maxAge: 7 * ONE_DAY },
     })
 
-    deleteCookie('pendingAccessToken')
-    deleteCookie('pendingRefreshToken')
+    pendingTokenList.forEach(tokenName => deleteCookie(tokenName))
 
     return {
       success: true,
@@ -112,6 +153,7 @@ export const signUpAction = async (
       formData: { name, email },
     }
   } catch (error) {
+    console.log(error)
     if (error instanceof z.ZodError) {
       const fieldErrors: Record<string, string> = {}
 
