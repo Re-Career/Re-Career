@@ -6,14 +6,11 @@ import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.career.repository.MentorCareerRepository;
 import com.recareer.backend.common.entity.Company;
 import com.recareer.backend.common.entity.Job;
-import com.recareer.backend.common.entity.Region;
 import com.recareer.backend.common.repository.CompanyRepository;
 import com.recareer.backend.common.repository.JobRepository;
-import com.recareer.backend.common.repository.RegionRepository;
 import com.recareer.backend.common.repository.ProvinceRepository;
 import com.recareer.backend.common.repository.CityRepository;
 import com.recareer.backend.common.entity.Province;
-import com.recareer.backend.common.entity.City;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.feedback.repository.MentorFeedbackRepository;
 import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
@@ -58,7 +55,6 @@ public class MentorServiceImpl implements MentorService {
     private final MentorFeedbackRepository mentorFeedbackRepository;
     private final JobRepository jobRepository;
     private final CompanyRepository companyRepository;
-    private final RegionRepository regionRepository;
     private final ProvinceRepository provinceRepository;
     private final CityRepository cityRepository;
 
@@ -79,10 +75,6 @@ public class MentorServiceImpl implements MentorService {
         Company company = requestDto.getCompanyId() != null ? 
             companyRepository.findById(requestDto.getCompanyId())
                 .orElseThrow(() -> new IllegalArgumentException("Company not found with id: " + requestDto.getCompanyId())) : null;
-                
-        Region region = requestDto.getRegionId() != null ? 
-            regionRepository.findById(requestDto.getRegionId())
-                .orElseThrow(() -> new IllegalArgumentException("Region not found with id: " + requestDto.getRegionId())) : null;
         
         // 멘토 생성
         Mentor mentor = Mentor.builder()
