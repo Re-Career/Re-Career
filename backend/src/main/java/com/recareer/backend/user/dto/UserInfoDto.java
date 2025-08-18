@@ -36,8 +36,11 @@ public class UserInfoDto {
     @Schema(description = "가입 완료 여부", example = "true")
     private boolean isSignupCompleted;
 
-    @Schema(description = "지역", example = "경기도 하남시")
-    private String region;
+    @Schema(description = "시/도", example = "서울특별시")
+    private String provinceName;
+
+    @Schema(description = "구/군", example = "강남구")
+    private String cityName;
 
     // 멘토 정보 (역할이 MENTOR일 때만)
     @Schema(description = "멘토 ID", example = "1")
@@ -62,6 +65,8 @@ public class UserInfoDto {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .profileImageUrl(user.getProfileImageUrl())
+                .provinceName(user.getProvince() != null ? user.getProvince().getName() : null)
+                .cityName(user.getCity() != null ? user.getCity().getName() : null)
                 .isSignupCompleted(user.getName() != null && user.getEmail() != null && user.getRole() != null)
                 .build();
     }
@@ -73,6 +78,8 @@ public class UserInfoDto {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .profileImageUrl(user.getProfileImageUrl())
+                .provinceName(user.getProvince() != null ? user.getProvince().getName() : null)
+                .cityName(user.getCity() != null ? user.getCity().getName() : null)
                 .isSignupCompleted(user.getName() != null && user.getEmail() != null && user.getRole() != null);
 
         if (mentor != null) {
