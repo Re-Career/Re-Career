@@ -3,7 +3,7 @@ package com.recareer.backend.mentor.entity;
 import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.common.entity.BaseTimeEntity;
 import com.recareer.backend.common.entity.Company;
-import com.recareer.backend.common.entity.Job;
+import com.recareer.backend.position.entity.Position;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.skill.entity.MentorSkill;
 import com.recareer.backend.user.entity.User;
@@ -33,8 +33,8 @@ public class Mentor extends BaseTimeEntity {
   private User user;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "job_id")
-  private Job job;
+  @JoinColumn(name = "position_id")
+  private Position position;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "company_id")
@@ -66,8 +66,8 @@ public class Mentor extends BaseTimeEntity {
   @Builder.Default
   private List<MentorFeedback> feedbacks = new ArrayList<>();
 
-  public Mentor update(Job job, Company company, String description, String introduction, Integer experience) {
-    this.job = job;
+  public Mentor update(Position position, Company company, String description, String introduction, Integer experience) {
+    this.position = position;
     this.company = company;
     this.description = description;
     this.introduction = introduction;
@@ -77,8 +77,18 @@ public class Mentor extends BaseTimeEntity {
 
 
   // 호환성을 위한 메서드들
+  public String getPositionName() {
+    return position != null ? position.getName() : null;
+  }
+  
+  // 기존 getPosition() 메서드도 유지 (호환성)
   public String getPosition() {
-    return job != null ? job.getName() : null;
+    return getPositionName();
+  }
+  
+  // Position 엔티티 반환 메서드
+  public Position getPositionEntity() {
+    return position;
   }
 
   public String getCompanyName() {

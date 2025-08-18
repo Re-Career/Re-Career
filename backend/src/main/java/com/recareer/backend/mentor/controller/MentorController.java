@@ -123,21 +123,21 @@ public class MentorController {
         }
     }
 
-    @GetMapping("/search/list")
-    @Operation(summary = "멘토 찾기 - 리스트 조회", description = "모든 멘토를 조회합니다.")
-    public ResponseEntity<ApiResponse<List<MentorSummaryResponseDto>>> getMentorsList() {
-        
-        try {
-            // 빈 필터로 모든 멘토 조회
-            MentorFilterRequestDto emptyFilter = MentorFilterRequestDto.builder().build();
-            List<MentorSummaryResponseDto> mentors = mentorService.getMentorsByFilters(emptyFilter);
-            return ResponseEntity.ok(ApiResponse.success(mentors));
-            
-        } catch (Exception e) {
-            log.error("Get mentors list failed: {}", e.getMessage());
-            return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 목록 조회에 실패했습니다."));
-        }
-    }
+//    @GetMapping("/search/list")
+//    @Operation(summary = "멘토 찾기 - 리스트 조회", description = "모든 멘토를 조회합니다.")
+//    public ResponseEntity<ApiResponse<List<MentorSummaryResponseDto>>> getMentorsList() {
+//
+//        try {
+//            // 빈 필터로 모든 멘토 조회
+//            MentorFilterRequestDto emptyFilter = MentorFilterRequestDto.builder().build();
+//            List<MentorSummaryResponseDto> mentors = mentorService.getMentorsByFilters(emptyFilter);
+//            return ResponseEntity.ok(ApiResponse.success(mentors));
+//
+//        } catch (Exception e) {
+//            log.error("Get mentors list failed: {}", e.getMessage());
+//            return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 목록 조회에 실패했습니다."));
+//        }
+//    }
 
     @GetMapping("/{id}")
     @Operation(summary = "멘토 프로필 조회", description = "멘토의 프로필을 조회합니다")
