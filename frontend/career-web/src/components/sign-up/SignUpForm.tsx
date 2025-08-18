@@ -13,13 +13,16 @@ import { getTokens } from '@/app/actions/auth/action'
 import { BsExclamationCircle } from 'react-icons/bs'
 import { deleteCookie, getCookie } from '@/app/actions/global/action'
 import { ROLE_TYPES } from '@/lib/constants/global'
+import { City, Province } from '@/types/location'
 
 interface SignUpFormProps {
   role: RoleType
   tags: PersonalityTag[]
+  provinces: Province[]
+  cities: City[]
 }
 
-const SignUpForm = ({ role, tags }: SignUpFormProps) => {
+const SignUpForm = ({ role, tags, provinces, cities }: SignUpFormProps) => {
   const router = useRouter()
 
   const [selectedTags, setSelectedTags] = useState<number[]>([])
@@ -179,6 +182,8 @@ const SignUpForm = ({ role, tags }: SignUpFormProps) => {
                 <RegionSelector
                   onProvinceChange={handleProvinceChange}
                   onCityChange={handleCityChange}
+                  cities={cities}
+                  provinces={provinces}
                 />
                 {errors?.provinceId && (
                   <span className="text-sm text-red-600">
