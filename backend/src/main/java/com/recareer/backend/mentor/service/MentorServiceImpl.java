@@ -11,6 +11,9 @@ import com.recareer.backend.common.repository.JobRepository;
 import com.recareer.backend.common.repository.ProvinceRepository;
 import com.recareer.backend.common.repository.CityRepository;
 import com.recareer.backend.common.entity.Province;
+import com.recareer.backend.skill.entity.MentorSkill;
+import com.recareer.backend.skill.entity.Skill;
+import com.recareer.backend.skill.repository.SkillRepository;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.feedback.repository.MentorFeedbackRepository;
 import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
@@ -56,7 +59,7 @@ public class MentorServiceImpl implements MentorService {
     private final JobRepository jobRepository;
     private final CompanyRepository companyRepository;
     private final ProvinceRepository provinceRepository;
-    private final CityRepository cityRepository;
+    private final SkillRepository skillRepository;
 
     private static final Long DEFAULT_PROVINCE_ID = 1L; // 서울특별시
 
@@ -86,11 +89,25 @@ public class MentorServiceImpl implements MentorService {
                 .description(requestDto.getDescription())
                 .introduction(requestDto.getIntroduction())
                 .experience(requestDto.getExperience())
-                .skills(requestDto.getSkills() != null ? requestDto.getSkills() : List.of())
                 .isVerified(true) // TODO: 건강보험 등록증 확인 로직 추가 시 false로 변경
                 .build();
         
-        return mentorRepository.save(mentor);
+        // 멘토 저장
+        Mentor savedMentor = mentorRepository.save(mentor);
+        
+        // MentorSkill 관계 생성
+        if (requestDto.getSkillIds() != null && !requestDto.getSkillIds().isEmpty()) {
+            List<Skill> skills = skillRepository.findByIdIn(requestDto.getSkillIds());
+            List<MentorSkill> mentorSkills = skills.stream()
+                    .map(skill -> MentorSkill.builder()
+                            .mentor(savedMentor)
+                            .skill(skill)
+                            .build())
+                    .toList();
+            savedMentor.getMentorSkills().addAll(mentorSkills);
+        }
+        
+        return savedMentor;
     }
 
     @Override
@@ -254,13 +271,30 @@ public class MentorServiceImpl implements MentorService {
 
     @Override
     @Transactional
-    public Optional<Mentor> updateMentor(Long id, String position, String description, String introduction, List<String> skills) {
+    public Optional<Mentor> updateMentor(Long id, Long jobId, String description, String introduction, Integer experience, List<Long> skillIds) {
         return mentorRepository.findById(id)
                 .map(mentor -> {
-                    mentor.update(mentor.getJob(), mentor.getCompany(), description, introduction, mentor.getExperience());
-                    if (skills != null) {
-                        mentor.updateSkills(skills);
+                    Job job = null;
+                    if (jobId != null) {
+                        job = jobRepository.findById(jobId)
+                                .orElseThrow(() -> new IllegalArgumentException("Job not found with id: " + jobId));
                     }
+
+                    mentor.update(job, mentor.getCompany(), description, introduction, experience);
+
+                    // 기존 MentorSkill 관계 제거 후 새로 생성
+                    mentor.getMentorSkills().clear();
+                    if (skillIds != null && !skillIds.isEmpty()) {
+                        List<Skill> skills = skillRepository.findByIdIn(skillIds);
+                        List<MentorSkill> mentorSkills = skills.stream()
+                                .map(skill -> MentorSkill.builder()
+                                        .mentor(mentor)
+                                        .skill(skill)
+                                        .build())
+                                .toList();
+                        mentor.getMentorSkills().addAll(mentorSkills);
+                    }
+                    
                     return mentorRepository.save(mentor);
                 });
     }

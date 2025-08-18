@@ -10,6 +10,7 @@ import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
 import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
 import com.recareer.backend.mentor.dto.MentorListResponseDto;
 import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
+import com.recareer.backend.mentor.dto.MentorUpdateRequestDto;
 import com.recareer.backend.mentor.dto.MentorUpdateResponseDto;
 import com.recareer.backend.mentor.dto.FilterOptionsResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
@@ -145,11 +146,8 @@ public class MentorController {
     @Operation(summary = "멘토 프로필 수정", description = "멘토의 프로필 정보를 수정합니다")
     public ResponseEntity<ApiResponse<MentorUpdateResponseDto>> updateMentor(
             @PathVariable Long id,
-            @RequestParam String position,
-            @RequestParam String description,
-            @RequestParam(required = false) String introduction,
-            @RequestParam(required = false) List<String> skills) {
-        return mentorService.updateMentor(id, position, description, introduction, skills)
+            @RequestBody MentorUpdateRequestDto requestDto) {
+        return mentorService.updateMentor(id, requestDto.getJobId(), requestDto.getDescription(), requestDto.getIntroduction(), requestDto.getExperience(), requestDto.getSkillIds())
                 .map(mentor -> ResponseEntity.ok(ApiResponse.success("멘토 정보가 성공적으로 수정되었습니다.", MentorUpdateResponseDto.from(mentor))))
                 .orElse(ResponseEntity.status(404).body(ApiResponse.error("해당 멘토를 찾을 수 없습니다.")));
     }

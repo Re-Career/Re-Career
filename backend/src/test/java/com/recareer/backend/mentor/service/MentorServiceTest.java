@@ -17,6 +17,8 @@ import com.recareer.backend.common.entity.City;
 import com.recareer.backend.common.repository.JobRepository;
 import com.recareer.backend.common.repository.ProvinceRepository;
 import com.recareer.backend.common.repository.CityRepository;
+import com.recareer.backend.skill.entity.Skill;
+import com.recareer.backend.skill.repository.SkillRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -61,8 +63,12 @@ class MentorServiceTest {
     @Autowired
     private CityRepository cityRepository;
     
+    @Autowired
+    private SkillRepository skillRepository;
+    
     private User mentorUser;
     private Mentor mentor;
+    private List<Skill> skills;
 
     @BeforeEach
     void setUp() {
@@ -110,6 +116,9 @@ class MentorServiceTest {
                 .personalityTag(tag1)
                 .build();
         userPersonalityTagRepository.save(mentorTag1);
+        
+        // Skills 조회 (data.sql에서 로드된 스킬들)
+        skills = skillRepository.findAll();
         
         mentor = Mentor.builder()
                 .id(mentorUser.getId())
@@ -184,23 +193,27 @@ class MentorServiceTest {
     @Test
     @DisplayName("멘토 정보 업데이트 성공")
     void updateMentor_Success() {
-        String newPosition = "시니어 풀스택 개발자";
+        Job newJob = createJob("시니어 풀스택 개발자");
         String newDescription = "10년차 풀스택 개발자입니다.";
         String newIntroduction = "상세 소개는 여기에...";
-        List<String> newSkills = List.of("Java", "Spring", "React");
+        Integer newExperience = 10;
+        List<Long> newSkillIds = skills.stream().limit(2).map(Skill::getId).toList(); // 처음 2개 스킬 ID
         
-        Optional<Mentor> result = mentorService.updateMentor(mentor.getId(), newPosition, newDescription, newIntroduction, newSkills);
+        Optional<Mentor> result = mentorService.updateMentor(mentor.getId(), newJob.getId(), newDescription, newIntroduction, newExperience, newSkillIds);
         
         assertThat(result).isPresent();
+        assertThat(result.get().getJob().getName()).isEqualTo(newJob.getName());
         assertThat(result.get().getDescription()).isEqualTo(newDescription);
         assertThat(result.get().getIntroduction()).isEqualTo(newIntroduction);
-        assertThat(result.get().getSkills()).containsExactlyElementsOf(newSkills);
+        assertThat(result.get().getExperience()).isEqualTo(newExperience);
+        assertThat(result.get().getMentorSkills()).hasSize(2);
     }
 
     @Test
     @DisplayName("존재하지 않는 멘토 업데이트 실패")
     void updateMentor_NotFound() {
-        Optional<Mentor> result = mentorService.updateMentor(999L, "새 포지션", "새 설명", "새 소개", List.of("Java"));
+        List<Long> skillIds = skills.stream().limit(1).map(Skill::getId).toList();
+        Optional<Mentor> result = mentorService.updateMentor(999L, 1L, "새 설명", "새 소개", 5, skillIds);
         
         assertThat(result).isEmpty();
     }
