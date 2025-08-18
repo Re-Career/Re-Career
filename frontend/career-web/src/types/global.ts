@@ -33,7 +33,8 @@ export type DatePiece = Date | null
 export type DateType = DatePiece | [DatePiece, DatePiece]
 
 export interface FetchResponse<T> {
-  isSuccess: boolean
   errorMessage: string
   data: T
+  errors?: Record<string, string>
+  status?: number
 }

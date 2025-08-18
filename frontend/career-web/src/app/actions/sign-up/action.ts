@@ -13,6 +13,7 @@ interface FormState {
     name: string
     email: string
   }
+  status?: number
   errors?: Record<string, string>
 }
 
@@ -61,27 +62,33 @@ export const signUpAction = async (
       throw new z.ZodError(parseResult.error.issues)
     }
 
-    const res = await postSignUp({ accessToken, requestData })
+    const { errorMessage, errors, status } = await postSignUp({
+      accessToken,
+      requestData,
+    })
 
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}))
-
-      if (errorData.errors && typeof errorData.errors === 'object') {
-        return {
-          success: false,
-          message: errorData.message || '입력 정보를 확인해주세요.',
-          errors: errorData.errors,
-          formData: { name, email },
-        }
-      }
-
+    if (status === 401) {
       return {
         success: false,
-        message:
-          errorData.message ||
-          `회원가입에 실패했습니다. 상태코드: ${res.status}`,
+        message: errorMessage,
+        status,
         formData: { name, email },
       }
+    }
+
+    if (errorMessage) {
+      const defaultResponse = {
+        success: false,
+        message: errorMessage,
+
+        formData: { name, email },
+      }
+
+      if (errors) {
+        return { ...defaultResponse, errors }
+      }
+
+      return defaultResponse
     }
 
     setCookie({
