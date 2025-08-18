@@ -64,7 +64,7 @@ public class ReservationResponseDto {
                 .reservationId(reservation.getId())
                 .reservationTime(reservation.getReservationTime())
                 .status(reservation.getStatus())
-                .cancelReason(reservation.getCancelReason())
+                .cancelReason(reservation.getStatus() == ReservationStatus.CANCELED ? reservation.getCancelReason() : null)
                 .mentor(MentorInfo.builder()
                         .mentorId(reservation.getMentor().getId())
                         .name(reservation.getMentor().getUser().getName())

@@ -3,7 +3,7 @@ package com.recareer.backend.mentor.dto;
 import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.mentor.entity.Mentor;
-import com.recareer.backend.mentor.entity.MentoringType;
+import com.recareer.backend.position.dto.PositionDto;
 import com.recareer.backend.user.entity.UserPersonalityTag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,28 +21,21 @@ public class MentorDetailResponseDto {
 
     private Long id;
     private String name;
-    private JobDto job;
+    private PositionDto position;
     private String email;
     private String profileImageUrl;
     private CompanyDto company;
     private Integer experience;
-    private RegionDto region;
+    private ProvinceDto province;
+    private CityDto city;
     private String meetingType;
     private List<PersonalityTagDto> personalityTags;
     private String shortDescription;
     private String introduction;
-    private List<String> skills;
+    private List<SkillDto> skills;
     private List<String> career;
     private FeedbackDto feedback;
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class JobDto {
-        private Long id;
-        private String name;
-    }
 
     @Getter
     @NoArgsConstructor
@@ -57,7 +50,16 @@ public class MentorDetailResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class RegionDto {
+    public static class ProvinceDto {
+        private Long id;
+        private String name;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class CityDto {
         private Long id;
         private String name;
     }
@@ -67,6 +69,15 @@ public class MentorDetailResponseDto {
     @AllArgsConstructor
     @Builder
     public static class PersonalityTagDto {
+        private Long id;
+        private String name;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class SkillDto {
         private Long id;
         private String name;
     }
@@ -94,7 +105,7 @@ public class MentorDetailResponseDto {
     }
 
     public static MentorDetailResponseDto from(Mentor mentor, List<MentorCareer> careers, List<MentorFeedback> feedbacks, Double averageRating, Integer feedbackCount, List<UserPersonalityTag> userPersonalityTags) {
-        String meetingType = convertMentoringType(mentor.getMentoringType());
+        String meetingType = "온라인"; // 미팅 방식은 온라인으로 통일
         
         // 경력 정보 변환
         List<String> careerList = careers.stream()
@@ -148,23 +159,33 @@ public class MentorDetailResponseDto {
         return MentorDetailResponseDto.builder()
                 .id(mentor.getId())
                 .name(mentor.getUser().getName())
-                .job(mentor.getJob() != null ? JobDto.builder()
-                        .id(mentor.getJob().getId())
-                        .name(mentor.getJob().getName())
+                .position(mentor.getPositionEntity() != null ? PositionDto.builder()
+                        .id(mentor.getPositionEntity().getId())
+                        .name(mentor.getPositionEntity().getName())
                         .build() : null)
                 .email(mentor.getUser().getEmail())
                 .profileImageUrl(mentor.getUser().getProfileImageUrl())
                 .company(companyDto)
                 .experience(mentor.getExperience())
-                .region(mentor.getUser() != null && mentor.getUser().getProvince() != null ? RegionDto.builder()
+                .province(mentor.getUser() != null && mentor.getUser().getProvince() != null ? ProvinceDto.builder()
                         .id(mentor.getUser().getProvince().getId())
                         .name(mentor.getUser().getProvince().getName())
+                        .build() : null)
+                .city(mentor.getUser() != null && mentor.getUser().getCity() != null ? CityDto.builder()
+                        .id(mentor.getUser().getCity().getId())
+                        .name(mentor.getUser().getCity().getName())
                         .build() : null)
                 .meetingType(meetingType)
                 .personalityTags(personalityTagDtos)
                 .shortDescription(mentor.getDescription())
                 .introduction(mentor.getIntroduction())
-                .skills(mentor.getSkills() != null ? mentor.getSkills() : List.of())
+                .skills(mentor.getMentorSkills() != null ? 
+                        mentor.getMentorSkills().stream()
+                                .map(mentorSkill -> SkillDto.builder()
+                                        .id(mentorSkill.getSkill().getId())
+                                        .name(mentorSkill.getSkill().getName())
+                                        .build())
+                                .toList() : List.of())
                 .career(careerList)
                 .feedback(FeedbackDto.builder()
                         .rating(averageRating != null ? averageRating : 0.0)
@@ -186,14 +207,4 @@ public class MentorDetailResponseDto {
         }
     }
 
-    private static String convertMentoringType(MentoringType mentoringType) {
-        if (mentoringType == null) {
-            return null;
-        }
-        return switch (mentoringType) {
-            case ONLINE -> "online";
-            case OFFLINE -> "offline";
-            case BOTH -> "both";
-        };
-    }
 }

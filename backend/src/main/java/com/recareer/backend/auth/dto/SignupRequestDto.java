@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -33,9 +32,15 @@ public class SignupRequestDto {
     @NotNull(message = "멘토와 멘티 중 하나를 선택해주세요.")
     private Role role;
 
-    @Schema(description = "지역", example = "경기도 하남시")
-    @NotBlank(message = "지역은 필수입니다.")
-    private String region;
+    @Schema(description = "프로필 이미지 URL (멘토일 때 필수, 멘티일 때 선택)", example = "https://example.com/profile.jpg")
+    private String profileImageUrl;
+
+    @Schema(description = "시/도 ID", example = "1")
+    @NotNull(message = "시/도는 필수입니다.")
+    private Long provinceId;
+
+    @Schema(description = "구/군 ID (선택)", example = "101")
+    private Long cityId;
 
     @Schema(description = "선택한 성향 태그 ID 목록 (최대 5개)", example = "[1, 2, 3]")
     @Size(max = 5, message = "성향 태그는 최대 5개까지 선택할 수 있습니다.")
