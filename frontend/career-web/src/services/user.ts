@@ -5,12 +5,14 @@ import { User } from '@/types/user'
 export const getUserProfile = async (): Promise<User> => {
   const token = await getToken()
 
-  const { data } = await fetchUrl('/user/profile', {
+  const res = await fetchUrl('/user/profile', {
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
   })
+
+  const { data } = await res.json()
 
   return data
 }

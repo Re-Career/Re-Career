@@ -3,7 +3,8 @@ import { fetchUrl } from './api'
 import { searchMentors } from '@/mocks/home/mentors-search'
 
 export const getMentor = async (id: string): Promise<Mentor> => {
-  const { data } = await fetchUrl(`/mentors/${id}`)
+  const res = await fetchUrl(`/mentors/${id}`)
+  const { data } = await res.json()
 
   return data
 }
