@@ -92,7 +92,13 @@ public class UserService {
         }
 
         // 새 이미지 업로드
-        String imageUrl = s3Service.uploadFile(file, "profile-images");
+        String imageUrl;
+        try {
+            imageUrl = s3Service.uploadFile(file, "profile-images");
+        } catch (Exception e) {
+            log.error("S3 upload failed: {}", e.getMessage());
+            throw new IOException("이미지 업로드에 실패했습니다: " + e.getMessage(), e);
+        }
         
         // User 엔티티 업데이트
         user.update(user.getName(), imageUrl);

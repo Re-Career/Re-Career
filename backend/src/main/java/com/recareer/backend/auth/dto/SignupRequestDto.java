@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,9 +32,6 @@ public class SignupRequestDto {
     @Schema(description = "역할", example = "MENTOR")
     @NotNull(message = "멘토와 멘티 중 하나를 선택해주세요.")
     private Role role;
-
-    @Schema(description = "프로필 이미지 URL (MENTOR일 때 필수)", example = "https://example.com/profile.jpg")
-    private String profileImageUrl;
 
     @Schema(description = "지역", example = "경기도 하남시")
     @NotBlank(message = "지역은 필수입니다.")
