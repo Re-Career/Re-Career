@@ -65,10 +65,11 @@ class MentorControllerTest {
         }
     }
 
-    // @Test - 데이터 의존성으로 인한 임시 비활성화
-    @DisplayName("기본 멘토 조회 테스트")
-    void getMentors_Basic_DISABLED() throws Exception {
+    @Test
+    @DisplayName("기본 멘토 조회 테스트 - GET /mentors")
+    void getMentors_Basic() throws Exception {
         mockMvc.perform(get("/mentors")
+                        .param("provinceId", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray());
@@ -138,8 +139,7 @@ class MentorControllerTest {
         if (position != null && province != null && personalityTag != null) {
             mockMvc.perform(get("/mentors/search")
                             .param("positionIds", position.getId().toString())
-                            .param("minYears", "1")
-                            .param("maxYears", "5")
+                            .param("experiences", "1-3년", "4-6년")
                             .param("provinceIds", province.getId().toString())
                             .param("personalityTagIds", personalityTag.getId().toString())
                             .contentType(MediaType.APPLICATION_JSON))

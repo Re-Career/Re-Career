@@ -53,7 +53,7 @@ public class PositionService {
     }
 
     @Transactional(readOnly = true)
-    public RegionPositionResponseDto getPositionsByRegion(Long provinceId, Long cityId) {
+    public RegionPositionResponseDto getPositionsByProvince(Long provinceId, Long cityId) {
         List<PositionSimpleDto> positions;
         String resultProvince = "서울특별시";
         String resultCity = null;
@@ -79,8 +79,7 @@ public class PositionService {
         }
         
         // 지역 기반 멘토 position count 조회
-        String regionName = resultCity != null ? resultCity : resultProvince;
-        List<Object[]> positionCounts = mentorRepository.countPositionsByLocation(regionName);
+        List<Object[]> positionCounts = mentorRepository.countPositionsByProvinceId(finalProvinceId);
         
         if (positionCounts.size() >= 4) {
             // 4개 이상이면 상위 4개의 position name으로 Position 조회

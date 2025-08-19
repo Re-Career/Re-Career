@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import java.util.Optional;
+
 @Repository
 public interface PositionRepository extends JpaRepository<Position, Long> {
     List<Position> findByTrendRankIsNotNullAndTrendRankLessThanEqualOrderByTrendRankAsc(Integer trendRank);
@@ -16,4 +18,6 @@ public interface PositionRepository extends JpaRepository<Position, Long> {
     List<Position> findRandomPositionsWithNullTrendRank(@Param("limit") int limit);
     
     List<Position> findByNameIn(List<String> names);
+
+    Optional<Position> findByName(String name);
 }

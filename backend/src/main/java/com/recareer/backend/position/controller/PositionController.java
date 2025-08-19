@@ -21,12 +21,12 @@ public class PositionController {
 
     private final PositionService positionService;
 
-    @GetMapping("/by-region")
+    @GetMapping("/by-province")
     @Operation(summary = "지역별 직무 조회", description = "특정 지역(시/도 또는 구/군)의 멘토가 많은 직무 4개 또는 랜덤 직무 4개를 조회합니다.")
-    public ResponseEntity<ApiResponse<RegionPositionResponseDto>> getPositionsByRegion(
+    public ResponseEntity<ApiResponse<RegionPositionResponseDto>> getPositionsByProvince(
             @RequestParam(required = false) Long provinceId,
             @RequestParam(required = false) Long cityId) {
-        RegionPositionResponseDto response = positionService.getPositionsByRegion(provinceId, cityId);
+        RegionPositionResponseDto response = positionService.getPositionsByProvince(provinceId, cityId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
