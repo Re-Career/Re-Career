@@ -7,14 +7,14 @@ import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorCreateResponseDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
-import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
 import com.recareer.backend.mentor.dto.MentorListResponseDto;
 import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.dto.MentorUpdateRequestDto;
 import com.recareer.backend.mentor.dto.MentorUpdateResponseDto;
-import com.recareer.backend.mentor.dto.FilterOptionsResponseDto;
+import com.recareer.backend.mentor.dto.MentorSearchRequestDto;
+import com.recareer.backend.mentor.dto.MentorFiltersResponseDto;
+import com.recareer.backend.mentor.dto.MentorListResponse;
 import com.recareer.backend.mentor.entity.Mentor;
-import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.service.MentorService;
 import com.recareer.backend.auth.service.JwtTokenProvider;
 import com.recareer.backend.reservation.dto.ReservationListResponseDto;
@@ -108,36 +108,27 @@ public class MentorController {
         }
     }
 
-    @PostMapping("/search")
-    @Operation(summary = "멘토 찾기 - 결과 조회", description = "직업/경험/미팅방식으로 필터링한 멘토를 조회합니다.")
-    public ResponseEntity<ApiResponse<List<MentorSummaryResponseDto>>> searchMentorsByFilters(
-            @RequestBody MentorFilterRequestDto filterRequest) {
+    @GetMapping("/search")
+    @Operation(summary = "멘토 검색", description = "키워드, 직업, 경력, 지역, 성향으로 멘토를 검색합니다. 모든 파라미터가 없으면 전체 멘토를 반환합니다.")
+    public ResponseEntity<ApiResponse<MentorListResponse>> searchMentors(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) List<Long> positionIds,
+            @RequestParam(required = false) String experience,
+            @RequestParam(required = false) List<Long> provinceIds,
+            @RequestParam(required = false) List<Long> personalityTagIds) {
         
         try {
-            List<MentorSummaryResponseDto> mentors = mentorService.getMentorsByFilters(filterRequest);
+            MentorSearchRequestDto searchRequest = new MentorSearchRequestDto(
+                keyword, positionIds, experience, provinceIds, personalityTagIds
+            );
+            MentorListResponse mentors = mentorService.searchMentors(searchRequest);
             return ResponseEntity.ok(ApiResponse.success(mentors));
             
         } catch (Exception e) {
-            log.error("Search mentors by filters failed: {}", e.getMessage());
+            log.error("Search mentors failed: {}", e.getMessage());
             return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 검색에 실패했습니다."));
         }
     }
-
-//    @GetMapping("/search/list")
-//    @Operation(summary = "멘토 찾기 - 리스트 조회", description = "모든 멘토를 조회합니다.")
-//    public ResponseEntity<ApiResponse<List<MentorSummaryResponseDto>>> getMentorsList() {
-//
-//        try {
-//            // 빈 필터로 모든 멘토 조회
-//            MentorFilterRequestDto emptyFilter = MentorFilterRequestDto.builder().build();
-//            List<MentorSummaryResponseDto> mentors = mentorService.getMentorsByFilters(emptyFilter);
-//            return ResponseEntity.ok(ApiResponse.success(mentors));
-//
-//        } catch (Exception e) {
-//            log.error("Get mentors list failed: {}", e.getMessage());
-//            return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 목록 조회에 실패했습니다."));
-//        }
-//    }
 
     @GetMapping("/{id}")
     @Operation(summary = "멘토 프로필 조회", description = "멘토의 프로필을 조회합니다")
@@ -235,14 +226,14 @@ public class MentorController {
         }
     }
 
-    @GetMapping("/filter-options")
-    @Operation(summary = "멘토 필터 옵션 조회", description = "멘토 검색에 사용할 수 있는 필터 옵션들을 조회합니다")
-    public ResponseEntity<ApiResponse<List<FilterOptionsResponseDto>>> getFilterOptions() {
+    @GetMapping("/filters")
+    @Operation(summary = "멘토 필터 옵션 조회", description = "멘토 검색에 사용하는 직업, 지역, 성향 필터 옵션들을 조회합니다")
+    public ResponseEntity<ApiResponse<MentorFiltersResponseDto>> getFilters() {
         try {
-            List<FilterOptionsResponseDto> filterOptions = mentorService.getFilterOptions();
-            return ResponseEntity.ok(ApiResponse.success(filterOptions));
+            MentorFiltersResponseDto filters = mentorService.getFilters();
+            return ResponseEntity.ok(ApiResponse.success(filters));
         } catch (Exception e) {
-            log.error("Get filter options failed: {}", e.getMessage());
+            log.error("Get filters failed: {}", e.getMessage());
             return ResponseEntity.internalServerError().body(ApiResponse.error("필터 옵션 조회에 실패했습니다."));
         }
     }
