@@ -14,7 +14,6 @@ import com.recareer.backend.mentor.dto.MentorUpdateRequestDto;
 import com.recareer.backend.mentor.dto.MentorUpdateResponseDto;
 import com.recareer.backend.mentor.dto.FilterOptionsResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
-import com.recareer.backend.mentor.entity.MentoringType;
 import com.recareer.backend.mentor.service.MentorService;
 import com.recareer.backend.auth.service.JwtTokenProvider;
 import com.recareer.backend.reservation.dto.ReservationListResponseDto;
@@ -157,7 +156,7 @@ public class MentorController {
         if (!userId.equals(id)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
         }
-        return mentorService.updateMentor(id, requestDto.getJobId(), requestDto.getDescription(), requestDto.getIntroduction(), requestDto.getExperience(), requestDto.getSkillIds())
+        return mentorService.updateMentor(id, requestDto.getPositionId(), requestDto.getDescription(), requestDto.getIntroduction(), requestDto.getExperience(), requestDto.getSkillIds())
                 .map(mentor -> ResponseEntity.ok(ApiResponse.success("멘토 정보가 성공적으로 수정되었습니다.", MentorUpdateResponseDto.from(mentor))))
                 .orElse(ResponseEntity.status(404).body(ApiResponse.error("해당 멘토를 찾을 수 없습니다.")));
     }
@@ -242,3 +241,6 @@ public class MentorController {
         }
     }
 }
+
+//IS 40만원 - 2만 + 320만 = 358만
+//

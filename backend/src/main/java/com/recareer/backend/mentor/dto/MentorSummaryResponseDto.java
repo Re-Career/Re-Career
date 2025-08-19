@@ -32,7 +32,7 @@ public class MentorSummaryResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class JobDto {
+    public static class PositionDto {
         private Long id;
         private String name;
     }
