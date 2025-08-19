@@ -12,6 +12,7 @@ import com.recareer.backend.common.repository.ProvinceRepository;
 import com.recareer.backend.common.entity.Province;
 import com.recareer.backend.skill.entity.MentorSkill;
 import com.recareer.backend.skill.entity.Skill;
+import com.recareer.backend.skill.repository.MentorSkillRepository;
 import com.recareer.backend.skill.repository.SkillRepository;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.feedback.repository.MentorFeedbackRepository;
@@ -59,6 +60,7 @@ public class MentorServiceImpl implements MentorService {
     private final CompanyRepository companyRepository;
     private final ProvinceRepository provinceRepository;
     private final SkillRepository skillRepository;
+    private final MentorSkillRepository mentorSkillRepository;
 
     private static final Long DEFAULT_PROVINCE_ID = 1L; // 서울특별시
 
@@ -103,7 +105,7 @@ public class MentorServiceImpl implements MentorService {
                             .skill(skill)
                             .build())
                     .toList();
-            savedMentor.getMentorSkills().addAll(mentorSkills);
+            mentorSkillRepository.saveAll(mentorSkills);
         }
         
         return savedMentor;
@@ -146,18 +148,15 @@ public class MentorServiceImpl implements MentorService {
     public Optional<MentorDetailResponseDto> getMentorDetailById(Long id) {
         return mentorRepository.findById(id)
                 .map(mentor -> {
-                    // 연관관계를 통해 경력 정보 조회 (정렬 필요시 별도 쿼리 사용)
+                    // 연관 데이터 조회 (각각 별도 쿼리로 성능 최적화)
                     List<MentorCareer> careers = mentorCareerRepository.findByMentorOrderByDisplayOrderAscStartDateDesc(mentor);
-                    
-                    // 연관관계를 통해 피드백 정보 조회 (visible한 것만 필터링)
                     List<MentorFeedback> feedbacks = mentorFeedbackRepository.findByMentorAndIsVisibleTrueWithUser(mentor);
                     Double averageRating = mentorFeedbackRepository.getAverageRatingByMentor(mentor);
                     Integer feedbackCount = mentorFeedbackRepository.countByMentorAndIsVisibleTrue(mentor);
-                    
-                    // 멘토의 성향 태그 조회
                     List<UserPersonalityTag> userPersonalityTags = userPersonalityTagRepository.findByUserId(mentor.getUser().getId());
+                    List<MentorSkill> mentorSkills = mentorSkillRepository.findByMentorWithSkill(mentor);
                     
-                    return MentorDetailResponseDto.from(mentor, careers, feedbacks, averageRating, feedbackCount, userPersonalityTags);
+                    return MentorDetailResponseDto.from(mentor, careers, feedbacks, averageRating, feedbackCount, userPersonalityTags, mentorSkills);
                 });
     }
 
@@ -282,7 +281,7 @@ public class MentorServiceImpl implements MentorService {
                     mentor.update(position, mentor.getCompany(), description, introduction, experience);
 
                     // 기존 MentorSkill 관계 제거 후 새로 생성
-                    mentor.getMentorSkills().clear();
+                    mentorSkillRepository.deleteByMentor(mentor);
                     if (skillIds != null && !skillIds.isEmpty()) {
                         List<Skill> skills = skillRepository.findByIdIn(skillIds);
                         List<MentorSkill> mentorSkills = skills.stream()
@@ -291,7 +290,7 @@ public class MentorServiceImpl implements MentorService {
                                         .skill(skill)
                                         .build())
                                 .toList();
-                        mentor.getMentorSkills().addAll(mentorSkills);
+                        mentorSkillRepository.saveAll(mentorSkills);
                     }
                     
                     return mentorRepository.save(mentor);

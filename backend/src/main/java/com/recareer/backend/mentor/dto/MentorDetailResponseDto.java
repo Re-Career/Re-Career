@@ -4,6 +4,7 @@ import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.position.dto.PositionDto;
+import com.recareer.backend.skill.entity.MentorSkill;
 import com.recareer.backend.user.entity.UserPersonalityTag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -104,7 +105,7 @@ public class MentorDetailResponseDto {
         private String date;
     }
 
-    public static MentorDetailResponseDto from(Mentor mentor, List<MentorCareer> careers, List<MentorFeedback> feedbacks, Double averageRating, Integer feedbackCount, List<UserPersonalityTag> userPersonalityTags) {
+    public static MentorDetailResponseDto from(Mentor mentor, List<MentorCareer> careers, List<MentorFeedback> feedbacks, Double averageRating, Integer feedbackCount, List<UserPersonalityTag> userPersonalityTags, List<MentorSkill> mentorSkills) {
         String meetingType = "온라인"; // 미팅 방식은 온라인으로 통일
         
         // 경력 정보 변환
@@ -179,8 +180,8 @@ public class MentorDetailResponseDto {
                 .personalityTags(personalityTagDtos)
                 .shortDescription(mentor.getDescription())
                 .introduction(mentor.getIntroduction())
-                .skills(mentor.getMentorSkills() != null ? 
-                        mentor.getMentorSkills().stream()
+                .skills(mentorSkills != null ? 
+                        mentorSkills.stream()
                                 .map(mentorSkill -> SkillDto.builder()
                                         .id(mentorSkill.getSkill().getId())
                                         .name(mentorSkill.getSkill().getName())
