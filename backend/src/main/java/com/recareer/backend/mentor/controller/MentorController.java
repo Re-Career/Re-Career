@@ -142,9 +142,14 @@ public class MentorController {
     @GetMapping("/{id}")
     @Operation(summary = "멘토 프로필 조회", description = "멘토의 프로필을 조회합니다")
     public ResponseEntity<ApiResponse<MentorDetailResponseDto>> getMentorById(@PathVariable Long id) {
-        return mentorService.getMentorDetailById(id)
-                .map(dto -> ResponseEntity.ok(ApiResponse.success(dto)))
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return mentorService.getMentorDetailById(id)
+                    .map(dto -> ResponseEntity.ok(ApiResponse.success(dto)))
+                    .orElse(ResponseEntity.status(404).body(ApiResponse.error("해당 멘토를 찾을 수 없습니다.")));
+        } catch (Exception e) {
+            log.error("Error getting mentor by id {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(500).body(ApiResponse.error("멘토 정보 조회 중 오류가 발생했습니다."));
+        }
     }
 
     @PutMapping("/{id}")
