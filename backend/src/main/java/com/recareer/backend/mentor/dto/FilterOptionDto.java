@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,5 +14,4 @@ import java.util.List;
 public class FilterOptionDto {
     private Object id;
     private String name;
-    private List<FilterOptionDto> cities;
 }
