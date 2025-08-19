@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 public class MentorUpdateRequestDto {
 
-    private Long jobId;
+    private Long positionId;
     private String description;
     private String introduction;
     private Integer experience;

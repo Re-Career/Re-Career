@@ -30,7 +30,7 @@ public interface MentorService {
     
     List<MentorSummaryResponseDto> getMentorsByFilters(MentorFilterRequestDto filterRequest);
     
-    Optional<Mentor> updateMentor(Long id, Long jobId, String description, String introduction, Integer experience, List<Long> skillIds);
+    Optional<Mentor> updateMentor(Long id, Long positionId, String description, String introduction, Integer experience, List<Long> skillIds);
     
     List<Reservation> getMentorReservations(Long mentorId);
 
