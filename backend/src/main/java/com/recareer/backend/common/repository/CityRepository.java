@@ -7,7 +7,11 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
+import java.util.Optional;
+
 public interface CityRepository extends JpaRepository<City, Long> {
     @Query("SELECT c FROM City c WHERE c.province.id = :provinceId")
     List<City> findByProvinceId(@Param("provinceId") Long provinceId);
+
+    Optional<City> findByName(String name);
 }

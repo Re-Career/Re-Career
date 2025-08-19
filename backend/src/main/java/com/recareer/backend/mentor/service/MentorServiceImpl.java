@@ -126,15 +126,15 @@ public class MentorServiceImpl implements MentorService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MentorSummaryResponseDto> getMentorsByRegion(String region) {
-        if (region == null || region.trim().isEmpty()) {
-            region = "서울";
+    public List<MentorSummaryResponseDto> getMentorsByProvince(Long provinceId) {
+        if (provinceId == null) {
+            provinceId = DEFAULT_PROVINCE_ID;
         }
 
-        log.info("Finding mentors by region: {}", region);
+        log.info("Finding mentors by province: {}", provinceId);
 
         // 1. 지역별 멘토 조회 (User 정보까지 Fetch Join)
-        List<Mentor> mentors = mentorRepository.findByUserLocationContainsWithUser(region);
+        List<Mentor> mentors = mentorRepository.findByUserProvinceIdWithUser(provinceId);
 
         // 2. 각 멘토에 대한 추가 정보 조회
         return mentors.stream()
@@ -169,12 +169,12 @@ public class MentorServiceImpl implements MentorService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Mentor> getMentorsByRegionAndPersonalityTags(List<String> regions, String providerId) {
-        if (regions == null || regions.isEmpty()) {
-            regions = List.of("서울");
+    public List<Mentor> getMentorsByProvinceAndPersonalityTags(List<Long> provinceIds, String providerId) {
+        if (provinceIds == null || provinceIds.isEmpty()) {
+            provinceIds = List.of(DEFAULT_PROVINCE_ID);
         }
 
-        log.info("Finding mentors by user personality tags - providerId: {}, regions: {}", providerId, regions);
+        log.info("Finding mentors by user personality tags - providerId: {}, provinceIds: {}", providerId, provinceIds);
 
         // 1. providerId로 User 조회
         User user = userRepository.findByProviderId(providerId)
@@ -190,14 +190,14 @@ public class MentorServiceImpl implements MentorService {
 
         if (personalityTagIds.isEmpty()) {
             // personalityTags가 없으면 기존 방식으로 조회
-            log.info("Finding mentors in regions: {} (no personality filtering)", regions);
-            return getMentorsByRegions(regions);
+            log.info("Finding mentors in provinces: {} (no personality filtering)", provinceIds);
+            return getMentorsByProvinces(provinceIds);
         }
 
-        log.info("Finding mentors in regions: {} with personality tags: {}", regions, personalityTagIds);
+        log.info("Finding mentors in provinces: {} with personality tags: {}", provinceIds, personalityTagIds);
         
         // 3. 지역별 멘토 조회 (User 정보까지 Fetch Join)
-        List<Mentor> allMentors = getMentorsByRegionsWithUser(regions);
+        List<Mentor> allMentors = getMentorsByProvincesWithUser(provinceIds);
         
         // 4. 모든 멘토의 UserId 추출
         List<Long> userIds = allMentors.stream()
@@ -228,51 +228,7 @@ public class MentorServiceImpl implements MentorService {
                 .toList();
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<Mentor> getMentorsByPriorityFilters(String providerId, List<String> regions, String position, String experience) {
-        log.info("Finding mentors by priority filters - providerId: {}, regions: {}, position: {}, experience: {}", 
-                providerId, regions, position, experience);
-
-        // 1순위: 사용자 기반 지역/성향 매칭
-        List<Mentor> primaryMentors = getMentorsByRegionAndPersonalityTags(regions, providerId);
-        
-        // 2순위 필터링이 없으면 1순위 결과만 반환
-        if ((position == null || position.trim().isEmpty()) && 
-            (experience == null || experience.trim().isEmpty())) {
-            return primaryMentors;
-        }
-        
-        // 2순위 필터링 적용 (미팅 방식은 모두 온라인으로 통일되었으므로 제거)
-        return primaryMentors.stream()
-                .filter(mentor -> {
-                    if (position != null && !position.trim().isEmpty()) {
-                        return mentor.getPosition() != null && 
-                               mentor.getPosition().toLowerCase().contains(position.toLowerCase());
-                    }
-                    return true;
-                })
-                .filter(mentor -> {
-                    if (experience != null && !experience.trim().isEmpty()) {
-                        return matchesExperienceRange(mentor.getExperience(), experience);
-                    }
-                    return true;
-                })
-                .toList(); // 1순위에서 이미 정렬되어 있으므로 추가 정렬 불필요
-    }
-
-    private boolean matchesExperienceRange(Integer mentorExperience, String experienceRange) {
-        if (mentorExperience == null) {
-            return false;
-        }
-        
-        return switch (experienceRange) {
-            case "1-3년" -> mentorExperience >= 1 && mentorExperience <= 3;
-            case "4-6년" -> mentorExperience >= 4 && mentorExperience <= 6;
-            case "7년 이상" -> mentorExperience >= 7;
-            default -> true;
-        };
-    }
+    
 
     @Override
     @Transactional
@@ -356,9 +312,9 @@ public class MentorServiceImpl implements MentorService {
     /**
      * 여러 지역에 대한 멘토 조회
      */
-    private List<Mentor> getMentorsByRegions(List<String> regions) {
-        return regions.stream()
-                .flatMap(region -> mentorRepository.findByUserLocationContains(region).stream())
+    private List<Mentor> getMentorsByProvinces(List<Long> provinceIds) {
+        return provinceIds.stream()
+                .flatMap(provinceId -> mentorRepository.findByUserProvinceId(provinceId).stream())
                 .distinct()
                 .toList();
     }
@@ -366,9 +322,9 @@ public class MentorServiceImpl implements MentorService {
     /**
      * 여러 지역에 대한 멘토 조회 (User 정보 포함)
      */
-    private List<Mentor> getMentorsByRegionsWithUser(List<String> regions) {
-        return regions.stream()
-                .flatMap(region -> mentorRepository.findByUserLocationContainsWithUser(region).stream())
+    private List<Mentor> getMentorsByProvincesWithUser(List<Long> provinceIds) {
+        return provinceIds.stream()
+                .flatMap(provinceId -> mentorRepository.findByUserProvinceIdWithUser(provinceId).stream())
                 .distinct()
                 .toList();
     }
@@ -550,8 +506,8 @@ public class MentorServiceImpl implements MentorService {
     @Override
     @Transactional(readOnly = true)
     public MentorListResponse searchMentors(MentorSearchRequestDto searchRequest) {
-        log.info("Searching mentors with filters - keyword: {}, positionIds: {}, experience: {}, provinceIds: {}, personalityTagIds: {}",
-                searchRequest.keyword(), searchRequest.positionIds(), searchRequest.experience(), 
+        log.info("Searching mentors with filters - keyword: {}, positionIds: {}, experiences: {}, provinceIds: {}, personalityTagIds: {}",
+                searchRequest.keyword(), searchRequest.positionIds(), searchRequest.experiences(), 
                 searchRequest.provinceIds(), searchRequest.personalityTagIds());
 
         // 모든 검증된 멘토 조회 (N+1 방지를 위한 fetch join)
@@ -577,9 +533,9 @@ public class MentorServiceImpl implements MentorService {
                         if (!positionMatches) return false;
                     }
                     
-                    // Experience 문자열 필터링 (기존 방식)
-                    if (searchRequest.experience() != null && !searchRequest.experience().isBlank()) {
-                        if (!matchesExperienceRange(mentor.getExperience(), searchRequest.experience())) {
+                    // Experience 문자열 필터링
+                    if (searchRequest.experiences() != null && !searchRequest.experiences().isEmpty()) {
+                        if (!matchesExperienceRanges(mentor.getExperience(), searchRequest.experiences())) {
                             return false;
                         }
                     }
@@ -646,6 +602,36 @@ public class MentorServiceImpl implements MentorService {
                 .collect(Collectors.toList());
 
         return MentorListResponse.of(mentorCards);
+    }
+
+    private boolean matchesExperienceRanges(Integer mentorExperience, List<String> experienceRanges) {
+        if (mentorExperience == null) {
+            return false;
+        }
+        if (experienceRanges == null || experienceRanges.isEmpty()) {
+            return true; // No filter, so everything matches
+        }
+
+        for (String experienceRange : experienceRanges) {
+            if (matchesExperienceRange(mentorExperience, experienceRange)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean matchesExperienceRange(Integer mentorExperience, String experienceRange) {
+        if (mentorExperience == null || experienceRange == null || experienceRange.isBlank()) {
+            return false;
+        }
+        
+        return switch (experienceRange) {
+            case "1-3년" -> mentorExperience >= 1 && mentorExperience <= 3;
+            case "4-6년" -> mentorExperience >= 4 && mentorExperience <= 6;
+            case "7년 이상" -> mentorExperience >= 7;
+            default -> false;
+        };
     }
 
 

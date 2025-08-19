@@ -25,11 +25,9 @@ public interface MentorService {
     
     Optional<MentorDetailResponseDto> getMentorDetailById(Long id);
 
-    List<MentorSummaryResponseDto> getMentorsByRegion(String region);
+    List<MentorSummaryResponseDto> getMentorsByProvince(Long provinceId);
 
-    List<Mentor> getMentorsByRegionAndPersonalityTags(List<String> regions, String providerId);
-
-    List<Mentor> getMentorsByPriorityFilters(String providerId, List<String> regions, String position, String experience);
+    List<Mentor> getMentorsByProvinceAndPersonalityTags(List<Long> provinceIds, String providerId);
     
     Optional<Mentor> updateMentor(Long id, Long jobId, String description, String introduction, Integer experience, List<Long> skillIds);
     

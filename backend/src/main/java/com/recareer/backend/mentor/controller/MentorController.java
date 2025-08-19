@@ -62,49 +62,15 @@ public class MentorController {
     }
 
     @GetMapping
-    @Operation(summary = "홈 - 당신을 위한 멘토들", description = "유저가 속한 지역의 멘토 리스트를 조회합니다")
-    public ResponseEntity<ApiResponse<List<MentorSummaryResponseDto>>> getMentorsByRegion(
-            @RequestParam(required = false, defaultValue = "서울") String region) {
+    @Operation(summary = "홈 - 당신을 위한 멘토들", description = "유저가 속한 지역(จังหวัด)의 멘토 리스트를 조회합니다")
+    public ResponseEntity<ApiResponse<List<MentorSummaryResponseDto>>> getMentorsByProvince(
+            @RequestParam(required = false, defaultValue = "1") Long provinceId) {
         try {
-            List<MentorSummaryResponseDto> mentors = mentorService.getMentorsByRegion(region);
+            List<MentorSummaryResponseDto> mentors = mentorService.getMentorsByProvince(provinceId);
             return ResponseEntity.ok(ApiResponse.success(mentors));
         } catch (Exception e) {
-            log.error("Get mentors by region failed: {}", e.getMessage());
+            log.error("Get mentors by province failed: {}", e.getMessage());
             return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 목록 조회에 실패했습니다."));
-        }
-    }
-
-
-    @GetMapping("/search/recommended")
-    @Operation(summary = "멘토 찾기 - 추천 매칭", description = "필터링 우선순위대로 멘토를 추천합니다. 1순위: 지역/성향, 2순위: 직업/경험/미팅방식")
-    public ResponseEntity<ApiResponse<List<MentorListResponseDto>>> getSearchRecommendedMentors(
-            @RequestHeader("Authorization") String accessToken,
-            @RequestParam(required = false) List<String> regions,
-            @RequestParam(required = false) String position,
-            @RequestParam(required = false) String experience) {
-        
-        try {
-            String token = accessToken.replace("Bearer ", "");
-            
-            if (!jwtTokenProvider.validateToken(token)) {
-                return ResponseEntity.status(401)
-                        .body(ApiResponse.error("유효하지 않은 토큰입니다."));
-            }
-
-            String providerId = jwtTokenProvider.getProviderIdFromToken(token);
-            
-            // 필터링 우선순위대로 멘토 추천
-            List<Mentor> mentors = mentorService.getMentorsByPriorityFilters(
-                providerId, regions, position, experience);
-            
-            List<MentorListResponseDto> mentorDtos = mentors.stream()
-                    .map(MentorListResponseDto::from)
-                    .toList();
-            return ResponseEntity.ok(ApiResponse.success(mentorDtos));
-            
-        } catch (Exception e) {
-            log.error("Get search recommended mentors failed: {}", e.getMessage());
-            return ResponseEntity.internalServerError().body(ApiResponse.error("추천 매칭 조회에 실패했습니다."));
         }
     }
 
@@ -113,13 +79,13 @@ public class MentorController {
     public ResponseEntity<ApiResponse<MentorListResponse>> searchMentors(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) List<Long> positionIds,
-            @RequestParam(required = false) String experience,
+            @RequestParam(required = false) List<String> experiences,
             @RequestParam(required = false) List<Long> provinceIds,
             @RequestParam(required = false) List<Long> personalityTagIds) {
         
         try {
             MentorSearchRequestDto searchRequest = new MentorSearchRequestDto(
-                keyword, positionIds, experience, provinceIds, personalityTagIds
+                keyword, positionIds, experiences, provinceIds, personalityTagIds
             );
             MentorListResponse mentors = mentorService.searchMentors(searchRequest);
             return ResponseEntity.ok(ApiResponse.success(mentors));
