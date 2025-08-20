@@ -1,5 +1,6 @@
 package com.recareer.backend.mentoringRecord.controller;
 
+import com.recareer.backend.reservation.dto.ReservationListResponseDto;
 import com.recareer.backend.mentoringRecord.dto.MentoringRecordListResponseDto;
 import com.recareer.backend.mentoringRecord.dto.MentoringRecordRequestDto;
 import com.recareer.backend.mentoringRecord.dto.MentoringRecordResponseDto;
@@ -13,12 +14,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/mentoring-records")
 @RequiredArgsConstructor
@@ -29,27 +32,42 @@ public class MentoringRecordController {
     private final AuthUtil authUtil;
     private final ReservationService reservationService;
 
-    @GetMapping
-    @Operation(summary = "완료된 상담 리스트 조회", description = "특정 유저의 완료된 멘토링 기록 목록을 조회합니다.")
-    public ResponseEntity<ApiResponse<List<MentoringRecordListResponseDto>>> getCompletedMentoringRecords(
+    //    @GetMapping
+//    @Operation(summary = "완료된 상담 리스트 조회", description = "특정 유저의 완료된 멘토링 기록 목록을 조회합니다.")
+//    public ResponseEntity<ApiResponse<List<MentoringRecordListResponseDto>>> getCompletedMentoringRecords(
+//            @RequestHeader("Authorization") String accessToken,
+//            @RequestParam Long userId) {
+//        
+//        try {
+//            Long requestUserId = authUtil.validateTokenAndGetUserId(accessToken);
+//            
+//            // 자신의 완료된 상담 기록만 조회 가능
+//            if (!requestUserId.equals(userId)) {
+//                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+//                        .body(ApiResponse.error("본인의 완료된 상담 기록만 조회할 수 있습니다"));
+//            }
+//            
+//            List<MentoringRecordListResponseDto> response = mentoringRecordService.findCompletedMentoringRecordsListByUserId(userId);
+//            return ResponseEntity.ok(ApiResponse.success(response));
+//            
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                    .body(ApiResponse.error(e.getMessage()));
+//        }
+//    }
+
+    @GetMapping("/my/reservations")
+    @Operation(summary = "내 상담 목록 조회 (멘티)", description = "로그인한 사용자의 상담 예약 목록을 상태별로 조회합니다.")
+    public ResponseEntity<ApiResponse<List<ReservationListResponseDto>>> getMyReservations(
             @RequestHeader("Authorization") String accessToken,
-            @RequestParam Long userId) {
-        
+            @RequestParam(required = false) String status) {
+        Long userId = authUtil.validateTokenAndGetUserId(accessToken);
         try {
-            Long requestUserId = authUtil.validateTokenAndGetUserId(accessToken);
-            
-            // 자신의 완료된 상담 기록만 조회 가능
-            if (!requestUserId.equals(userId)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(ApiResponse.error("본인의 완료된 상담 기록만 조회할 수 있습니다"));
-            }
-            
-            List<MentoringRecordListResponseDto> response = mentoringRecordService.findCompletedMentoringRecordsListByUserId(userId);
-            return ResponseEntity.ok(ApiResponse.success(response));
-            
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error(e.getMessage()));
+            List<ReservationListResponseDto> reservations = reservationService.getReservationsByUserId(userId, status);
+            return ResponseEntity.ok(ApiResponse.success(reservations));
+        } catch (Exception e) {
+            log.error("Failed to get reservations for user {}: {}", userId, e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(ApiResponse.error("상담 목록 조회에 실패했습니다."));
         }
     }
 

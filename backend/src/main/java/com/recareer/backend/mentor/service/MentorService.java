@@ -1,12 +1,14 @@
 package com.recareer.backend.mentor.service;
 
 import com.recareer.backend.availableTime.entity.AvailableTime;
-import com.recareer.backend.feedback.entity.MentorFeedback;
+import com.recareer.backend.feedback.dto.MentorFeedbackListResponseDto;
 import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
-import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
 import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
-import com.recareer.backend.mentor.dto.FilterOptionsResponseDto;
+import com.recareer.backend.mentor.dto.MentorSearchRequestDto;
+import com.recareer.backend.mentor.dto.MentorFiltersResponseDto;
+import com.recareer.backend.mentor.dto.MentorSearchResponse;
+import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.reservation.entity.Reservation;
 
@@ -22,12 +24,8 @@ public interface MentorService {
     
     Optional<MentorDetailResponseDto> getMentorDetailById(Long id);
 
-    List<MentorSummaryResponseDto> getMentorsByRegion(String region);
+    List<MentorSummaryResponseDto> getMentorsByProvince(Long provinceId);
 
-    List<Mentor> getMentorsByRegionAndPersonalityTags(List<String> regions, String providerId);
-
-    List<Mentor> getMentorsByPriorityFilters(String providerId, List<String> regions, String position, String experience);
-    
     List<MentorSummaryResponseDto> getMentorsByFilters(MentorFilterRequestDto filterRequest);
     
     Optional<Mentor> updateMentor(Long id, Long positionId, String description, String introduction, Integer experience, List<Long> skillIds);
@@ -38,7 +36,9 @@ public interface MentorService {
     
     AvailableTime createMentorAvailableTime(Long mentorId, LocalDateTime availableTime);
     
-    List<MentorFeedback> getMentorFeedbacks(Long mentorId);
+    MentorFeedbackListResponseDto getMentorFeedbacks(Long mentorId);
     
-    List<FilterOptionsResponseDto> getFilterOptions();
+    MentorFiltersResponseDto getFilters();
+
+    MentorSearchResponse searchMentorsWithPrimarySecondary(MentorSearchRequestDto searchRequest);
 }

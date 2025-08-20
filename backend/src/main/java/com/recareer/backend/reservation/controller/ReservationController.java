@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/reservations")
+@RequestMapping("/my/reservations")
 @RequiredArgsConstructor
 @Tag(name = "Reservation", description = "예약 관련 API")
 public class ReservationController {
@@ -27,7 +27,7 @@ public class ReservationController {
   private final AuthUtil authUtil;
 
   @GetMapping
-  @Operation(summary = "예약 목록 조회", description = "특정 유저의 모든 멘토링 예약 목록을 조회합니다.")
+  @Operation(summary = "예약 목록 조회", description = "유저의 모든 멘토링 예약 목록을 조회합니다.")
   public ResponseEntity<ApiResponse<List<ReservationResponseDto>>> getReservations(
       @RequestHeader("Authorization") String accessToken,
       @RequestParam Long userId) {

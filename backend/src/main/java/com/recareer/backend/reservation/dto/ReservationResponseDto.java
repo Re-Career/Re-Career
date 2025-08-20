@@ -24,16 +24,12 @@ public class ReservationResponseDto {
     // 예약 상태
     private ReservationStatus status;
     
-    
     // 취소 사유 (취소된 경우에만)
     private String cancelReason;
     
     // 멘토 정보
     private MentorInfo mentor;
     
-    // 유저 정보 
-    private UserInfo user;
-
     @Getter
     @Builder
     @NoArgsConstructor
@@ -41,21 +37,17 @@ public class ReservationResponseDto {
     public static class MentorInfo {
         private Long mentorId;
         private String name;
-        private String email;
-        private String position;
+        private PositionDto position;
         private String profileImageUrl;
-        private Boolean isVerified;
     }
 
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UserInfo {
-        private Long userId;
+    public static class PositionDto {
+        private Long id;
         private String name;
-        private String email;
-        private String profileImageUrl;
     }
 
     // Entity를 DTO로 변환하는 정적 메소드
@@ -68,16 +60,11 @@ public class ReservationResponseDto {
                 .mentor(MentorInfo.builder()
                         .mentorId(reservation.getMentor().getId())
                         .name(reservation.getMentor().getUser().getName())
-                        .email(reservation.getMentor().getUser().getEmail())
-                        .position(reservation.getMentor().getPosition())
+                        .position(PositionDto.builder()
+                                .id(reservation.getMentor().getPositionEntity().getId())
+                                .name(reservation.getMentor().getPositionEntity().getName())
+                                .build())
                         .profileImageUrl(reservation.getMentor().getUser().getProfileImageUrl())
-                        .isVerified(reservation.getMentor().getIsVerified())
-                        .build())
-                .user(UserInfo.builder()
-                        .userId(reservation.getUser().getId())
-                        .name(reservation.getUser().getName())
-                        .email(reservation.getUser().getEmail())
-                        .profileImageUrl(reservation.getUser().getProfileImageUrl())
                         .build())
                 .build();
     }

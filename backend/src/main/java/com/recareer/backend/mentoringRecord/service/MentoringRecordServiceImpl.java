@@ -145,13 +145,13 @@ public class MentoringRecordServiceImpl implements MentoringRecordService {
                 .collect(Collectors.toList());
     }
     
-    @Override
-    @Transactional(readOnly = true)
-    public List<MentoringRecordListResponseDto> findCompletedMentoringRecordsListByUserId(Long userId) {
-        List<MentoringRecord> mentoringRecords = mentoringRecordRepository.findCompletedMentoringRecordsByUserId(userId);
+    // @Override
+    // @Transactional(readOnly = true)
+    // public List<MentoringRecordListResponseDto> findCompletedMentoringRecordsListByUserId(Long userId) {
+    //     List<MentoringRecord> mentoringRecords = mentoringRecordRepository.findCompletedMentoringRecordsByUserId(userId);
 
-        return mentoringRecords.stream()
-                .map(MentoringRecordListResponseDto::from)
-                .collect(Collectors.toList());
-    }
+    //     return mentoringRecords.stream()
+    //             .map(MentoringRecordListResponseDto::from)
+    //             .collect(Collectors.toList());
+    // }
 }
