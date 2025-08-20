@@ -2,18 +2,16 @@ package com.recareer.backend.mentor.controller;
 
 import com.recareer.backend.availableTime.dto.AvailableTimeResponseDto;
 import com.recareer.backend.availableTime.entity.AvailableTime;
-import com.recareer.backend.feedback.dto.MentorFeedbackResponseDto;
-import com.recareer.backend.feedback.entity.MentorFeedback;
+import com.recareer.backend.feedback.dto.MentorFeedbackListResponseDto;
 import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorCreateResponseDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
-import com.recareer.backend.mentor.dto.MentorListResponseDto;
 import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.dto.MentorUpdateRequestDto;
 import com.recareer.backend.mentor.dto.MentorUpdateResponseDto;
 import com.recareer.backend.mentor.dto.MentorSearchRequestDto;
 import com.recareer.backend.mentor.dto.MentorFiltersResponseDto;
-import com.recareer.backend.mentor.dto.MentorListResponse;
+import com.recareer.backend.mentor.dto.MentorSearchResponse;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.service.MentorService;
 import com.recareer.backend.auth.service.JwtTokenProvider;
@@ -75,8 +73,8 @@ public class MentorController {
     }
 
     @GetMapping("/search")
-    @Operation(summary = "멘토 검색", description = "키워드, 직업, 경력, 지역, 성향으로 멘토를 검색합니다. 모든 파라미터가 없으면 전체 멘토를 반환합니다.")
-    public ResponseEntity<ApiResponse<MentorListResponse>> searchMentors(
+    @Operation(summary = "멘토 검색", description = "키워드, 직업, 경력, 지역, 성향으로 멘토를 검색합니다. Primary(1순위: 지역/성향, 2순위: 직업/경험)와 Secondary(직업/경험만) 결과를 동시에 반환합니다.")
+    public ResponseEntity<ApiResponse<MentorSearchResponse>> searchMentors(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) List<Long> positionIds,
             @RequestParam(required = false) List<String> experiences,
@@ -87,7 +85,7 @@ public class MentorController {
             MentorSearchRequestDto searchRequest = new MentorSearchRequestDto(
                 keyword, positionIds, experiences, provinceIds, personalityTagIds
             );
-            MentorListResponse mentors = mentorService.searchMentors(searchRequest);
+            MentorSearchResponse mentors = mentorService.searchMentorsWithPrimarySecondary(searchRequest);
             return ResponseEntity.ok(ApiResponse.success(mentors));
             
         } catch (Exception e) {
@@ -177,17 +175,15 @@ public class MentorController {
     }
 
     @GetMapping("/{id}/feedbacks")
-    @Operation(summary = "멘토 피드백 조회", description = "특정 멘토에 대한 피드백 리스트를 조회합니다")
-    public ResponseEntity<ApiResponse<List<MentorFeedbackResponseDto>>> getMentorFeedbacks(@PathVariable Long id) {
+    @Operation(summary = "멘토 피드백 조회", description = "특정 멘토에 대한 피드백 리스트와 전체 개수를 조회합니다")
+    public ResponseEntity<ApiResponse<MentorFeedbackListResponseDto>> getMentorFeedbacks(@PathVariable Long id) {
         try {
-            List<MentorFeedback> feedbacks = mentorService.getMentorFeedbacks(id);
-            List<MentorFeedbackResponseDto> feedbackDtos = feedbacks.stream()
-                    .map(MentorFeedbackResponseDto::from)
-                    .toList();
-
-            return ResponseEntity.ok(ApiResponse.success(feedbackDtos));
+            MentorFeedbackListResponseDto responseDto = mentorService.getMentorFeedbacks(id);
+            return ResponseEntity.ok(ApiResponse.success(responseDto));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
-            log.error("Get mentor feedbacks failed: {}", e.getMessage());
+            log.error("Get mentor feedbacks failed for mentorId {}: {}", id, e.getMessage(), e);
             return ResponseEntity.internalServerError().body(ApiResponse.error("멘토 피드백 조회에 실패했습니다."));
         }
     }
