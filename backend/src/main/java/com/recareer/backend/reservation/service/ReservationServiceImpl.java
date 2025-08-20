@@ -2,6 +2,7 @@ package com.recareer.backend.reservation.service;
 
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
+import com.recareer.backend.reservation.dto.ReservationListResponseDto;
 import com.recareer.backend.reservation.dto.ReservationCancelRequestDto;
 import com.recareer.backend.reservation.dto.ReservationRequestDto;
 import com.recareer.backend.reservation.dto.ReservationResponseDto;
@@ -16,6 +17,7 @@ import com.recareer.backend.mentoringRecord.entity.MentoringRecordStatus;
 import com.recareer.backend.mentoringRecord.repository.MentoringRecordRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -147,4 +149,27 @@ public class ReservationServiceImpl implements ReservationService {
     
     log.info("예약 취소 완료 - 예약 ID: {}, 취소 사유: {}", reservationId, cancelRequestDto.getCancelReason());
   }
+
+    @Override
+    public List<ReservationListResponseDto> getReservationsByUserId(Long userId, String status) {
+        List<Reservation> reservations = reservationRepository.findAllByUserId(userId);
+
+        if (status != null && !status.isBlank()) {
+            if ("COMPLETED".equalsIgnoreCase(status)) {
+                reservations = reservations.stream()
+                        .filter(r -> r.getStatus() == ReservationStatus.COMPLETED)
+                        .collect(Collectors.toList());
+            } else if ("SCHEDULED".equalsIgnoreCase(status)) {
+                reservations = reservations.stream()
+                        .filter(r -> r.getStatus() == ReservationStatus.REQUESTED ||
+                                     r.getStatus() == ReservationStatus.CONFIRMED ||
+                                     r.getStatus() == ReservationStatus.CANCELED)
+                        .collect(Collectors.toList());
+            }
+        }
+
+        return reservations.stream()
+                .map(ReservationListResponseDto::from)
+                .collect(Collectors.toList());
+    }
 }

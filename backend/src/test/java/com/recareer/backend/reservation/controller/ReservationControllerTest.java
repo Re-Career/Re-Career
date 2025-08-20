@@ -2,6 +2,7 @@ package com.recareer.backend.reservation.controller;
 
 import com.recareer.backend.auth.util.AuthUtil;
 import com.recareer.backend.mentor.entity.Mentor;
+import com.recareer.backend.position.entity.Position;
 import com.recareer.backend.reservation.dto.ReservationRequestDto;
 import com.recareer.backend.reservation.dto.ReservationResponseDto;
 import com.recareer.backend.reservation.dto.ReservationUpdateRequestDto;
@@ -89,9 +90,12 @@ class ReservationControllerTest {
             .email("mentor@test.com")
             .build();
 
+        Position position = Position.builder().id(1L).name("Software Engineer").build();
+
         testMentor = Mentor.builder()
             .id(1L)
             .user(testMentorUser)
+            .position(position)
             .build();
 
         testReservation = Reservation.builder()
