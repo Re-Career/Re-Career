@@ -8,6 +8,7 @@ import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.dto.MentorSearchRequestDto;
 import com.recareer.backend.mentor.dto.MentorFiltersResponseDto;
 import com.recareer.backend.mentor.dto.MentorSearchResponse;
+import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.reservation.entity.Reservation;
 
@@ -25,8 +26,6 @@ public interface MentorService {
 
     List<MentorSummaryResponseDto> getMentorsByProvince(Long provinceId);
 
-    
-    
     List<MentorSummaryResponseDto> getMentorsByFilters(MentorFilterRequestDto filterRequest);
     
     Optional<Mentor> updateMentor(Long id, Long positionId, String description, String introduction, Integer experience, List<Long> skillIds);
