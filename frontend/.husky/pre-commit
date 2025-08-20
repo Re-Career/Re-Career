@@ -1,7 +1,0 @@
-cd frontend
-
-# 타입 체킹
-pnpm run checkTs
-
-# ESLint 실행
-pnpm run lint
