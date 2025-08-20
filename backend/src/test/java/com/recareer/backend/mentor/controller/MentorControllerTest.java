@@ -40,6 +40,8 @@ class MentorControllerTest {
     private MentorRepository mentorRepository;
     
     private Mentor mentor;
+    private User mentorUser;
+    private Position testPosition;
 
     @BeforeEach
     void setUp() {
