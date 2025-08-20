@@ -3,6 +3,7 @@ package com.recareer.backend.mentor.dto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.user.entity.UserPersonalityTag;
 import com.recareer.backend.career.entity.MentorCareer;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,19 +15,32 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(description = "멘토 카드 정보")
 public class MentorCard {
 
+    @Schema(description = "멘토 ID", example = "1")
     private Long id;
+    
+    @Schema(description = "멘토 이름", example = "김멘토")
     private String name;
+    
+    @Schema(description = "직업 정보")
     private PositionDto position;
+    
+    @Schema(description = "경력 (년)", example = "5")
     private Integer experience;
+    
+    @Schema(description = "지역 정보")
     private ProvinceDto province;
+    
+    @Schema(description = "회사 정보")
     private CompanyDto company;
+    
+    @Schema(description = "성향 태그 목록")
     private List<PersonalityTagDto> personalityTag;
+    
+    @Schema(description = "프로필 이미지 URL", example = "https://example.com/image.jpg")
     private String profileImageUrl;
-    private Double rating;
-    private Integer reviewCount;
-    private String shortIntroduction;
 
     @Getter
     @NoArgsConstructor
@@ -65,7 +79,7 @@ public class MentorCard {
     }
 
     public static MentorCard from(Mentor mentor, List<UserPersonalityTag> userPersonalityTags,
-                                  List<MentorCareer> careers, Double averageRating, Integer reviewCount) {
+                                  List<MentorCareer> careers) {
 
         // 성향 태그 변환
         List<PersonalityTagDto> personalityTagDtos = userPersonalityTags.stream()
@@ -87,18 +101,6 @@ public class MentorCard {
             }
         }
 
-        // shortIntro는 introduction의 앞부분 또는 description 사용
-        String shortIntro = "";
-        if (mentor.getIntroduction() != null && !mentor.getIntroduction().isEmpty()) {
-            shortIntro = mentor.getIntroduction().length() > 100
-                    ? mentor.getIntroduction().substring(0, 100) + "..."
-                    : mentor.getIntroduction();
-        } else if (mentor.getDescription() != null && !mentor.getDescription().isEmpty()) {
-            shortIntro = mentor.getDescription().length() > 100
-                    ? mentor.getDescription().substring(0, 100) + "..."
-                    : mentor.getDescription();
-        }
-
         return MentorCard.builder()
                 .id(mentor.getId())
                 .name(mentor.getUser().getName())
@@ -114,9 +116,6 @@ public class MentorCard {
                 .company(companyDto)
                 .personalityTag(personalityTagDtos)
                 .profileImageUrl(mentor.getUser().getProfileImageUrl())
-                .rating(averageRating != null ? Math.round(averageRating * 10.0) / 10.0 : null)
-                .reviewCount(reviewCount != null ? reviewCount : 0)
-                .shortIntroduction(shortIntro)
                 .build();
     }
 }
