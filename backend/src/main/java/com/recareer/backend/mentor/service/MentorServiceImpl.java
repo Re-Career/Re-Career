@@ -74,16 +74,16 @@ public class MentorServiceImpl implements MentorService {
     public Mentor createMentor(MentorCreateRequestDto requestDto) {
         // 사용자 조회
         User user = userRepository.findById(requestDto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + requestDto.getUserId()));
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. ID: " + requestDto.getUserId()));
         
         // Position, Company, Region 조회
         Position position = requestDto.getJobId() != null ? 
             positionRepository.findById(requestDto.getJobId())
-                .orElseThrow(() -> new IllegalArgumentException("Position not found with id: " + requestDto.getJobId())) : null;
+                .orElseThrow(() -> new IllegalArgumentException("직무를 찾을 수 없습니다. ID: " + requestDto.getJobId())) : null;
                 
         Company company = requestDto.getCompanyId() != null ? 
             companyRepository.findById(requestDto.getCompanyId())
-                .orElseThrow(() -> new IllegalArgumentException("Company not found with id: " + requestDto.getCompanyId())) : null;
+                .orElseThrow(() -> new IllegalArgumentException("회사를 찾을 수 없습니다. ID: " + requestDto.getCompanyId())) : null;
         
         // 멘토 생성
         Mentor mentor = Mentor.builder()
@@ -173,7 +173,7 @@ public class MentorServiceImpl implements MentorService {
                     Position position = null;
                     if (jobId != null) {
                         position = positionRepository.findById(jobId)
-                                .orElseThrow(() -> new IllegalArgumentException("Position not found with id: " + jobId));
+                                .orElseThrow(() -> new IllegalArgumentException("직무를 찾을 수 없습니다. ID: " + jobId));
                     }
 
                     mentor.update(position, mentor.getCompany(), description, introduction, experience);
@@ -215,7 +215,7 @@ public class MentorServiceImpl implements MentorService {
     @Transactional
     public AvailableTime createMentorAvailableTime(Long mentorId, LocalDateTime availableTime) {
         Mentor mentor = mentorRepository.findById(mentorId)
-                .orElseThrow(() -> new IllegalArgumentException("Mentor not found with id: " + mentorId));
+                .orElseThrow(() -> new IllegalArgumentException("멘토를 찾을 수 없습니다. ID: " + mentorId));
         
         AvailableTime newAvailableTime = new AvailableTime();
         newAvailableTime.setMentor(mentor);
@@ -229,7 +229,7 @@ public class MentorServiceImpl implements MentorService {
     @Transactional(readOnly = true)
     public MentorFeedbackListResponseDto getMentorFeedbacks(Long mentorId) {
         Mentor mentor = mentorRepository.findById(mentorId)
-                .orElseThrow(() -> new IllegalArgumentException("Mentor not found with id: " + mentorId));
+                .orElseThrow(() -> new IllegalArgumentException("멘토를 찾을 수 없습니다. ID: " + mentorId));
         List<MentorFeedback> feedbacks = mentorFeedbackRepository.findByMentorAndIsVisibleTrueWithUser(mentor);
         Integer feedbackCount = mentorFeedbackRepository.countByMentorAndIsVisibleTrue(mentor);
 
