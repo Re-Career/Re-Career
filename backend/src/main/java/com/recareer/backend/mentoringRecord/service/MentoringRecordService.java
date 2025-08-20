@@ -22,5 +22,5 @@ public interface MentoringRecordService {
     
     List<MentoringRecordResponseDto> findCompletedMentoringRecordsByUserId(Long userId);
     
-    List<MentoringRecordListResponseDto> findCompletedMentoringRecordsListByUserId(Long userId);
+    // List<MentoringRecordListResponseDto> findCompletedMentoringRecordsListByUserId(Long userId);
 }
