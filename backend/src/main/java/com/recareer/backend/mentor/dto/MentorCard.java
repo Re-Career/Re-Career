@@ -3,7 +3,6 @@ package com.recareer.backend.mentor.dto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.user.entity.UserPersonalityTag;
 import com.recareer.backend.career.entity.MentorCareer;
-import com.recareer.backend.feedback.entity.MentorFeedback;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,6 +21,7 @@ public class MentorCard {
     private PositionDto position;
     private Integer experience;
     private ProvinceDto province;
+    private CompanyDto company;
     private List<PersonalityTagDto> personalityTag;
     private String profileImageUrl;
     private Double rating;
@@ -50,6 +50,15 @@ public class MentorCard {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    public static class CompanyDto {
+        private Long id;
+        private String name;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class PersonalityTagDto {
         private Long id;
         private String name;
@@ -65,6 +74,18 @@ public class MentorCard {
                         .name(upt.getPersonalityTag().getName())
                         .build())
                 .toList();
+
+        // 가장 최신 회사 정보 (가장 최근에 추가된 career)
+        CompanyDto companyDto = null;
+        if (careers != null && !careers.isEmpty()) {
+            MentorCareer latestCareer = careers.get(careers.size() - 1); // 가장 마지막 career
+            if (latestCareer.getCompany() != null) {
+                companyDto = CompanyDto.builder()
+                        .id(latestCareer.getId()) // career의 ID 사용
+                        .name(latestCareer.getCompany()) // company는 String
+                        .build();
+            }
+        }
 
         // shortIntro는 introduction의 앞부분 또는 description 사용
         String shortIntro = "";
@@ -90,6 +111,7 @@ public class MentorCard {
                         .id(mentor.getUser().getProvince().getId())
                         .name(mentor.getUser().getProvince().getName())
                         .build() : null)
+                .company(companyDto)
                 .personalityTag(personalityTagDtos)
                 .profileImageUrl(mentor.getUser().getProfileImageUrl())
                 .rating(averageRating != null ? Math.round(averageRating * 10.0) / 10.0 : null)
