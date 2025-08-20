@@ -92,7 +92,7 @@ class MentorControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data[0].id").value("job"))
+                .andExpect(jsonPath("$.data[0].id").value("position"))
                 .andExpect(jsonPath("$.data[0].title").value("직업"))
                 .andExpect(jsonPath("$.data[0].options").isArray())
                 .andExpect(jsonPath("$.data[0].options[0].id").exists())
