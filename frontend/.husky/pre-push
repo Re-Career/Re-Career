@@ -1,0 +1,7 @@
+cd frontend
+
+# 웹 빌드 실행
+pnpm run build:web
+
+# 네이티브 빌드 실행
+pnpm run build:native
