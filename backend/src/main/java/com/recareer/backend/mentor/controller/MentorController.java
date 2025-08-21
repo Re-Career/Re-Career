@@ -1,6 +1,7 @@
 package com.recareer.backend.mentor.controller;
 
 import com.recareer.backend.availableTime.dto.AvailableTimeResponseDto;
+import com.recareer.backend.availableTime.dto.AvailableTimeRequestDto;
 import com.recareer.backend.availableTime.entity.AvailableTime;
 import com.recareer.backend.feedback.dto.MentorFeedbackListResponseDto;
 import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
@@ -20,6 +21,7 @@ import com.recareer.backend.session.entity.Session;
 import com.recareer.backend.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -46,8 +48,17 @@ public class MentorController {
     @PostMapping
     @Operation(summary = "멘토 등록", description = "새로운 멘토를 등록합니다")
     public ResponseEntity<ApiResponse<MentorCreateResponseDto>> createMentor(
+            @RequestHeader("Authorization") String accessToken,
             @RequestBody MentorCreateRequestDto requestDto) {
         try {
+            Long userId = authUtil.validateTokenAndGetUserId(accessToken);
+            
+            // 요청 DTO의 userId와 토큰의 userId가 일치하는지 확인
+            if (!userId.equals(requestDto.getUserId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(ApiResponse.error("본인의 이름으로만 멘토를 등록할 수 있습니다"));
+            }
+            
             Mentor mentor = mentorService.createMentor(requestDto);
             MentorCreateResponseDto responseDto = MentorCreateResponseDto.from(mentor);
             return ResponseEntity.ok(ApiResponse.success("멘토가 성공적으로 등록되었습니다.", responseDto));
@@ -153,14 +164,13 @@ public class MentorController {
     public ResponseEntity<ApiResponse<AvailableTimeResponseDto>> createMentorAvailableTime(
             @PathVariable Long id,
             @RequestHeader("Authorization") String accessToken,
-            @RequestParam String availableTime) {
+            @Valid @RequestBody AvailableTimeRequestDto requestDto) {
         Long userId = authUtil.validateTokenAndGetUserId(accessToken);
         if (!userId.equals(id)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
         }
         try {
-            LocalDateTime dateTime = LocalDateTime.parse(availableTime);
-            AvailableTime newAvailableTime = mentorService.createMentorAvailableTime(id, dateTime);
+            AvailableTime newAvailableTime = mentorService.createMentorAvailableTime(id, requestDto.getAvailableTime());
 
             return ResponseEntity.ok(ApiResponse.success("멘토링 가능 시간이 성공적으로 추가되었습니다.", AvailableTimeResponseDto.from(newAvailableTime)));
         } catch (IllegalArgumentException e) {
