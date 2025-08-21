@@ -12,13 +12,13 @@ public interface MentoringRecordService {
 
     MentoringRecord findMentoringRecordById(Long id);
 
-    Long createOrUpdateMentoringRecord(Long reservationId, MentoringRecordRequestDto requestDto);
+    Long createOrUpdateMentoringRecord(Long sessionId, MentoringRecordRequestDto requestDto);
 
-    Long uploadAudioAndProcess(Long reservationId, MultipartFile audioFile);
+    Long uploadAudioAndProcess(Long sessionId, MultipartFile audioFile);
     
     void updateMentoringRecordStatus(Long mentoringRecordId, MentoringRecordStatus status);
     
-    MentoringRecord findByReservationId(Long reservationId);
+    MentoringRecord findBySessionId(Long sessionId);
     
     List<MentoringRecordResponseDto> findCompletedMentoringRecordsByUserId(Long userId);
     

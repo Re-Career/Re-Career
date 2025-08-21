@@ -24,14 +24,14 @@ public class MentoringRecordListResponseDto {
     private boolean hasAudioFile;
     private boolean hasFeedback;
 
-    public static MentoringRecordListResponseDto from(MentoringRecord mentoringRecord) {
+    public static MentoringRecordListResponseDto from(MentoringRecord mentoringRecord) {        
         return MentoringRecordListResponseDto.builder()
                 .mentoringRecordId(mentoringRecord.getId())
-                .reservationTime(mentoringRecord.getReservation().getReservationTime())
+                .reservationTime(mentoringRecord.getSession().getSessionTime())
                 .status(mentoringRecord.getStatus())
-                .mentorName(mentoringRecord.getReservation().getMentor().getUser().getName())
-                .mentorPosition(mentoringRecord.getReservation().getMentor().getPosition())
-                .menteeName(mentoringRecord.getReservation().getUser().getName())
+                .mentorName(mentoringRecord.getSession().getMentor().getUser().getName())
+                .mentorPosition(mentoringRecord.getSession().getMentor().getPosition())
+                .menteeName(mentoringRecord.getSession().getUser().getName())
                 .hasAudioFile(mentoringRecord.getAudioFileUrl() != null && !mentoringRecord.getAudioFileUrl().trim().isEmpty())
                 .hasFeedback(mentoringRecord.getMenteeFeedback() != null && !mentoringRecord.getMenteeFeedback().trim().isEmpty())
                 .build();

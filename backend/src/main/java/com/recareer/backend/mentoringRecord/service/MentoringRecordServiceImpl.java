@@ -7,8 +7,8 @@ import com.recareer.backend.mentoringRecord.dto.MentoringRecordResponseDto;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecordStatus;
 import com.recareer.backend.mentoringRecord.repository.MentoringRecordRepository;
-import com.recareer.backend.reservation.entity.Reservation;
-import com.recareer.backend.reservation.repository.ReservationRepository;
+import com.recareer.backend.session.entity.Session;
+import com.recareer.backend.session.repository.SessionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class MentoringRecordServiceImpl implements MentoringRecordService {
 
     private final MentoringRecordRepository mentoringRecordRepository;
-    private final ReservationRepository reservationRepository;
+    private final SessionRepository sessionRepository;
     private final S3Service s3Service;
     private final AudioTranscriptionService audioTranscriptionService;
 
@@ -37,8 +37,8 @@ public class MentoringRecordServiceImpl implements MentoringRecordService {
 
     @Override
     @Transactional
-    public Long createOrUpdateMentoringRecord(Long reservationId, MentoringRecordRequestDto requestDto) {
-        MentoringRecord mentoringRecord = findOrCreateMentoringRecord(reservationId);
+    public Long createOrUpdateMentoringRecord(Long sessionId, MentoringRecordRequestDto requestDto) {
+        MentoringRecord mentoringRecord = findOrCreateMentoringRecord(sessionId);
         mentoringRecord.setMenteeFeedback(requestDto.getMenteeFeedback());
         
         // 피드백 작성 완료 시 상태 업데이트
@@ -54,16 +54,16 @@ public class MentoringRecordServiceImpl implements MentoringRecordService {
 
     @Override
     @Transactional
-    public Long uploadAudioAndProcess(Long reservationId, MultipartFile audioFile) {
+    public Long uploadAudioAndProcess(Long sessionId, MultipartFile audioFile) {
         try {
-            log.info("오디오 파일 처리 시작 - 예약 ID: {}, 파일명: {}", reservationId, audioFile.getOriginalFilename());
+            log.info("오디오 파일 처리 시작 - 세션 ID: {}, 파일명: {}", sessionId, audioFile.getOriginalFilename());
 
             // 1. S3에 오디오 파일 업로드
             String audioFileUrl = s3Service.uploadAudioFile(audioFile);
             log.info("S3 업로드 완료: {}", audioFileUrl);
             
             // 상태를 AUDIO_PROCESSING으로 변경
-            MentoringRecord mentoringRecord = findOrCreateMentoringRecord(reservationId);
+            MentoringRecord mentoringRecord = findOrCreateMentoringRecord(sessionId);
             mentoringRecord.setStatus(MentoringRecordStatus.AUDIO_PROCESSING);
 
             mentoringRecordRepository.save(mentoringRecord);
@@ -98,13 +98,13 @@ public class MentoringRecordServiceImpl implements MentoringRecordService {
     }
 
     // 멘토링 기록을 찾거나 새로 생성하는 공통 로직
-    private MentoringRecord findOrCreateMentoringRecord(Long reservationId) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다."));
+    private MentoringRecord findOrCreateMentoringRecord(Long sessionId) {
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
 
-        return mentoringRecordRepository.findByReservationId(reservationId)
+        return mentoringRecordRepository.findBySessionId(sessionId)
                 .orElse(MentoringRecord.builder()
-                        .reservation(reservation)
+                        .session(session)
                         .status(MentoringRecordStatus.AUDIO_PENDING)
                         .build());
     }
@@ -130,9 +130,9 @@ public class MentoringRecordServiceImpl implements MentoringRecordService {
     
     @Override
     @Transactional(readOnly = true)
-    public MentoringRecord findByReservationId(Long reservationId) {
-        return mentoringRecordRepository.findByReservationId(reservationId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 예약에 대한 멘토링 기록을 찾을 수 없습니다."));
+    public MentoringRecord findBySessionId(Long sessionId) {
+        return mentoringRecordRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션에 대한 멘토링 기록을 찾을 수 없습니다."));
     }
     
     @Override

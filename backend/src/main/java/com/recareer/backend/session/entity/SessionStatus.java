@@ -1,6 +1,6 @@
-package com.recareer.backend.reservation.entity;
+package com.recareer.backend.session.entity;
 
-public enum ReservationStatus {
+public enum SessionStatus {
   REQUESTED, // 멘토링 요청
   CONFIRMED, // 멘토링 확인
   CANCELED, // 멘토링 취소 (노쇼 포함)

@@ -10,7 +10,7 @@ import com.recareer.backend.mentor.dto.MentorFiltersResponseDto;
 import com.recareer.backend.mentor.dto.MentorSearchResponse;
 import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
 import com.recareer.backend.mentor.entity.Mentor;
-import com.recareer.backend.reservation.entity.Reservation;
+import com.recareer.backend.session.entity.Session;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +30,7 @@ public interface MentorService {
     
     Optional<Mentor> updateMentor(Long id, Long positionId, String description, String introduction, Integer experience, List<Long> skillIds);
     
-    List<Reservation> getMentorReservations(Long mentorId);
+    List<Session> getMentorSessions(Long mentorId);
 
     List<AvailableTime> getMentorAvailableTimes(Long mentorId);
     

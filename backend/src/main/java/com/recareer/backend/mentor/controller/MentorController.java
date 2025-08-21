@@ -15,8 +15,8 @@ import com.recareer.backend.mentor.dto.MentorSearchResponse;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.service.MentorService;
 import com.recareer.backend.auth.service.JwtTokenProvider;
-import com.recareer.backend.reservation.dto.ReservationListResponseDto;
-import com.recareer.backend.reservation.entity.Reservation;
+import com.recareer.backend.session.dto.SessionListResponseDto;
+import com.recareer.backend.session.entity.Session;
 import com.recareer.backend.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -60,7 +60,7 @@ public class MentorController {
     }
 
     @GetMapping
-    @Operation(summary = "홈 - 당신을 위한 멘토들", description = "유저가 속한 지역(จังหวัด)의 멘토 리스트를 조회합니다")
+    @Operation(summary = "홈 - 당신을 위한 멘토들", description = "유저가 속한 지역의 멘토 리스트를 조회합니다")
     public ResponseEntity<ApiResponse<List<MentorSummaryResponseDto>>> getMentorsByProvince(
             @RequestParam(required = false, defaultValue = "1") Long provinceId) {
         try {
@@ -122,19 +122,19 @@ public class MentorController {
                 .orElse(ResponseEntity.status(404).body(ApiResponse.error("해당 멘토를 찾을 수 없습니다.")));
     }
 
-    @GetMapping("/{id}/reservations")
-    @Operation(summary = "멘토별 예약 목록 조회", description = "멘토별 예정된 상담을 조회합니다")
-    public ResponseEntity<ApiResponse<List<ReservationListResponseDto>>> getMentorReservations(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
+    @GetMapping("/{id}/sessions")
+    @Operation(summary = "멘토별 세션 목록 조회", description = "멘토별 예정된 상담을 조회합니다")
+    public ResponseEntity<ApiResponse<List<SessionListResponseDto>>> getMentorSessions(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
         Long userId = authUtil.validateTokenAndGetUserId(accessToken);
         if (!userId.equals(id)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
         }
-        List<Reservation> reservations = mentorService.getMentorReservations(id);
-        List<ReservationListResponseDto> reservationDtos = reservations.stream()
-                .map(ReservationListResponseDto::from)
+        List<Session> sessions = mentorService.getMentorSessions(id);
+        List<SessionListResponseDto> sessionDtos = sessions.stream()
+                .map(SessionListResponseDto::from)
                 .toList();
 
-        return ResponseEntity.ok(ApiResponse.success(reservationDtos));
+        return ResponseEntity.ok(ApiResponse.success(sessionDtos));
     }
 
     @GetMapping("/{id}/available-times")

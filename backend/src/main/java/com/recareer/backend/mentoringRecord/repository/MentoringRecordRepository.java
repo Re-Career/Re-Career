@@ -11,17 +11,17 @@ import java.util.Optional;
 
 @Repository
 public interface MentoringRecordRepository extends JpaRepository<MentoringRecord, Long> {
-    Optional<MentoringRecord> findByReservationId(Long reservationId);
+    Optional<MentoringRecord> findBySessionId(Long sessionId);
     
-    boolean existsByReservationId(Long reservationId);
+    boolean existsBySessionId(Long sessionId);
     
     @Query("SELECT mr FROM MentoringRecord mr " +
-           "JOIN FETCH mr.reservation r " +
-           "JOIN FETCH r.user " +
-           "JOIN FETCH r.mentor m " +
+           "JOIN FETCH mr.session s " +
+           "JOIN FETCH s.user " +
+           "JOIN FETCH s.mentor m " +
            "JOIN FETCH m.user " +
-           "WHERE (r.user.id = :userId OR m.user.id = :userId) " +
-           "AND r.status = 'COMPLETED' " +
+           "WHERE (s.user.id = :userId OR m.user.id = :userId) " +
+           "AND s.status = 'COMPLETED' " +
            "ORDER BY mr.createdDate DESC")
     List<MentoringRecord> findCompletedMentoringRecordsByUserId(@Param("userId") Long userId);
 }

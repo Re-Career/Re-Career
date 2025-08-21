@@ -1,7 +1,7 @@
 package com.recareer.backend.mentoringRecord.entity;
 
 import com.recareer.backend.common.entity.BaseTimeEntity;
-import com.recareer.backend.reservation.entity.Reservation;
+import com.recareer.backend.session.entity.Session;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,8 +19,8 @@ public class MentoringRecord extends BaseTimeEntity {
   private Long id;
 
   @OneToOne(optional = false, cascade = CascadeType.ALL)
-  @JoinColumn(name = "reservation_id", nullable = false, unique = true)
-  private Reservation reservation;
+  @JoinColumn(name = "session_id", nullable = false, unique = true)
+  private Session session;
 
   // 멘티가 상담 후 남기는 피드백
   @Column(name = "mentee_feedback", columnDefinition = "TEXT")
