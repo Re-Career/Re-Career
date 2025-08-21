@@ -139,34 +139,11 @@ public class SessionServiceImpl implements SessionService {
     sessionRepository.save(session);
   }
 
-  @Override
-  @Transactional
-  public void cancelSession(Long sessionId, SessionCancelRequestDto cancelRequestDto) {
-    Session session = findById(sessionId);
-    
-    // 완료된 멘토링은 취소할 수 없음
-    if (session.getStatus() == SessionStatus.COMPLETED) {
-      throw new IllegalStateException("완료된 멘토링은 취소할 수 없습니다.");
-    }
-    
-    // 이미 취소된 멘토링은 중복 취소할 수 없음
-    if (session.getStatus() == SessionStatus.CANCELED) {
-      throw new IllegalStateException("이미 취소된 멘토링입니다.");
-    }
-    
-    // 취소 사유 검증
-    if (cancelRequestDto.getCancelReason() == null || cancelRequestDto.getCancelReason().trim().isEmpty()) {
-      throw new IllegalArgumentException("취소 사유는 필수입니다.");
-    }
-    
-    // 상태 변경
-    session.setStatus(SessionStatus.CANCELED);
-    session.setCancelReason(cancelRequestDto.getCancelReason());
-    
-    sessionRepository.save(session);
-    
-    log.info("세션 취소 완료 - 세션 ID: {}, 취소 사유: {}", sessionId, cancelRequestDto.getCancelReason());
-  }
+  // @Override
+  // @Transactional  
+  // public void cancelSession(Long sessionId, SessionCancelRequestDto cancelRequestDto) {
+  //   // updateSessionStatus로 통합됨 - status=CANCELED, cancelReason을 포함한 SessionUpdateRequestDto 사용
+  // }
 
     @Override
     public List<SessionListResponseDto> getSessionsByUserId(Long userId, String status) {

@@ -22,7 +22,7 @@ public interface SessionService {
   
   void updateSessionStatus(Long sessionId, SessionUpdateRequestDto updateRequestDto);
   
-  void cancelSession(Long sessionId, SessionCancelRequestDto cancelRequestDto);
+  // void cancelSession(Long sessionId, SessionCancelRequestDto cancelRequestDto); // updateSessionStatus로 통합
 
   List<SessionListResponseDto> getSessionsByUserId(Long userId, String status);
 }

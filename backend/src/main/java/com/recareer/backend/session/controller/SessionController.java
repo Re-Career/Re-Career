@@ -114,36 +114,36 @@ public class SessionController {
     }
   }
 
-  @PostMapping("/{id}/cancel")
-  @Operation(summary = "멘토링 세션 취소", description = "멘티가 자신의 멘토링 세션을 취소합니다")
-  public ResponseEntity<ApiResponse<String>> cancelSession(
-      @RequestHeader("Authorization") String accessToken,
-      @PathVariable Long id,
-      @Valid @RequestBody SessionCancelRequestDto cancelRequestDto) {
-    
-    try {
-      Long userId = authUtil.validateTokenAndGetUserId(accessToken);
-      Session session = sessionService.findById(id);
-      
-      // 해당 멘토링의 멘티만 취소 가능
-      if (!session.isMenteeParticipant(userId)) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-            .body(ApiResponse.error("본인의 세션만 취소할 수 있습니다"));
-      }
-      
-      sessionService.cancelSession(id, cancelRequestDto);
-      
-      return ResponseEntity.ok(ApiResponse.success("멘토링 세션이 취소되었습니다."));
-      
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-          .body(ApiResponse.error(e.getMessage()));
-    } catch (IllegalStateException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body(ApiResponse.error(e.getMessage()));
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body(ApiResponse.error("세션 취소 중 오류가 발생했습니다."));
-    }
-  }
+  // @PostMapping("/{id}/cancel")
+  // @Operation(summary = "멘토링 세션 취소", description = "멘티가 자신의 멘토링 세션을 취소합니다 - POST /{id}에서 status=CANCELED로 처리")
+  // public ResponseEntity<ApiResponse<String>> cancelSession(
+  //     @RequestHeader("Authorization") String accessToken,
+  //     @PathVariable Long id,
+  //     @Valid @RequestBody SessionCancelRequestDto cancelRequestDto) {
+  //   
+  //   try {
+  //     Long userId = authUtil.validateTokenAndGetUserId(accessToken);
+  //     Session session = sessionService.findById(id);
+  //     
+  //     // 해당 멘토링의 멘티만 취소 가능
+  //     if (!session.isMenteeParticipant(userId)) {
+  //       return ResponseEntity.status(HttpStatus.FORBIDDEN)
+  //           .body(ApiResponse.error("본인의 세션만 취소할 수 있습니다"));
+  //     }
+  //     
+  //     sessionService.cancelSession(id, cancelRequestDto);
+  //     
+  //     return ResponseEntity.ok(ApiResponse.success("멘토링 세션이 취소되었습니다."));
+  //     
+  //   } catch (IllegalArgumentException e) {
+  //     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+  //         .body(ApiResponse.error(e.getMessage()));
+  //   } catch (IllegalStateException e) {
+  //     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+  //         .body(ApiResponse.error(e.getMessage()));
+  //   } catch (Exception e) {
+  //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+  //         .body(ApiResponse.error("세션 취소 중 오류가 발생했습니다."));
+  //   }
+  // }
 }
