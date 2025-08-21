@@ -219,7 +219,7 @@ class MentorServiceTest {
     }
 
     @Test
-    @DisplayName("특정 지역(จังหวัด)의 멘토 리스트를 조회합니다")
+    @DisplayName("특정 지역의 멘토 리스트를 조회합니다")
     void getMentorsByProvince_Success() {
         // given
         Province province = provinceRepository.findAll().stream()
