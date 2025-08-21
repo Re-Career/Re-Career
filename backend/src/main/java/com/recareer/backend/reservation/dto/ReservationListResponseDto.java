@@ -20,7 +20,6 @@ public class ReservationListResponseDto {
     private ReservationStatus status;
     private String cancelReason;
     private MentorInfo mentor;
-    private UserInfo user;
 
     @Getter
     @Builder
@@ -29,7 +28,7 @@ public class ReservationListResponseDto {
     public static class MentorInfo {
         private Long mentorId;
         private String name;
-        private String position;
+        private PositionDto position;
         private String profileImageUrl;
     }
 
@@ -37,10 +36,9 @@ public class ReservationListResponseDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UserInfo {
-        private Long userId;
+    public static class PositionDto {
+        private Long id;
         private String name;
-        private String profileImageUrl;
     }
 
     public static ReservationListResponseDto from(Reservation reservation) {
@@ -52,13 +50,11 @@ public class ReservationListResponseDto {
                 .mentor(MentorInfo.builder()
                         .mentorId(reservation.getMentor().getId())
                         .name(reservation.getMentor().getUser().getName())
-                        .position(reservation.getMentor().getPosition())
+                        .position(PositionDto.builder()
+                                .id(reservation.getMentor().getPositionEntity().getId())
+                                .name(reservation.getMentor().getPositionEntity().getName())
+                                .build())
                         .profileImageUrl(reservation.getMentor().getUser().getProfileImageUrl())
-                        .build())
-                .user(UserInfo.builder()
-                        .userId(reservation.getUser().getId())
-                        .name(reservation.getUser().getName())
-                        .profileImageUrl(reservation.getUser().getProfileImageUrl())
                         .build())
                 .build();
     }

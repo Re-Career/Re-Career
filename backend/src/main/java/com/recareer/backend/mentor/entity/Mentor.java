@@ -1,20 +1,14 @@
 package com.recareer.backend.mentor.entity;
 
-import com.recareer.backend.career.entity.MentorCareer;
 import com.recareer.backend.common.entity.BaseTimeEntity;
 import com.recareer.backend.common.entity.Company;
 import com.recareer.backend.position.entity.Position;
-import com.recareer.backend.feedback.entity.MentorFeedback;
-import com.recareer.backend.skill.entity.MentorSkill;
 import com.recareer.backend.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "mentors")
@@ -54,17 +48,6 @@ public class Mentor extends BaseTimeEntity {
   private Integer experience;
 
 
-  @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  @Builder.Default
-  private List<MentorSkill> mentorSkills = new ArrayList<>();
-
-  @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  @Builder.Default
-  private List<MentorCareer> careers = new ArrayList<>();
-
-  @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  @Builder.Default
-  private List<MentorFeedback> feedbacks = new ArrayList<>();
 
   public Mentor update(Position position, Company company, String description, String introduction, Integer experience) {
     this.position = position;
@@ -91,15 +74,15 @@ public class Mentor extends BaseTimeEntity {
     return position;
   }
 
-  public String getCompanyName() {
-    return company != null ? company.getName() : null;
-  }
-
-  public String getProvinceName() {
-    return user != null && user.getProvince() != null ? user.getProvince().getName() : null;
-  }
-
-  public String getCityName() {
-    return user != null && user.getCity() != null ? user.getCity().getName() : null;
-  }
+//  public String getCompanyName() {
+//    return company != null ? company.getName() : null;
+//  }
+//
+//  public String getProvinceName() {
+//    return user != null && user.getProvince() != null ? user.getProvince().getName() : null;
+//  }
+//
+//  public String getCityName() {
+//    return user != null && user.getCity() != null ? user.getCity().getName() : null;
+//  }
 }

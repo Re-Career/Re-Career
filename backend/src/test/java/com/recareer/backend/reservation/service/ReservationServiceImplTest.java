@@ -5,6 +5,7 @@ import com.recareer.backend.mentor.repository.MentorRepository;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
 import com.recareer.backend.mentoringRecord.entity.MentoringRecordStatus;
 import com.recareer.backend.mentoringRecord.repository.MentoringRecordRepository;
+import com.recareer.backend.position.entity.Position;
 import com.recareer.backend.reservation.dto.ReservationRequestDto;
 import com.recareer.backend.reservation.dto.ReservationResponseDto;
 import com.recareer.backend.reservation.dto.ReservationUpdateRequestDto;
@@ -85,10 +86,13 @@ class ReservationServiceImplTest {
             .email("mentor@test.com")
             .build();
         
+        Position position = Position.builder().id(1L).name("Software Engineer").build();
+
         // 테스트용 멘토
         testMentor = Mentor.builder()
             .id(1L)
             .user(testMentorUser)
+            .position(position)
             .build();
         
         // 테스트용 예약
