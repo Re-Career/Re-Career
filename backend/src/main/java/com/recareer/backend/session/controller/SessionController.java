@@ -150,7 +150,7 @@ public class SessionController {
   //   }
   // }
 
-  @GetMapping("/{id}")
+  @GetMapping("/{id}/detail")
   @Operation(summary = "완료된 상담 상세 조회")
   public ResponseEntity<ApiResponse<SessionDetailResponseDto>> getSessionDetail(
       @RequestHeader("Authorization") String accessToken,
@@ -177,7 +177,7 @@ public class SessionController {
     }
   }
 
-  @PostMapping("/{id}/feedbacks")
+  @PostMapping("/{id}/feedback")
   @Operation(summary = "세션 피드백 작성", description = "멘티가 세션 후 멘토에 대한 피드백을 작성합니다.")
   public ResponseEntity<ApiResponse<Long>> addSessionFeedback(
       @RequestHeader("Authorization") String accessToken,
@@ -202,7 +202,7 @@ public class SessionController {
     }
   }
 
-  @PostMapping("/{id}/audios")
+  @PostMapping("/{id}/audio")
   @Operation(summary = "세션 녹음 파일 업로드",
              description = "멘토가 세션 녹음 파일을 업로드하면 S3에 저장하고, " +
                          "AI를 통해 음성을 텍스트로 전사하고 상담 내용을 요약합니다.")

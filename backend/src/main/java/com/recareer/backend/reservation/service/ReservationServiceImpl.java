@@ -11,9 +11,6 @@ import com.recareer.backend.reservation.entity.ReservationStatus;
 import com.recareer.backend.reservation.repository.ReservationRepository;
 import com.recareer.backend.user.entity.User;
 import com.recareer.backend.user.repository.UserRepository;
-import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
-import com.recareer.backend.mentoringRecord.entity.MentoringRecordStatus;
-import com.recareer.backend.mentoringRecord.repository.MentoringRecordRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +25,6 @@ public class ReservationServiceImpl implements ReservationService {
   private final ReservationRepository reservationRepository;
   private final UserRepository userRepository;
   private final MentorRepository mentorRepository;
-  private final MentoringRecordRepository mentoringRecordRepository;
 
   @Override
   @Transactional(readOnly = true)
@@ -66,20 +62,6 @@ public class ReservationServiceImpl implements ReservationService {
             .orElseThrow(() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다."));
   }
   
-  
-  private void createMentoringRecordIfNotExists(Reservation reservation) {
-    // 이미 MentoringRecord가 존재하는지 확인
-    boolean exists = mentoringRecordRepository.existsByReservationId(reservation.getId());
-    
-    if (!exists) {
-      MentoringRecord mentoringRecord = MentoringRecord.builder()
-          .reservation(reservation)
-          .status(MentoringRecordStatus.AUDIO_PENDING)
-          .build();
-      
-      mentoringRecordRepository.save(mentoringRecord);
-    }
-  }
 
   @Override
   @Transactional
@@ -100,8 +82,6 @@ public class ReservationServiceImpl implements ReservationService {
           throw new IllegalStateException("확인된 상태의 예약만 완료할 수 있습니다.");
         }
         reservation.setStatus(ReservationStatus.COMPLETED);
-        // 멘토링 완료 시 자동으로 MentoringRecord 생성
-        createMentoringRecordIfNotExists(reservation);
       }
       case CANCELED -> {
         if (reservation.getStatus() == ReservationStatus.COMPLETED) {

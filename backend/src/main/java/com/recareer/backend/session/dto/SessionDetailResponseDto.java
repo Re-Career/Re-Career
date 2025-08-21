@@ -16,10 +16,11 @@ public class SessionDetailResponseDto {
     private LocalDateTime sessionTime;
     private SessionStatus status;
     private String menteeFeedback;
-    // 전사 기능 관련 필드들 (구현 예정)
-    // private String audioFileUrl;
-    // private String transcribedText;
-    // private String summary;
+    private String audioFileUrl;
+    private String transcribedText;
+    private String summary;
+    private LocalDateTime createdDate;
+    private LocalDateTime modifiedDate;
     
     public static SessionDetailResponseDto from(Session session) {
         return SessionDetailResponseDto.builder()
@@ -29,12 +30,11 @@ public class SessionDetailResponseDto {
                 .sessionTime(session.getSessionTime())
                 .status(session.getStatus())
                 .menteeFeedback(session.getMenteeFeedback())
-                // 전사 기능 관련 필드들 (구현 예정)
-                // .audioFileUrl(session.getAudioFileUrl())
-                // .transcribedText(session.getTranscribedText())
-                // .summary(session.getSummary())
-                // .createdDate(session.getCreatedDate())
-                // .modifiedDate(session.getModifiedDate())
+                .audioFileUrl(session.getAudioFileUrl())
+                .transcribedText(session.getTranscribedText())
+                .summary(session.getSummary())
+                .createdDate(session.getCreatedDate())
+                .modifiedDate(session.getModifiedDate())
                 .build();
     }
 }

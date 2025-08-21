@@ -2,9 +2,6 @@ package com.recareer.backend.reservation.service;
 
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
-import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
-import com.recareer.backend.mentoringRecord.entity.MentoringRecordStatus;
-import com.recareer.backend.mentoringRecord.repository.MentoringRecordRepository;
 import com.recareer.backend.reservation.dto.ReservationRequestDto;
 import com.recareer.backend.reservation.dto.ReservationResponseDto;
 import com.recareer.backend.reservation.dto.ReservationUpdateRequestDto;
@@ -52,8 +49,6 @@ class ReservationServiceImplTest {
     @Mock
     private MentorRepository mentorRepository;
 
-    @Mock
-    private MentoringRecordRepository mentoringRecordRepository;
 
 
     @InjectMocks
@@ -288,7 +283,7 @@ class ReservationServiceImplTest {
             
             given(reservationRepository.findById(reservationId)).willReturn(Optional.of(testReservation));
             given(reservationRepository.save(any(Reservation.class))).willReturn(testReservation);
-            given(mentoringRecordRepository.existsByReservationId(reservationId)).willReturn(false);
+            ;
 
             // When
             reservationService.updateReservationStatus(reservationId, updateDto);
@@ -297,9 +292,7 @@ class ReservationServiceImplTest {
             assertThat(testReservation.getStatus()).isEqualTo(ReservationStatus.COMPLETED);
             
             verify(reservationRepository).findById(reservationId);
-            verify(mentoringRecordRepository).existsByReservationId(reservationId);
-            verify(mentoringRecordRepository).save(any(MentoringRecord.class));
-            verify(reservationRepository).save(testReservation);
+                        verify(reservationRepository).save(testReservation);
         }
 
         @Test
@@ -318,8 +311,7 @@ class ReservationServiceImplTest {
                 .hasMessage("확인된 상태의 예약만 완료할 수 있습니다.");
             
             verify(reservationRepository).findById(reservationId);
-            verify(mentoringRecordRepository, never()).existsByReservationId(any());
-            verify(reservationRepository, never()).save(any());
+                        verify(reservationRepository, never()).save(any());
         }
 
         @Test
@@ -427,55 +419,6 @@ class ReservationServiceImplTest {
         }
     }
 
-    @Nested
-    @DisplayName("멘토링 기록 생성 테스트")
-    class CreateMentoringRecordTest {
-
-        @Test
-        @DisplayName("멘토링 기록이 없을 때 새로 생성")
-        void createMentoringRecordIfNotExists_NotExists_CreateNew() {
-            // Given
-            testReservation.setStatus(ReservationStatus.CONFIRMED);
-            Long reservationId = 1L;
-            ReservationUpdateRequestDto updateDto = new ReservationUpdateRequestDto();
-            updateDto.setStatus(ReservationStatus.COMPLETED);
-            
-            given(reservationRepository.findById(reservationId)).willReturn(Optional.of(testReservation));
-            given(reservationRepository.save(any(Reservation.class))).willReturn(testReservation);
-            given(mentoringRecordRepository.existsByReservationId(reservationId)).willReturn(false);
-
-            // When
-            reservationService.updateReservationStatus(reservationId, updateDto);
-
-            // Then
-            verify(mentoringRecordRepository).existsByReservationId(reservationId);
-            verify(mentoringRecordRepository).save(argThat(record -> 
-                record.getReservation().equals(testReservation) &&
-                record.getStatus() == MentoringRecordStatus.AUDIO_PENDING
-            ));
-        }
-
-        @Test
-        @DisplayName("멘토링 기록이 이미 존재할 때 생성하지 않음")
-        void createMentoringRecordIfNotExists_AlreadyExists_DoNotCreate() {
-            // Given
-            testReservation.setStatus(ReservationStatus.CONFIRMED);
-            Long reservationId = 1L;
-            ReservationUpdateRequestDto updateDto = new ReservationUpdateRequestDto();
-            updateDto.setStatus(ReservationStatus.COMPLETED);
-            
-            given(reservationRepository.findById(reservationId)).willReturn(Optional.of(testReservation));
-            given(reservationRepository.save(any(Reservation.class))).willReturn(testReservation);
-            given(mentoringRecordRepository.existsByReservationId(reservationId)).willReturn(true);
-
-            // When
-            reservationService.updateReservationStatus(reservationId, updateDto);
-
-            // Then
-            verify(mentoringRecordRepository).existsByReservationId(reservationId);
-            verify(mentoringRecordRepository, never()).save(any(MentoringRecord.class));
-        }
-    }
 
     @Nested
     @DisplayName("경계값 테스트")
