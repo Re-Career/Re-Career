@@ -6,6 +6,9 @@ import com.recareer.backend.session.dto.SessionResponseDto;
 import com.recareer.backend.session.dto.SessionUpdateRequestDto;
 import com.recareer.backend.session.entity.Session;
 import com.recareer.backend.session.service.SessionService;
+import com.recareer.backend.session.dto.SessionFeedbackRequestDto;
+import com.recareer.backend.session.dto.SessionDetailResponseDto;
+import org.springframework.web.multipart.MultipartFile;
 import com.recareer.backend.response.ApiResponse;
 import com.recareer.backend.auth.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -146,4 +149,83 @@ public class SessionController {
   //         .body(ApiResponse.error("세션 취소 중 오류가 발생했습니다."));
   //   }
   // }
+
+  @GetMapping("/{id}/detail")
+  @Operation(summary = "완료된 상담 상세 조회")
+  public ResponseEntity<ApiResponse<SessionDetailResponseDto>> getSessionDetail(
+      @RequestHeader("Authorization") String accessToken,
+      @PathVariable Long id) {
+    
+    try {
+      Long userId = authUtil.validateTokenAndGetUserId(accessToken);
+      Session session = sessionService.findById(id);
+      
+      // 해당 세션의 참여자만 조회 가능
+      if (!session.isMentorParticipant(userId) && 
+          !session.isMenteeParticipant(userId)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(ApiResponse.error("해당 세션 참여자만 조회할 수 있습니다"));
+      }
+      
+      SessionDetailResponseDto responseDto = sessionService.getSessionDetail(id);
+
+      return ResponseEntity.ok(ApiResponse.success(responseDto));
+      
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(ApiResponse.error(e.getMessage()));
+    }
+  }
+
+  @PostMapping("/{id}/feedback")
+  @Operation(summary = "세션 피드백 작성", description = "멘티가 세션 후 멘토에 대한 피드백을 작성합니다.")
+  public ResponseEntity<ApiResponse<Long>> addSessionFeedback(
+      @RequestHeader("Authorization") String accessToken,
+      @PathVariable Long id,
+      @Valid @RequestBody SessionFeedbackRequestDto requestDto) {
+    
+    try {
+      Long userId = authUtil.validateTokenAndGetUserId(accessToken);
+      Session session = sessionService.findById(id);
+      
+      if (!session.isMenteeParticipant(userId)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(ApiResponse.error("해당 세션에 참여한 멘티만 피드백을 작성할 수 있습니다"));
+      }
+      
+      Long sessionId = sessionService.addSessionFeedback(id, requestDto);
+      return ResponseEntity.ok(ApiResponse.success(sessionId));
+      
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(ApiResponse.error(e.getMessage()));
+    }
+  }
+
+  @PostMapping("/{id}/audio")
+  @Operation(summary = "세션 녹음 파일 업로드",
+             description = "멘토가 세션 녹음 파일을 업로드하면 S3에 저장하고, " +
+                         "AI를 통해 음성을 텍스트로 전사하고 상담 내용을 요약합니다.")
+  public ResponseEntity<ApiResponse<Long>> uploadSessionAudio(
+      @RequestHeader("Authorization") String accessToken,
+      @PathVariable Long id,
+      @RequestParam("audioFile") MultipartFile audioFile) {
+    
+    try {
+      Long userId = authUtil.validateTokenAndGetUserId(accessToken);
+      Session session = sessionService.findById(id);
+      
+      if (!session.isMentorParticipant(userId)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(ApiResponse.error("해당 세션에 참여한 멘토만 음성 파일을 업로드할 수 있습니다"));
+      }
+      
+      Long sessionId = sessionService.uploadSessionAudio(id, audioFile);
+      return ResponseEntity.ok(ApiResponse.success(sessionId));
+      
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(ApiResponse.error(e.getMessage()));
+    }
+  }
 }

@@ -12,10 +12,12 @@ import com.recareer.backend.session.entity.SessionStatus;
 import com.recareer.backend.session.repository.SessionRepository;
 import com.recareer.backend.user.entity.User;
 import com.recareer.backend.user.repository.UserRepository;
-import com.recareer.backend.mentoringRecord.entity.MentoringRecord;
-import com.recareer.backend.mentoringRecord.entity.MentoringRecordStatus;
-import com.recareer.backend.mentoringRecord.repository.MentoringRecordRepository;
+import com.recareer.backend.session.dto.SessionFeedbackRequestDto;
+import com.recareer.backend.session.dto.SessionDetailResponseDto;
+import com.recareer.backend.common.service.S3Service;
+import com.recareer.backend.common.service.AudioTranscriptionService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +32,8 @@ public class SessionServiceImpl implements SessionService {
   private final SessionRepository sessionRepository;
   private final UserRepository userRepository;
   private final MentorRepository mentorRepository;
-  private final MentoringRecordRepository mentoringRecordRepository;
+  private final S3Service s3Service;
+  private final AudioTranscriptionService audioTranscriptionService;
 
   @Override
   @Transactional(readOnly = true)
@@ -86,20 +89,6 @@ public class SessionServiceImpl implements SessionService {
             .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
   }
   
-  
-  private void createMentoringRecordIfNotExists(Session session) {
-    // 이미 MentoringRecord가 존재하는지 확인
-    boolean exists = mentoringRecordRepository.existsBySessionId(session.getId());
-    
-    if (!exists) {
-      MentoringRecord mentoringRecord = MentoringRecord.builder()
-          .session(session)
-          .status(MentoringRecordStatus.AUDIO_PENDING)
-          .build();
-      
-      mentoringRecordRepository.save(mentoringRecord);
-    }
-  }
 
   @Override
   @Transactional
@@ -120,18 +109,16 @@ public class SessionServiceImpl implements SessionService {
           throw new IllegalStateException("확인된 상태의 세션만 완료할 수 있습니다.");
         }
         session.setStatus(SessionStatus.COMPLETED);
-        // 멘토링 완료 시 자동으로 MentoringRecord 생성
-        createMentoringRecordIfNotExists(session);
       }
       case CANCELED -> {
         if (session.getStatus() == SessionStatus.COMPLETED) {
           throw new IllegalStateException("완료된 멘토링은 취소할 수 없습니다.");
         }
-        if (updateRequestDto.getCancelReason() == null || updateRequestDto.getCancelReason().trim().isEmpty()) {
-          throw new IllegalArgumentException("취소 사유는 필수입니다.");
-        }
         session.setStatus(SessionStatus.CANCELED);
-        session.setCancelReason(updateRequestDto.getCancelReason());
+        // 취소 사유는 선택사항
+        if (updateRequestDto.getCancelReason() != null && !updateRequestDto.getCancelReason().trim().isEmpty()) {
+          session.setCancelReason(updateRequestDto.getCancelReason());
+        }
       }
       default -> throw new IllegalArgumentException("지원하지 않는 상태입니다: " + newStatus);
     }
@@ -166,5 +153,57 @@ public class SessionServiceImpl implements SessionService {
         return sessions.stream()
                 .map(SessionListResponseDto::from)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public Long addSessionFeedback(Long sessionId, SessionFeedbackRequestDto requestDto) {
+        Session session = findById(sessionId);
+        session.setMenteeFeedback(requestDto.getMenteeFeedback());
+        sessionRepository.save(session);
+        return session.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long uploadSessionAudio(Long sessionId, MultipartFile audioFile) {
+        try {
+            log.info("오디오 파일 처리 시작 - 세션 ID: {}, 파일명: {}", sessionId, audioFile.getOriginalFilename());
+
+            Session session = findById(sessionId);
+
+            // 1. S3에 오디오 파일 업로드
+            String audioFileUrl = s3Service.uploadAudioFile(audioFile);
+            log.info("S3 업로드 완료: {}", audioFileUrl);
+
+            // 2. 음성을 텍스트로 전사
+            String transcribedText = audioTranscriptionService.transcribeAudio(audioFile);
+            log.info("음성 전사 완료");
+
+            // 3. 전사된 텍스트 요약
+            String summary = audioTranscriptionService.summarizeText(transcribedText);
+            log.info("텍스트 요약 완료");
+
+            // 4. 세션에 오디오 관련 데이터 저장
+            session.setAudioFileUrl(audioFileUrl);
+            session.setTranscribedText(transcribedText);
+            session.setSummary(summary);
+
+            Session savedSession = sessionRepository.save(session);
+            log.info("세션 오디오 데이터 저장 완료 - ID: {}", savedSession.getId());
+
+            return savedSession.getId();
+
+        } catch (Exception e) {
+            log.error("오디오 파일 처리 중 오류 발생: ", e);
+            throw new RuntimeException("오디오 파일 처리에 실패했습니다.", e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SessionDetailResponseDto getSessionDetail(Long sessionId) {
+        Session session = findById(sessionId);
+        return SessionDetailResponseDto.from(session);
     }
 }

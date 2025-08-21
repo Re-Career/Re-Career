@@ -41,6 +41,22 @@ public class Session extends BaseTimeEntity {
   @Column(name = "cancel_reason", columnDefinition = "TEXT")
   private String cancelReason;
 
+  // 멘티 피드백
+  @Column(name = "mentee_feedback", columnDefinition = "TEXT")
+  private String menteeFeedback;
+
+  // 오디오 파일 URL
+  @Column(name = "audio_file_url")
+  private String audioFileUrl;
+
+  // 전사된 텍스트
+  @Column(name = "transcribed_text", columnDefinition = "LONGTEXT")
+  private String transcribedText;
+
+  // 요약
+  @Column(name = "summary", columnDefinition = "TEXT")
+  private String summary;
+
   /**
    * 주어진 사용자 ID가 해당 세션의 멘토인지 확인합니다.
    * 
