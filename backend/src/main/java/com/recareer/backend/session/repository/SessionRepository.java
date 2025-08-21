@@ -11,4 +11,6 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
   List<Session> findAllByUserId(Long userId);
   
   List<Session> findByMentor(Mentor mentor);
+  
+  List<Session> findAllByMentorUserId(Long mentorUserId);
 }

@@ -40,6 +40,24 @@ public class SessionServiceImpl implements SessionService {
             .map(SessionResponseDto::from)
             .toList();
   }
+  
+  @Override
+  @Transactional(readOnly = true)
+  public List<SessionResponseDto> findSessionsByMentorId(Long mentorId) {
+    List<Session> sessions = sessionRepository.findAllByMentorUserId(mentorId);
+    return sessions.stream()
+            .map(SessionResponseDto::from)
+            .toList();
+  }
+  
+  @Override
+  @Transactional(readOnly = true)
+  public List<SessionResponseDto> findSessionsByMenteeId(Long menteeId) {
+    List<Session> sessions = sessionRepository.findAllByUserId(menteeId);
+    return sessions.stream()
+            .map(SessionResponseDto::from)
+            .toList();
+  }
 
   @Override
   @Transactional()

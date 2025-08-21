@@ -27,21 +27,27 @@ public class SessionController {
   private final AuthUtil authUtil;
 
   @GetMapping
-  @Operation(summary = "세션 목록 조회", description = "유저의 모든 멘토링 세션 목록을 조회합니다.")
+  @Operation(summary = "상담 내역 조회", description = "역할(MENTOR/MENTEE)에 따른 예정/완료된 상담 목록을 조회합니다.")
   public ResponseEntity<ApiResponse<List<SessionResponseDto>>> getSessions(
       @RequestHeader("Authorization") String accessToken,
-      @RequestParam Long userId) {
+      @RequestParam(required = true) String role) {
     
     try {
-      Long requestUserId = authUtil.validateTokenAndGetUserId(accessToken);
+      Long userId = authUtil.validateTokenAndGetUserId(accessToken);
       
-      // 자신의 세션 목록만 조회 가능
-      if (!requestUserId.equals(userId)) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-            .body(ApiResponse.error("본인의 세션 목록만 조회할 수 있습니다"));
+      // role 검증
+      if (!"MENTOR".equals(role) && !"MENTEE".equals(role)) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ApiResponse.error("역할은 MENTOR 또는 MENTEE만 가능합니다"));
       }
       
-      List<SessionResponseDto> sessions = sessionService.findAllSessionsByUserId(userId);
+      List<SessionResponseDto> sessions;
+      if ("MENTOR".equals(role)) {
+        sessions = sessionService.findSessionsByMentorId(userId);
+      } else {
+        sessions = sessionService.findSessionsByMenteeId(userId);
+      }
+      
       return ResponseEntity.ok(ApiResponse.success(sessions));
       
     } catch (IllegalArgumentException e) {

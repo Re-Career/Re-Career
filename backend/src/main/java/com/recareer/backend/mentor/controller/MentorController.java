@@ -122,20 +122,20 @@ public class MentorController {
                 .orElse(ResponseEntity.status(404).body(ApiResponse.error("해당 멘토를 찾을 수 없습니다.")));
     }
 
-    @GetMapping("/{id}/sessions")
-    @Operation(summary = "멘토별 세션 목록 조회", description = "멘토별 예정된 상담을 조회합니다")
-    public ResponseEntity<ApiResponse<List<SessionListResponseDto>>> getMentorSessions(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
-        Long userId = authUtil.validateTokenAndGetUserId(accessToken);
-        if (!userId.equals(id)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
-        }
-        List<Session> sessions = mentorService.getMentorSessions(id);
-        List<SessionListResponseDto> sessionDtos = sessions.stream()
-                .map(SessionListResponseDto::from)
-                .toList();
+    // @GetMapping("/{id}/sessions")
+    // @Operation(summary = "멘토별 세션 목록 조회", description = "멘토별 예정된 상담을 조회합니다 - /my/sessions?role=MENTOR 사용 권장")
+    // public ResponseEntity<ApiResponse<List<SessionListResponseDto>>> getMentorSessions(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
+    //     Long userId = authUtil.validateTokenAndGetUserId(accessToken);
+    //     if (!userId.equals(id)) {
+    //         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
+    //     }
+    //     List<Session> sessions = mentorService.getMentorSessions(id);
+    //     List<SessionListResponseDto> sessionDtos = sessions.stream()
+    //             .map(SessionListResponseDto::from)
+    //             .toList();
 
-        return ResponseEntity.ok(ApiResponse.success(sessionDtos));
-    }
+    //     return ResponseEntity.ok(ApiResponse.success(sessionDtos));
+    // }
 
     @GetMapping("/{id}/available-times")
     @Operation(summary = "멘토 상담 예약 - 가능한 날짜, 시간 조회", description = "각 멘토 별 멘토링이 가능한 시간대를 조회합니다")
