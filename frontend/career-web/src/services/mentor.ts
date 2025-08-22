@@ -1,7 +1,8 @@
-import { FilterOptions, MentorDetail } from '@/types/mentor'
+import { FilterOptions, Mentor, MentorDetail } from '@/types/mentor'
 import { fetchUrl } from './api'
 import { searchMentors } from '@/mocks/home/mentors-search'
 import { mentorDetails } from '@/mocks/home/mentor-details'
+import { ONE_DAY } from '@/lib/constants/global'
 
 export const getMentor = async (id: string): Promise<MentorDetail> => {
   const res = await fetchUrl(`/mentors/${id}`)
@@ -62,4 +63,14 @@ export const getRecommenedMentors = () => {
   const recommendedMentors = searchMentors.slice(0, 3)
 
   return recommendedMentors
+}
+
+export const getMentors = async (region?: string): Promise<Mentor[]> => {
+  const res = await fetchUrl(`/mentors?region=${region || '서울'}`, {
+    next: { revalidate: ONE_DAY },
+  })
+
+  const { data } = await res.json()
+
+  return data
 }

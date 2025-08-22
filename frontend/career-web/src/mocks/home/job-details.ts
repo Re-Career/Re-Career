@@ -1,6 +1,6 @@
-import { JobDetail } from '@/types/home'
+import { PositionDetail } from '@/types/home'
 
-export const jobDetails: JobDetail[] = [
+export const positionDetails: PositionDetail[] = [
   {
     id: 1,
     name: '소프트웨어 엔지니어',

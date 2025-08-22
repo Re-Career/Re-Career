@@ -4,21 +4,21 @@ export interface PositionResponsibility {
   imageUrl: string
 }
 
-export interface DefaultJob {
+export interface DefaultPosition {
   id: number
   name: string
   imageUrl: string
   category: string
 }
 
-export interface JobDetail extends DefaultJob {
+export interface PositionDetail extends DefaultPosition {
   trendRank: number
   description: string
   industryTrends: string
   positionResponsibilities: PositionResponsibility[]
 }
 
-export interface RegionJob {
+export interface RegionPosition {
   region: string
-  positions: DefaultJob[]
+  positions: DefaultPosition[]
 }

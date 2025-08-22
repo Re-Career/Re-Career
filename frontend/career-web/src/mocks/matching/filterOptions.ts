@@ -1,6 +1,6 @@
 export const filterOptions = [
   {
-    key: 'job',
+    key: 'position',
     title: '직업',
     options: [
       { key: 'software', name: '소프트웨어' },

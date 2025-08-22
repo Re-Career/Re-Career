@@ -1,6 +1,6 @@
 import {
-  ReginalJobList,
-  TrendJobList,
+  ReginalPositionList,
+  TrendPositionList,
   MentorList,
   IndustryNews,
 } from '@/components/home'
@@ -11,9 +11,9 @@ const HomePage = async () => {
     <>
       <Header title="Re:Career" />
       <PageWithHeader>
-        <main className="flex-1">
-          <TrendJobList />
-          <ReginalJobList />
+        <main className="flex flex-col gap-4">
+          <TrendPositionList />
+          <ReginalPositionList />
           <MentorList />
           <IndustryNews />
         </main>

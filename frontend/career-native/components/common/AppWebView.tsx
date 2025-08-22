@@ -12,7 +12,7 @@ interface CareerWebViewProps extends WebViewProps {
 
 interface WebviewData {
   mentorId?: number
-  jobId?: number
+  positionId?: number
   accessToken?: string
   refreshToken?: string
 }

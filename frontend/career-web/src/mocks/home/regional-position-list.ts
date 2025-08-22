@@ -1,6 +1,6 @@
-import { RegionJobs } from '@/types/home'
+import { RegionPositions } from '@/types/home'
 
-export const regionalJobs: RegionJobs = {
+export const regionalPositions: RegionPositions = {
   region: '서울',
   positions: [
     {

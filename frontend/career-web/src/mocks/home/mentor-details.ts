@@ -4,7 +4,7 @@ export const mentorDetails: MentorDetail[] = [
   {
     id: 1,
     name: '김지연',
-    job: { id: 1, name: '시니어 소프트웨어 엔지니어' },
+    position: { id: 1, name: '시니어 소프트웨어 엔지니어' },
     email: 'sophia.kim@example.com',
     profileImageUrl:
       'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=200&h=200&fit=crop&crop=face',
@@ -61,7 +61,7 @@ export const mentorDetails: MentorDetail[] = [
   {
     id: 2,
     name: '박서영',
-    job: { id: 2, name: '프로덕트 매니저' },
+    position: { id: 2, name: '프로덕트 매니저' },
     email: 'sophia.park@example.com',
     profileImageUrl:
       'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop&crop=face',

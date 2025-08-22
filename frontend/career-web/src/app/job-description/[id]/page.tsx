@@ -3,18 +3,18 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import Link from 'next/link'
-import { getJobDetail } from '@/services/positions'
+import { getPositionDetail } from '@/services/positions'
 import PageWithHeader from '@/components/layout/PageWithHeader'
 
-const JobDescriptionPage = async ({
+const PositionDescriptionPage = async ({
   params,
 }: {
   params: Promise<{ id: string }>
 }) => {
   const { id } = await params
-  const jobDetail = await getJobDetail(id)
+  const positionDetail = await getPositionDetail(id)
 
-  if (!jobDetail) {
+  if (!positionDetail) {
     notFound()
   }
 
@@ -24,8 +24,8 @@ const JobDescriptionPage = async ({
       <PageWithHeader>
         <div className="h-60 w-full flex-shrink-0 overflow-hidden">
           <Image
-            src={jobDetail.imageUrl}
-            alt={`job_detail_image_${jobDetail.id}`}
+            src={positionDetail.imageUrl}
+            alt={`position_detail_image_${positionDetail.id}`}
             width={400}
             height={300}
             className="h-full w-full object-cover object-top"
@@ -36,15 +36,15 @@ const JobDescriptionPage = async ({
             <div className="flex-1">
               <div className="mb-2 flex items-center gap-3">
                 <h1 className="text-2xl font-bold text-neutral-900">
-                  {jobDetail.name}
+                  {positionDetail.name}
                 </h1>
                 <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
-                  {jobDetail.category}
+                  {positionDetail.category}
                 </span>
               </div>
 
               <p className="leading-relaxed text-gray-700">
-                {jobDetail.description}
+                {positionDetail.description}
               </p>
             </div>
           </div>
@@ -53,37 +53,39 @@ const JobDescriptionPage = async ({
           <h2 className="mb-4 text-xl font-bold text-neutral-900">주요 책임</h2>
 
           <div className="space-y-4">
-            {jobDetail.positionResponsibilities.map((responsibility, index) => (
-              <div key={index} className="flex items-center gap-4">
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-200 text-2xl">
-                  <Image
-                    src={responsibility.imageUrl}
-                    width={24}
-                    height={24}
-                    alt={responsibility.imageUrl}
-                  />
+            {positionDetail.positionResponsibilities.map(
+              (responsibility, index) => (
+                <div key={index} className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-200 text-2xl">
+                    <Image
+                      src={responsibility.imageUrl}
+                      width={24}
+                      height={24}
+                      alt={responsibility.imageUrl}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="mb-1 font-semibold text-neutral-900">
+                      {responsibility.name}
+                    </h3>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="mb-1 font-semibold text-neutral-900">
-                    {responsibility.name}
-                  </h3>
-                </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         </section>
         <section className="p-4">
           <h2 className="mb-4 text-xl font-bold text-neutral-900">산업 동향</h2>
 
           <p className="leading-relaxed text-gray-700">
-            {jobDetail.industryTrends}
+            {positionDetail.industryTrends}
           </p>
         </section>
 
         <div className="flex w-full items-center justify-center px-4">
           <Link
             className="bg-primary-500 w-full rounded-xl py-3 text-center font-bold"
-            href={`/matching?jobId=${id}`}
+            href={`/matching?PositionId=${id}`}
           >
             멘토 찾기
           </Link>
@@ -93,4 +95,4 @@ const JobDescriptionPage = async ({
   )
 }
 
-export default JobDescriptionPage
+export default PositionDescriptionPage

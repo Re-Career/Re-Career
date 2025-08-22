@@ -1,17 +1,17 @@
-export interface TrendJob {
+export interface TrendPosition {
   id: number
   name: string
   category: string
   imageUrl: string
 }
 
-export interface RegionJob extends TrendJob {
+export interface RegionPosition extends TrendPosition {
   rank: number
 }
 
-export interface RegionJobs {
+export interface RegionPositions {
   region: string
-  positions: RegionJob[]
+  positions: RegionPosition[]
 }
 
 export interface PersonalityTag {
@@ -22,7 +22,7 @@ export interface PersonalityTag {
 export interface Mentor {
   id: number
   name: string
-  job: string
+  position: string
   email: string
   profileImageUrl: string
   company?: string
@@ -55,13 +55,13 @@ export interface IndustryNews {
   imageUrl: string
 }
 
-export interface JobResponsibility {
+export interface positionResponsibility {
   icon: string
   title: string
   description: string
 }
 
-export interface JobDetail {
+export interface PositionDetail {
   id: number
   name: string
   category: string
@@ -71,6 +71,6 @@ export interface JobDetail {
     image: string
     title: string
   }
-  responsibilities: JobResponsibility[]
+  responsibilities: positionResponsibility[]
   industryTrends: string[]
 }

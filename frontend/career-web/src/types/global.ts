@@ -14,7 +14,7 @@ export interface SaveAuthData {
 }
 
 export interface SearchMentorData {
-  jobId: string
+  positionId: string
 }
 
 export interface MentorProfileData {

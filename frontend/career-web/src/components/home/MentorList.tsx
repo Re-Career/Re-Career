@@ -1,10 +1,12 @@
 import React from 'react'
-import { mentors } from '@/mocks/home/mentor-list'
 import HorizontalScroll from '@/components/common/HorizontalScroll'
 import Link from 'next/link'
 import Image from 'next/image'
+import { getMentors } from '@/services/mentor'
 
-const MentorList = () => {
+const MentorList = async () => {
+  const mentors = await getMentors()
+
   return (
     <section className="">
       <div>
@@ -23,13 +25,13 @@ const MentorList = () => {
                   alt={`mentor_by_region_${mentor.id}`}
                   width={128}
                   height={128}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover object-top"
                 />
               </div>
 
               <div className="text-center">
                 <h3 className="font-medium text-neutral-900">{mentor.name}</h3>
-                <p className="text-sm text-gray-600">{mentor.job.name}</p>
+                <p className="text-sm text-gray-600">{mentor.position.name}</p>
               </div>
             </Link>
           ))}

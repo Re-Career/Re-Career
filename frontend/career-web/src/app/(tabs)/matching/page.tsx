@@ -58,7 +58,9 @@ const MatchingPage = async ({ searchParams }: MatchingPageProps) => {
                   <h3 className="mb-1 font-semibold text-gray-900">
                     {mentor.name}
                   </h3>
-                  <p className="mb-1 text-sm text-gray-600">{mentor.job}</p>
+                  <p className="mb-1 text-sm text-gray-600">
+                    {mentor.position}
+                  </p>
                   <p className="text-xs text-gray-500">
                     {mentor.company} • {mentor.experience}년
                   </p>
@@ -90,7 +92,7 @@ const MatchingPage = async ({ searchParams }: MatchingPageProps) => {
                         <h3 className="font-semibold text-gray-900">
                           {mentor.name}
                           <span className="ml-1 text-sm text-gray-500">
-                            {mentor.job}
+                            {mentor.position}
                           </span>
                         </h3>
 

@@ -1,5 +1,5 @@
 export const INITIAL_FILTERS = {
-  job: [],
+  position: [],
   experience: [],
   location: [],
   meetingType: [],

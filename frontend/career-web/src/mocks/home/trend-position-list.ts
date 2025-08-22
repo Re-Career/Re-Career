@@ -1,6 +1,6 @@
-import { TrendJob } from '@/types/home'
+import { TrendPosition } from '@/types/home'
 
-export const trendJobs: TrendJob[] = [
+export const trendPosition: TrendPosition[] = [
   {
     id: 1,
     name: '소프트웨어 엔지니어',

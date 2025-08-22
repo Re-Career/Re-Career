@@ -6,7 +6,7 @@ export interface PersonalityTag {
 export interface Mentor {
   id: number
   name: string
-  job: {
+  position: {
     id: number
     name: string
   }
@@ -55,7 +55,7 @@ export const mockMentors: Mentor[] = [
   {
     id: 1,
     name: '김민수',
-    job: { id: 1, name: '프론트엔드 개발자' },
+    position: { id: 1, name: '프론트엔드 개발자' },
     email: 'minsu.kim@example.com',
     profileImageUrl: 'https://example.com/profile1.jpg',
     company: { id: 1, name: '네이버' },
@@ -70,7 +70,7 @@ export const mockMentors: Mentor[] = [
   {
     id: 2,
     name: '이소영',
-    job: { id: 2, name: '백엔드 개발자' },
+    position: { id: 2, name: '백엔드 개발자' },
     email: 'soyoung.lee@example.com',
     profileImageUrl: 'https://example.com/profile2.jpg',
     company: { id: 2, name: '카카오' },
@@ -85,7 +85,7 @@ export const mockMentors: Mentor[] = [
   {
     id: 3,
     name: '박준혁',
-    job: { id: 3, name: '풀스택 개발자' },
+    position: { id: 3, name: '풀스택 개발자' },
     email: 'junhyuk.park@example.com',
     profileImageUrl: 'https://example.com/profile3.jpg',
     company: { id: 3, name: '토스' },
@@ -100,7 +100,7 @@ export const mockMentors: Mentor[] = [
   {
     id: 4,
     name: '최유진',
-    job: { id: 4, name: '데이터 사이언티스트' },
+    position: { id: 4, name: '데이터 사이언티스트' },
     email: 'yujin.choi@example.com',
     profileImageUrl: 'https://example.com/profile4.jpg',
     company: { id: 4, name: '배달의민족' },
@@ -111,7 +111,7 @@ export const mockMentors: Mentor[] = [
   {
     id: 5,
     name: '정태현',
-    job: { id: 5, name: 'DevOps 엔지니어' },
+    position: { id: 5, name: 'DevOps 엔지니어' },
     email: 'taehyun.jung@example.com',
     profileImageUrl: 'https://example.com/profile5.jpg',
     company: { id: 5, name: '쿠팡' },
