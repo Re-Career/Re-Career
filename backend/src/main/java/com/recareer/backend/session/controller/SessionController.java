@@ -21,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/my/sessions")
+@RequestMapping("/sessions")
 @RequiredArgsConstructor
 @Tag(name = "Session", description = "세션 관련 API")
 public class SessionController {
