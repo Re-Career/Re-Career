@@ -125,11 +125,13 @@ public class MentorController {
             @RequestHeader("Authorization") String accessToken,
             @RequestBody MentorUpdateRequestDto requestDto) {
         Long userId = authUtil.validateTokenAndGetUserId(accessToken);
-        if (!userId.equals(id)) {
+        Mentor mentor = mentorService.getMentorById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 멘토를 찾을 수 없습니다."));
+        if (!userId.equals(mentor.getUser().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
         }
         return mentorService.updateMentor(id, requestDto.getPositionId(), requestDto.getDescription(), requestDto.getIntroduction(), requestDto.getExperience(), requestDto.getSkillIds())
-                .map(mentor -> ResponseEntity.ok(ApiResponse.success("멘토 정보가 성공적으로 수정되었습니다.", MentorUpdateResponseDto.from(mentor))))
+                .map(updatedMentor -> ResponseEntity.ok(ApiResponse.success("멘토 정보가 성공적으로 수정되었습니다.", MentorUpdateResponseDto.from(updatedMentor))))
                 .orElse(ResponseEntity.status(404).body(ApiResponse.error("해당 멘토를 찾을 수 없습니다.")));
     }
 
