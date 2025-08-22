@@ -44,7 +44,7 @@ export async function handleOAuth2Redirect(
     }
 
     // 정상 로그인된 유저
-    const redirectUrl = request.cookies.get('redirectUrl')?.value || '/'
+    const redirectUrl = request.cookies.get('redirectUrl')?.value || '/my-page'
     const response = NextResponse.redirect(new URL(redirectUrl, request.url))
 
     response.cookies.set('accessToken', accessToken, {
@@ -58,10 +58,13 @@ export async function handleOAuth2Redirect(
     })
 
     // redirectUrl 쿠키 삭제
-    response.cookies.delete('redirectUrl')
+    request.cookies.get('redirectUrl')?.value &&
+      response.cookies.delete('redirectUrl')
 
     return response
-  } catch {
+  } catch (error) {
+    console.log(error)
+
     return NextResponse.redirect(new URL('/login', request.url))
   }
 }
