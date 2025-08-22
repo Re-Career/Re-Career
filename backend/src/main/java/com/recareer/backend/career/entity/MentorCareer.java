@@ -32,9 +32,6 @@ public class MentorCareer extends BaseTimeEntity {
     @Column(nullable = false, length = 100)
     private String position; // 직책/포지션
 
-    @Column(columnDefinition = "TEXT")
-    private String description; // 업무 설명
-
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate; // 시작일
 
@@ -48,13 +45,10 @@ public class MentorCareer extends BaseTimeEntity {
     @Column(name = "display_order")
     private Integer displayOrder; // 표시 순서 (최신순으로 정렬하기 위함)
 
-    public void updateCareer(String company, String position, String description, 
-                           LocalDate startDate, LocalDate endDate, Boolean isCurrent, Integer displayOrder) {
+    public void updateCareer(String company, String position, 
+                           Boolean isCurrent, Integer displayOrder) {
         this.company = company;
         this.position = position;
-        this.description = description;
-        this.startDate = startDate;
-        this.endDate = endDate;
         this.isCurrent = isCurrent;
         this.displayOrder = displayOrder;
     }

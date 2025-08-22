@@ -1,16 +1,13 @@
 package com.recareer.backend.mentor.service;
 
 import com.recareer.backend.availableTime.entity.AvailableTime;
+import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
-import com.recareer.backend.reservation.entity.Reservation;
+import com.recareer.backend.session.entity.Session;
 import com.recareer.backend.user.entity.Role;
 import com.recareer.backend.user.entity.User;
-import com.recareer.backend.user.entity.UserPersonalityTag;
 import com.recareer.backend.user.repository.UserRepository;
-import com.recareer.backend.user.repository.UserPersonalityTagRepository;
-import com.recareer.backend.personality.entity.PersonalityTag;
-import com.recareer.backend.personality.repository.PersonalityTagRepository;
 import com.recareer.backend.position.entity.Position;
 import com.recareer.backend.common.entity.Province;
 import com.recareer.backend.common.entity.City;
@@ -49,12 +46,6 @@ class MentorServiceTest {
     private UserRepository userRepository;
     
     @Autowired
-    private PersonalityTagRepository personalityTagRepository;
-    
-    @Autowired
-    private UserPersonalityTagRepository userPersonalityTagRepository;
-    
-    @Autowired
     private PositionRepository positionRepository;
     
     @Autowired
@@ -75,34 +66,27 @@ class MentorServiceTest {
         // 테스트 데이터 생성
         skills = skillRepository.findAll();
         
-        // Province와 City 생성
-        Province province = Province.builder()
-                .key("seoul")
-                .name("서울특별시")
-                .build();
-        provinceRepository.save(province);
+        // Province와 City 생성 (이미 존재하면 조회, 없으면 생성)
+        Province province = provinceRepository.findByName("서울특별시").orElseGet(() -> 
+            provinceRepository.save(Province.builder().key("seoul").name("서울특별시").build())
+        );
         
-        City city = City.builder()
-                .key("gangnam")
-                .name("강남구")
-                .province(province)
-                .build();
-        cityRepository.save(city);
+        City city = cityRepository.findByName("강남구").orElseGet(() -> 
+            cityRepository.save(City.builder().key("gangnam").name("강남구").province(province).build())
+        );
         
-        // Position 생성
-        Position position = Position.builder()
-                .name("소프트웨어 엔지니어")
-                .build();
-        positionRepository.save(position);
+        // Position 생성 (이미 존재하면 조회, 없으면 생성)
+        Position position = positionRepository.findByName("소프트웨어 엔지니어").orElseGet(() -> 
+            positionRepository.save(Position.builder().name("소프트웨어 엔지니어").build())
+        );
         
-        // 추가 Position 생성 (테스트용)
-        Position pmPosition = Position.builder()
-                .name("프로덕트 매니저")
-                .build();
-        positionRepository.save(pmPosition);
+        positionRepository.findByName("프로덕트 매니저").orElseGet(() -> 
+            positionRepository.save(Position.builder().name("프로덕트 매니저").build())
+        );
         
-        // User 생성
-        mentorUser = User.builder()
+        // User 생성 (이미 존재하면 조회, 없으면 생성)
+        mentorUser = userRepository.findByEmail("mentor@test.com").orElseGet(() -> 
+            userRepository.save(User.builder()
                 .name("김민수")
                 .email("mentor@test.com")
                 .role(Role.MENTOR)
@@ -110,19 +94,20 @@ class MentorServiceTest {
                 .providerId("test-provider-id")
                 .province(province)
                 .city(city)
-                .build();
-        userRepository.save(mentorUser);
+                .build())
+        );
         
-        // Mentor 생성
-        mentor = Mentor.builder()
+        // Mentor 생성 (이미 존재하면 조회, 없으면 생성)
+        mentor = mentorRepository.findByUser(mentorUser).orElseGet(() -> 
+            mentorRepository.save(Mentor.builder()
                 .user(mentorUser)
                 .position(position)
                 .description("5년차 백엔드 개발자입니다.")
                 .introduction("Spring Boot와 Java를 주로 사용합니다.")
                 .experience(5)
                 .isVerified(true)
-                .build();
-        mentorRepository.save(mentor);
+                .build())
+        );
     }
 
     @Test
@@ -163,27 +148,6 @@ class MentorServiceTest {
         assertThat(result.get().getIsVerified()).isFalse();
     }
 
-    // @Test - 데이터 의존성으로 인한 임시 비활성화
-    @DisplayName("지역으로 멘토 검색 성공")
-    void getMentorsByRegion_Success_DISABLED() {
-        // data.sql의 첫 번째 멘토 providerId 사용
-        List<Mentor> result = mentorService.getMentorsByPriorityFilters("3024567890", List.of("강남"), null, null);
-        
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getUser().getName()).isEqualTo("김민수");
-    }
-
-    // @Test - 서비스 구현 이슈로 인해 임시로 비활성화
-    @DisplayName("지역이 빈 리스트면 기본 지역(서울시)으로 검색")
-    void getMentorsByRegion_EmptyRegionList_DISABLED() {
-        // TODO: NPE 이슈 해결 후 재활성화 필요
-        // data.sql의 멘티 providerId 사용 (9번: 김학생 - 서울시 강남구에 거주)
-        // List<Mentor> result = mentorService.getMentorsByPriorityFilters("3024567898", List.of(), null, null);
-        
-        // 임시로 성공으로 처리
-        assertThat(true).isTrue();
-    }
-
     @Test
     @DisplayName("멘토 정보 업데이트 성공")
     void updateMentor_Success() {
@@ -219,7 +183,7 @@ class MentorServiceTest {
     @Test
     @DisplayName("멘토의 예약 목록 조회")
     void getMentorReservations_Success() {
-        List<Reservation> result = mentorService.getMentorReservations(mentor.getId());
+        List<Session> result = mentorService.getMentorSessions(mentor.getId());
         
         assertThat(result).isEmpty();
     }
@@ -254,127 +218,22 @@ class MentorServiceTest {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
-    // @Test - 데이터 의존성으로 인한 임시 비활성화
-    @DisplayName("인증 토큰 기반 멘토 추천 테스트")
-    void getMentorsByRegionAndPersonalityTags_DISABLED() {
-        // data.sql의 기존 멘티 사용 (user_id 9: 김학생)
-        String providerId = "3024567898";
-        
-        // providerId로 멘토 추천 조회
-        List<Mentor> result = mentorService.getMentorsByRegionAndPersonalityTags(List.of("강남"), providerId);
+    @Test
+    @DisplayName("특정 지역의 멘토 리스트를 조회합니다")
+    void getMentorsByProvince_Success() {
+        // given
+        Province province = provinceRepository.findAll().stream()
+                .filter(p -> p.getName().equals("서울특별시"))
+                .findFirst().orElse(null);
+        assertThat(province).isNotNull();
 
-        // 결과 검증: 강남구에 있는 멘토 조회
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst().getUser().getName()).isEqualTo("김민수");
-    }
+        // when
+        List<MentorSummaryResponseDto> mentors = mentorService.getMentorsByProvince(province.getId());
 
-    // @Test - 데이터 의존성으로 인한 임시 비활성화
-    @DisplayName("빈 personalityTags로 멘토 조회 시 전체 멘토 반환")
-    void getMentorsByRegion_WithEmptyPersonalityTags_DISABLED() {
-        List<Mentor> result = mentorService.getMentorsByPriorityFilters("3024567890", List.of("강남"), null, null);
-        
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getUser().getName()).isEqualTo("김민수");
-    }
-
-    // @Test - 데이터 의존성으로 인한 임시 비활성화
-    @DisplayName("필터 조건으로 멘토 조회 - 모든 필터 적용")
-    void getMentorsByPriorityFilters_AllFilters_DISABLED() {
-        // data.sql에는 "소프트웨어 엔지니어" 5년차 멘토가 있음
-        List<Mentor> result = mentorService.getMentorsByPriorityFilters("3024567890", List.of("강남"), "소프트웨어", "4-6년");
-        
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst().getPosition()).contains("소프트웨어");
-        assertThat(result.getFirst().getExperience()).isEqualTo(5);
-    }
-
-    // @Test - 데이터 의존성으로 인한 임시 비활성화
-    @DisplayName("필터 조건으로 멘토 조회 - 직업 필터만")
-    void getMentorsByPriorityFilters_PositionOnly_DISABLED() {
-        // data.sql에는 "소프트웨어 엔지니어" 멘토가 있음
-        List<Mentor> result = mentorService.getMentorsByPriorityFilters("3024567890", List.of("강남"), "소프트웨어", null);
-        
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst().getPosition()).contains("소프트웨어");
-    }
-
-    // @Test - 데이터 의존성으로 인한 임시 비활성화
-    @DisplayName("필터 조건으로 멘토 조회 - 경력 필터만")
-    void getMentorsByPriorityFilters_ExperienceOnly_DISABLED() {
-        List<Mentor> result = mentorService.getMentorsByPriorityFilters("3024567890", List.of("강남"), null, "4-6년");
-        
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst().getExperience()).isEqualTo(5);
-    }
-
-    // @Test - 데이터 의존성으로 인한 임시 비활성화
-    @DisplayName("필터 조건으로 멘토 조회 - 기본 조회")
-    void getMentorsByPriorityFilters_BasicSearch_DISABLED() {
-        List<Mentor> result = mentorService.getMentorsByPriorityFilters("3024567890", List.of("강남"), null, null);
-        
-        // 기본적인 지역 매칭 확인
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst().getUser().getProvince().getName()).contains("서울");
-    }
-
-    // @Test - 데이터 의존성으로 인한 임시 비활성화
-    @DisplayName("필터 조건으로 멘토 조회 - 매칭되지 않는 경우")
-    void getMentorsByPriorityFilters_NoMatch_DISABLED() {
-        // data.sql에는 강남구에 프론트엔드 개발자가 없음
-        List<Mentor> result = mentorService.getMentorsByPriorityFilters("3024567890", List.of("강남"), "데이터", null);
-        
-        assertThat(result).isEmpty();
-    }
-
-
-    // @Test - 데이터 의존성으로 인한 임시 비활성화
-    @DisplayName("경력 범위 필터링 테스트 - 1-3년")
-    void getMentorsByPriorityFilters_ExperienceRange_1To3Years_DISABLED() {
-        // data.sql에서 3년 경력 멘토 사용 (6번: 한소영 3년차, 해운대구)
-        List<Mentor> result = mentorService.getMentorsByPriorityFilters("3024567895", List.of("해운대"), null, "1-3년");
-        
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst().getExperience()).isEqualTo(3);
-        assertThat(result.getFirst().getUser().getName()).isEqualTo("한소영");
-    }
-
-    // @Test - 데이터 의존성으로 인한 임시 비활성화
-    @DisplayName("경력 범위 필터링 테스트 - 7년 이상")
-    void getMentorsByPriorityFilters_ExperienceRange_7YearsPlus_DISABLED() {
-        // data.sql에서 10년 경력 멘토 사용 (7번: 조현우 10년차, 부산진구)
-        List<Mentor> result = mentorService.getMentorsByPriorityFilters("3024567896", List.of("부산진"), null, "7년 이상");
-        
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst().getExperience()).isEqualTo(10);
-        assertThat(result.getFirst().getUser().getName()).isEqualTo("조현우");
-    }
-
-    // @Test - 데이터 의존성으로 인한 임시 비활성화
-    @DisplayName("필터 조건으로 멘토 조회 - personalityTags 포함")
-    void getMentorsByPriorityFilters_WithPersonalityTags_DISABLED() {
-        // data.sql에서 소프트웨어 엔지니어 5년차 멘토 사용
-        List<Mentor> result = mentorService.getMentorsByPriorityFilters("3024567890", List.of("강남"), "소프트웨어", "4-6년");
-        
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst().getPosition()).contains("소프트웨어");
-        assertThat(result.getFirst().getExperience()).isEqualTo(5);
-    }
-
-    // @Test - 데이터 의존성으로 인한 임시 비활성화
-    @DisplayName("존재하지 않는 providerId로 멘토 추천 조회 실패")
-    void getMentorsByRegionAndPersonalityTags_UserNotFound_DISABLED() {
-        assertThatThrownBy(() -> mentorService.getMentorsByRegionAndPersonalityTags(List.of("강남"), "nonexistent123"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("User not found with providerId");
-    }
-
-    // @Test - 데이터 의존성으로 인한 임시 비활성화
-    @DisplayName("성향 태그가 없는 사용자로 멘토 추천 조회")
-    void getMentorsByRegionAndPersonalityTags_NoPersonalityTags_DISABLED() {
-        // 성향 태그가 없는 data.sql에 들어가지 않는 providerId 사용
-        assertThatThrownBy(() -> mentorService.getMentorsByRegionAndPersonalityTags(List.of("강남"), "nonexistent123"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("User not found with providerId");
+        // then
+        assertThat(mentors).isNotNull();
+        assertThat(mentors).isNotEmpty();
+        assertThat(mentors.get(0).getProvince().getName()).isEqualTo("서울특별시");
     }
 
 }

@@ -15,15 +15,15 @@ public interface MentorRepository extends JpaRepository<Mentor, Long> {
     @Query("SELECT m FROM Mentor m JOIN m.user u WHERE m.id = :id AND u.role = 'MENTOR'")
     Optional<Mentor> findById(@Param("id") Long id);
     
-    @Query("SELECT m FROM Mentor m JOIN m.user u WHERE u.role = 'MENTOR' AND (u.province.name LIKE %:location% OR u.city.name LIKE %:location%)")
-    List<Mentor> findByUserLocationContains(@Param("location") String location);
-    
-    @Query("SELECT m FROM Mentor m JOIN FETCH m.user u WHERE u.role = 'MENTOR' AND (u.province.name LIKE %:location% OR u.city.name LIKE %:location%)")
-    List<Mentor> findByUserLocationContainsWithUser(@Param("location") String location);
-    
     @Query("SELECT m FROM Mentor m JOIN FETCH m.user u WHERE u.role = 'MENTOR'")
     List<Mentor> findAllWithUser();
     
-    @Query("SELECT m.position.name, COUNT(m) FROM Mentor m JOIN m.user u WHERE u.role = 'MENTOR' AND (u.province.name LIKE %:location% OR u.city.name LIKE %:location%) GROUP BY m.position.name ORDER BY COUNT(m) DESC limit 4")
-    List<Object[]> countPositionsByLocation(@Param("location") String location);
+    @Query("SELECT m.position.name, COUNT(m) FROM Mentor m JOIN m.user u WHERE u.role = 'MENTOR' AND u.province.id = :provinceId GROUP BY m.position.name ORDER BY COUNT(m) DESC limit 4")
+    List<Object[]> countPositionsByProvinceId(@Param("provinceId") Long provinceId);
+
+    @Query("SELECT m FROM Mentor m JOIN FETCH m.user u WHERE u.role = 'MENTOR' AND u.province.id = :provinceId")
+    List<Mentor> findByUserProvinceIdWithUser(@Param("provinceId") Long provinceId);
+
+    @Query("SELECT m FROM Mentor m JOIN m.user u WHERE u.role = 'MENTOR' AND u.province.id = :provinceId")
+    List<Mentor> findByUserProvinceId(@Param("provinceId") Long provinceId);
 }

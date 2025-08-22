@@ -36,8 +36,14 @@ public class UserInfoDto {
     @Schema(description = "가입 완료 여부", example = "true")
     private boolean isSignupCompleted;
 
+    @Schema(description = "시/도 Id", example = "1")
+    private Long provinceId;
+
     @Schema(description = "시/도", example = "서울특별시")
     private String provinceName;
+
+    @Schema(description = "구/군 Id", example = "1")
+    private Long cityId;
 
     @Schema(description = "구/군", example = "강남구")
     private String cityName;
@@ -46,7 +52,7 @@ public class UserInfoDto {
     @Schema(description = "멘토 ID", example = "1")
     private Long mentorId;
 
-    @Schema(description = "멘토 포지션", example = "백엔드 개발자")
+    @Schema(description = "멘토로 회원가입할 때 받는 포지션", example = "백엔드 개발자")
     private String mentorPosition;
 
     @Schema(description = "멘토 이력", example = "5년차 백엔드 개발자입니다.")
@@ -65,7 +71,9 @@ public class UserInfoDto {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .profileImageUrl(user.getProfileImageUrl())
+                .provinceId(user.getProvince() != null ? user.getProvince().getId() : null)
                 .provinceName(user.getProvince() != null ? user.getProvince().getName() : null)
+                .cityId(user.getCity() != null ? user.getCity().getId() : null)
                 .cityName(user.getCity() != null ? user.getCity().getName() : null)
                 .isSignupCompleted(user.getName() != null && user.getEmail() != null && user.getRole() != null)
                 .build();
@@ -78,7 +86,9 @@ public class UserInfoDto {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .profileImageUrl(user.getProfileImageUrl())
+                .provinceId(user.getProvince() != null ? user.getProvince().getId() : null)
                 .provinceName(user.getProvince() != null ? user.getProvince().getName() : null)
+                .cityId(user.getCity() != null ? user.getCity().getId() : null)
                 .cityName(user.getCity() != null ? user.getCity().getName() : null)
                 .isSignupCompleted(user.getName() != null && user.getEmail() != null && user.getRole() != null);
 

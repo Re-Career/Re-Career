@@ -3,7 +3,7 @@ package com.recareer.backend.mentor.dto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.user.entity.UserPersonalityTag;
 import com.recareer.backend.career.entity.MentorCareer;
-import com.recareer.backend.position.dto.PositionDto;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,24 +15,38 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MentorSummaryResponseDto {
+@Schema(description = "멘토 카드 정보")
+public class MentorCard {
 
+    @Schema(description = "멘토 ID", example = "1")
     private Long id;
+    
+    @Schema(description = "멘토 이름", example = "김멘토")
     private String name;
+    
+    @Schema(description = "직업 정보")
     private PositionDto position;
-    private String email;
-    private String profileImageUrl;
-    private CompanyDto company;
+    
+    @Schema(description = "경력 (년)", example = "5")
     private Integer experience;
+    
+    @Schema(description = "지역 정보")
     private ProvinceDto province;
-    private String meetingType;
-    private List<PersonalityTagDto> personalityTags;
+    
+    @Schema(description = "회사 정보")
+    private CompanyDto company;
+    
+    @Schema(description = "성향 태그 목록")
+    private List<PersonalityTagDto> personalityTag;
+    
+    @Schema(description = "프로필 이미지 URL", example = "https://example.com/image.jpg")
+    private String profileImageUrl;
 
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class CompanyDto {
+    public static class PositionDto {
         private Long id;
         private String name;
     }
@@ -50,14 +64,23 @@ public class MentorSummaryResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    public static class CompanyDto {
+        private Long id;
+        private String name;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class PersonalityTagDto {
         private Long id;
         private String name;
     }
 
-    public static MentorSummaryResponseDto from(Mentor mentor, List<UserPersonalityTag> userPersonalityTags, List<MentorCareer> careers) {
-        String meetingType = "ONLINE"; // 미팅 방식은 온라인으로 통일
-        
+    public static MentorCard from(Mentor mentor, List<UserPersonalityTag> userPersonalityTags,
+                                  List<MentorCareer> careers) {
+
         // 성향 태그 변환
         List<PersonalityTagDto> personalityTagDtos = userPersonalityTags.stream()
                 .map(upt -> PersonalityTagDto.builder()
@@ -66,45 +89,33 @@ public class MentorSummaryResponseDto {
                         .build())
                 .toList();
 
-        // 현재 회사 정보 (멘토의 회사 또는 가장 최신 경력에서 추출)
+        // 가장 최신 회사 정보 (가장 최근에 추가된 career)
         CompanyDto companyDto = null;
-        if (mentor.getCompany() != null) {
-            companyDto = CompanyDto.builder()
-                    .id(mentor.getCompany().getId())
-                    .name(mentor.getCompany().getName())
-                    .build();
-        } else {
-            // 멘토에 회사 정보가 없으면 최신 경력에서 추출 (기존 로직 유지)
-            String currentCompanyName = careers.stream()
-                    .filter(MentorCareer::getIsCurrent)
-                    .findFirst()
-                    .map(MentorCareer::getCompany)
-                    .orElse(null);
-            if (currentCompanyName != null) {
+        if (careers != null && !careers.isEmpty()) {
+            MentorCareer latestCareer = careers.get(careers.size() - 1); // 가장 마지막 career
+            if (latestCareer.getCompany() != null) {
                 companyDto = CompanyDto.builder()
-                        .id(null) // 경력에서 가져온 회사는 ID가 없음
-                        .name(currentCompanyName)
+                        .id(latestCareer.getId()) // career의 ID 사용
+                        .name(latestCareer.getCompany()) // company는 String
                         .build();
             }
         }
 
-        return MentorSummaryResponseDto.builder()
+        return MentorCard.builder()
                 .id(mentor.getId())
                 .name(mentor.getUser().getName())
                 .position(mentor.getPositionEntity() != null ? PositionDto.builder()
                         .id(mentor.getPositionEntity().getId())
                         .name(mentor.getPositionEntity().getName())
                         .build() : null)
-                .email(mentor.getUser().getEmail())
-                .profileImageUrl(mentor.getUser().getProfileImageUrl()) // nullable
-                .company(companyDto)
                 .experience(mentor.getExperience())
                 .province(mentor.getUser() != null && mentor.getUser().getProvince() != null ? ProvinceDto.builder()
                         .id(mentor.getUser().getProvince().getId())
                         .name(mentor.getUser().getProvince().getName())
                         .build() : null)
-                .personalityTags(personalityTagDtos)
+                .company(companyDto)
+                .personalityTag(personalityTagDtos)
+                .profileImageUrl(mentor.getUser().getProfileImageUrl())
                 .build();
     }
-
 }

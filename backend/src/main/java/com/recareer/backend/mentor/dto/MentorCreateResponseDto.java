@@ -31,7 +31,7 @@ public class MentorCreateResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class JobDto {
+    public static class PositionDto {
         private Long id;
         private String name;
     }
@@ -95,13 +95,7 @@ public class MentorCreateResponseDto {
                 .description(mentor.getDescription())
                 .introduction(mentor.getIntroduction())
                 .experience(mentor.getExperience())
-                .skills(mentor.getMentorSkills() != null ? 
-                        mentor.getMentorSkills().stream()
-                                .map(mentorSkill -> SkillDto.builder()
-                                        .id(mentorSkill.getSkill().getId())
-                                        .name(mentorSkill.getSkill().getName())
-                                        .build())
-                                .toList() : List.of())
+                .skills(List.of()) // 멘토 생성 시점에는 스킬 정보를 별도로 조회
                 .isVerified(mentor.getIsVerified())
                 .build();
     }

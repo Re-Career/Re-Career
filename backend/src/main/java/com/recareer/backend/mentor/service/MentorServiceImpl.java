@@ -12,19 +12,19 @@ import com.recareer.backend.common.repository.ProvinceRepository;
 import com.recareer.backend.common.entity.Province;
 import com.recareer.backend.skill.entity.MentorSkill;
 import com.recareer.backend.skill.entity.Skill;
+import com.recareer.backend.skill.repository.MentorSkillRepository;
 import com.recareer.backend.skill.repository.SkillRepository;
+import com.recareer.backend.feedback.dto.MentorFeedbackListResponseDto;
+import com.recareer.backend.feedback.dto.MentorFeedbackResponseDto;
 import com.recareer.backend.feedback.entity.MentorFeedback;
 import com.recareer.backend.feedback.repository.MentorFeedbackRepository;
-import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
-import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
-import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
-import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
-import com.recareer.backend.mentor.dto.FilterOptionsResponseDto;
-import com.recareer.backend.mentor.dto.FilterOptionDto;
+import com.recareer.backend.mentor.dto.*;
+import com.recareer.backend.personality.entity.PersonalityTag;
+import com.recareer.backend.personality.repository.PersonalityTagRepository;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
-import com.recareer.backend.reservation.entity.Reservation;
-import com.recareer.backend.reservation.repository.ReservationRepository;
+import com.recareer.backend.session.entity.Session;
+import com.recareer.backend.session.repository.SessionRepository;
 import com.recareer.backend.user.entity.User;
 import com.recareer.backend.user.entity.UserPersonalityTag;
 import com.recareer.backend.user.repository.UserPersonalityTagRepository;
@@ -35,12 +35,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 public class MentorServiceImpl implements MentorService {
 
     private final MentorRepository mentorRepository;
-    private final ReservationRepository reservationRepository;
+    private final SessionRepository sessionRepository;
     private final AvailableTimeRepository availableTimeRepository;
     private final UserPersonalityTagRepository userPersonalityTagRepository;
     private final UserRepository userRepository;
@@ -59,6 +59,8 @@ public class MentorServiceImpl implements MentorService {
     private final CompanyRepository companyRepository;
     private final ProvinceRepository provinceRepository;
     private final SkillRepository skillRepository;
+    private final MentorSkillRepository mentorSkillRepository;
+    private final PersonalityTagRepository personalityTagRepository;
 
     private static final Long DEFAULT_PROVINCE_ID = 1L; // 서울특별시
 
@@ -67,16 +69,16 @@ public class MentorServiceImpl implements MentorService {
     public Mentor createMentor(MentorCreateRequestDto requestDto) {
         // 사용자 조회
         User user = userRepository.findById(requestDto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + requestDto.getUserId()));
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. ID: " + requestDto.getUserId()));
         
         // Position, Company, Region 조회
-        Position position = requestDto.getJobId() != null ? 
-            positionRepository.findById(requestDto.getJobId())
-                .orElseThrow(() -> new IllegalArgumentException("Position not found with id: " + requestDto.getJobId())) : null;
+        Position position = requestDto.getPositionId() != null ? 
+            positionRepository.findById(requestDto.getPositionId())
+                .orElseThrow(() -> new IllegalArgumentException("직무를 찾을 수 없습니다. ID: " + requestDto.getPositionId())) : null;
                 
         Company company = requestDto.getCompanyId() != null ? 
             companyRepository.findById(requestDto.getCompanyId())
-                .orElseThrow(() -> new IllegalArgumentException("Company not found with id: " + requestDto.getCompanyId())) : null;
+                .orElseThrow(() -> new IllegalArgumentException("회사를 찾을 수 없습니다. ID: " + requestDto.getCompanyId())) : null;
         
         // 멘토 생성
         Mentor mentor = Mentor.builder()
@@ -103,7 +105,7 @@ public class MentorServiceImpl implements MentorService {
                             .skill(skill)
                             .build())
                     .toList();
-            savedMentor.getMentorSkills().addAll(mentorSkills);
+            mentorSkillRepository.saveAll(mentorSkills);
         }
         
         return savedMentor;
@@ -117,15 +119,15 @@ public class MentorServiceImpl implements MentorService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MentorSummaryResponseDto> getMentorsByRegion(String region) {
-        if (region == null || region.trim().isEmpty()) {
-            region = "서울";
+    public List<MentorSummaryResponseDto> getMentorsByProvince(Long provinceId) {
+        if (provinceId == null) {
+            provinceId = DEFAULT_PROVINCE_ID;
         }
 
-        log.info("Finding mentors by region: {}", region);
+        log.info("Finding mentors by province: {}", provinceId);
 
         // 1. 지역별 멘토 조회 (User 정보까지 Fetch Join)
-        List<Mentor> mentors = mentorRepository.findByUserLocationContainsWithUser(region);
+        List<Mentor> mentors = mentorRepository.findByUserProvinceIdWithUser(provinceId);
 
         // 2. 각 멘토에 대한 추가 정보 조회
         return mentors.stream()
@@ -146,143 +148,33 @@ public class MentorServiceImpl implements MentorService {
     public Optional<MentorDetailResponseDto> getMentorDetailById(Long id) {
         return mentorRepository.findById(id)
                 .map(mentor -> {
-                    // 연관관계를 통해 경력 정보 조회 (정렬 필요시 별도 쿼리 사용)
+                    // 연관 데이터 조회 (각각 별도 쿼리로 성능 최적화)
                     List<MentorCareer> careers = mentorCareerRepository.findByMentorOrderByDisplayOrderAscStartDateDesc(mentor);
-                    
-                    // 연관관계를 통해 피드백 정보 조회 (visible한 것만 필터링)
                     List<MentorFeedback> feedbacks = mentorFeedbackRepository.findByMentorAndIsVisibleTrueWithUser(mentor);
                     Double averageRating = mentorFeedbackRepository.getAverageRatingByMentor(mentor);
                     Integer feedbackCount = mentorFeedbackRepository.countByMentorAndIsVisibleTrue(mentor);
-                    
-                    // 멘토의 성향 태그 조회
                     List<UserPersonalityTag> userPersonalityTags = userPersonalityTagRepository.findByUserId(mentor.getUser().getId());
+                    List<MentorSkill> mentorSkills = mentorSkillRepository.findByMentorWithSkill(mentor);
                     
-                    return MentorDetailResponseDto.from(mentor, careers, feedbacks, averageRating, feedbackCount, userPersonalityTags);
+                    return MentorDetailResponseDto.from(mentor, careers, feedbacks, averageRating, feedbackCount, userPersonalityTags, mentorSkills);
                 });
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<Mentor> getMentorsByRegionAndPersonalityTags(List<String> regions, String providerId) {
-        if (regions == null || regions.isEmpty()) {
-            regions = List.of("서울");
-        }
-
-        log.info("Finding mentors by user personality tags - providerId: {}, regions: {}", providerId, regions);
-
-        // 1. providerId로 User 조회
-        User user = userRepository.findByProviderId(providerId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with providerId: " + providerId));
-
-        // 2. 해당 유저의 성향 태그 조회
-        List<UserPersonalityTag> userPersonalityTags = userPersonalityTagRepository.findByUserId(user.getId());
-        List<Long> personalityTagIds = userPersonalityTags.stream()
-                .map(upt -> upt.getPersonalityTag().getId())
-                .toList();
-
-        log.info("User personality tag IDs: {}", personalityTagIds);
-
-        if (personalityTagIds.isEmpty()) {
-            // personalityTags가 없으면 기존 방식으로 조회
-            log.info("Finding mentors in regions: {} (no personality filtering)", regions);
-            return getMentorsByRegions(regions);
-        }
-
-        log.info("Finding mentors in regions: {} with personality tags: {}", regions, personalityTagIds);
-        
-        // 3. 지역별 멘토 조회 (User 정보까지 Fetch Join)
-        List<Mentor> allMentors = getMentorsByRegionsWithUser(regions);
-        
-        // 4. 모든 멘토의 UserId 추출
-        List<Long> userIds = allMentors.stream()
-                .map(mentor -> mentor.getUser().getId())
-                .distinct()
-                .toList();
-        
-        // 5. 배치로 모든 UserPersonalityTag를 한 번에 조회하여 Map으로 그룹화 (N+1 방지)
-        Map<Long, List<UserPersonalityTag>> userPersonalityTagMap = userPersonalityTagRepository
-                .findByUserIdInWithPersonalityTag(userIds)
-                .stream()
-                .collect(Collectors.groupingBy(upt -> upt.getUser().getId()));
-        
-        // 6. 성향 매칭을 기반으로 정렬 (추가 쿼리 없이 메모리에서 계산)
-        return allMentors.stream()
-                .sorted((mentor1, mentor2) -> {
-                    // 각 멘토의 성향 태그와 요청된 성향 태그 매칭 수 계산 (메모리에서)
-                    long matches1 = calculatePersonalityMatchesFromMap(mentor1.getUser().getId(), userPersonalityTagMap, personalityTagIds);
-                    long matches2 = calculatePersonalityMatchesFromMap(mentor2.getUser().getId(), userPersonalityTagMap, personalityTagIds);
-                    
-                    // 매칭 수 내림차순, 그 다음 생성일 오름차순
-                    int matchComparison = Long.compare(matches2, matches1);
-                    if (matchComparison != 0) {
-                        return matchComparison;
-                    }
-                    return mentor1.getCreatedDate().compareTo(mentor2.getCreatedDate());
-                })
-                .toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Mentor> getMentorsByPriorityFilters(String providerId, List<String> regions, String position, String experience) {
-        log.info("Finding mentors by priority filters - providerId: {}, regions: {}, position: {}, experience: {}", 
-                providerId, regions, position, experience);
-
-        // 1순위: 사용자 기반 지역/성향 매칭
-        List<Mentor> primaryMentors = getMentorsByRegionAndPersonalityTags(regions, providerId);
-        
-        // 2순위 필터링이 없으면 1순위 결과만 반환
-        if ((position == null || position.trim().isEmpty()) && 
-            (experience == null || experience.trim().isEmpty())) {
-            return primaryMentors;
-        }
-        
-        // 2순위 필터링 적용 (미팅 방식은 모두 온라인으로 통일되었으므로 제거)
-        return primaryMentors.stream()
-                .filter(mentor -> {
-                    if (position != null && !position.trim().isEmpty()) {
-                        return mentor.getPosition() != null && 
-                               mentor.getPosition().toLowerCase().contains(position.toLowerCase());
-                    }
-                    return true;
-                })
-                .filter(mentor -> {
-                    if (experience != null && !experience.trim().isEmpty()) {
-                        return matchesExperienceRange(mentor.getExperience(), experience);
-                    }
-                    return true;
-                })
-                .toList(); // 1순위에서 이미 정렬되어 있으므로 추가 정렬 불필요
-    }
-
-    private boolean matchesExperienceRange(Integer mentorExperience, String experienceRange) {
-        if (mentorExperience == null) {
-            return false;
-        }
-        
-        return switch (experienceRange) {
-            case "1-3년" -> mentorExperience >= 1 && mentorExperience <= 3;
-            case "4-6년" -> mentorExperience >= 4 && mentorExperience <= 6;
-            case "7년 이상" -> mentorExperience >= 7;
-            default -> true;
-        };
-    }
-
-    @Override
     @Transactional
-    public Optional<Mentor> updateMentor(Long id, Long jobId, String description, String introduction, Integer experience, List<Long> skillIds) {
+    public Optional<Mentor> updateMentor(Long id, Long positionId, String description, String introduction, Integer experience, List<Long> skillIds) {
         return mentorRepository.findById(id)
                 .map(mentor -> {
                     Position position = null;
-                    if (jobId != null) {
-                        position = positionRepository.findById(jobId)
-                                .orElseThrow(() -> new IllegalArgumentException("Position not found with id: " + jobId));
+                    if (positionId != null) {
+                        position = positionRepository.findById(positionId)
+                                .orElseThrow(() -> new IllegalArgumentException("직무를 찾을 수 없습니다. ID: " + positionId));
                     }
 
                     mentor.update(position, mentor.getCompany(), description, introduction, experience);
 
                     // 기존 MentorSkill 관계 제거 후 새로 생성
-                    mentor.getMentorSkills().clear();
+                    mentorSkillRepository.deleteByMentor(mentor);
                     if (skillIds != null && !skillIds.isEmpty()) {
                         List<Skill> skills = skillRepository.findByIdIn(skillIds);
                         List<MentorSkill> mentorSkills = skills.stream()
@@ -291,7 +183,7 @@ public class MentorServiceImpl implements MentorService {
                                         .skill(skill)
                                         .build())
                                 .toList();
-                        mentor.getMentorSkills().addAll(mentorSkills);
+                        mentorSkillRepository.saveAll(mentorSkills);
                     }
                     
                     return mentorRepository.save(mentor);
@@ -300,9 +192,9 @@ public class MentorServiceImpl implements MentorService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Reservation> getMentorReservations(Long mentorId) {
+    public List<Session> getMentorSessions(Long mentorId) {
         return mentorRepository.findById(mentorId)
-                .map(reservationRepository::findByMentor)
+                .map(sessionRepository::findByMentor)
                 .orElse(List.of());
     }
 
@@ -318,7 +210,7 @@ public class MentorServiceImpl implements MentorService {
     @Transactional
     public AvailableTime createMentorAvailableTime(Long mentorId, LocalDateTime availableTime) {
         Mentor mentor = mentorRepository.findById(mentorId)
-                .orElseThrow(() -> new IllegalArgumentException("Mentor not found with id: " + mentorId));
+                .orElseThrow(() -> new IllegalArgumentException("멘토를 찾을 수 없습니다. ID: " + mentorId));
         
         AvailableTime newAvailableTime = new AvailableTime();
         newAvailableTime.setMentor(mentor);
@@ -330,11 +222,21 @@ public class MentorServiceImpl implements MentorService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MentorFeedback> getMentorFeedbacks(Long mentorId) {
-        return mentorFeedbackRepository.findByMentorIdAndIsVisibleTrue(mentorId);
+    public MentorFeedbackListResponseDto getMentorFeedbacks(Long mentorId) {
+        Mentor mentor = mentorRepository.findById(mentorId)
+                .orElseThrow(() -> new IllegalArgumentException("멘토를 찾을 수 없습니다. ID: " + mentorId));
+        List<MentorFeedback> feedbacks = mentorFeedbackRepository.findByMentorAndIsVisibleTrueWithUser(mentor);
+        Integer feedbackCount = mentorFeedbackRepository.countByMentorAndIsVisibleTrue(mentor);
+
+        List<MentorFeedbackResponseDto> feedbackDtos = feedbacks.stream()
+                .map(MentorFeedbackResponseDto::from)
+                .collect(Collectors.toList());
+
+        return MentorFeedbackListResponseDto.builder()
+                .totalFeedbacks(feedbackCount)
+                .feedbacks(feedbackDtos)
+                .build();
     }
-
-
 
     /**
      * 배치로 조회한 Map을 이용해 메모리에서 성향 매칭 수 계산
@@ -347,26 +249,7 @@ public class MentorServiceImpl implements MentorService {
                 .sum();
     }
 
-    /**
-     * 여러 지역에 대한 멘토 조회
-     */
-    private List<Mentor> getMentorsByRegions(List<String> regions) {
-        return regions.stream()
-                .flatMap(region -> mentorRepository.findByUserLocationContains(region).stream())
-                .distinct()
-                .toList();
-    }
-
-    /**
-     * 여러 지역에 대한 멘토 조회 (User 정보 포함)
-     */
-    private List<Mentor> getMentorsByRegionsWithUser(List<String> regions) {
-        return regions.stream()
-                .flatMap(region -> mentorRepository.findByUserLocationContainsWithUser(region).stream())
-                .distinct()
-                .toList();
-    }
-
+    
 
     @Override
     @Transactional(readOnly = true)
@@ -375,7 +258,7 @@ public class MentorServiceImpl implements MentorService {
         final MentorFilterRequestDto finalFilterRequest;
         if (filterRequest.getProvinceId() == null) {
             finalFilterRequest = MentorFilterRequestDto.builder()
-                    .jobs(filterRequest.getJobs())
+                    .positions(filterRequest.getPositions())
                     .experiences(filterRequest.getExperiences())
                     .provinceId(DEFAULT_PROVINCE_ID)
                     .cityId(filterRequest.getCityId())
@@ -384,8 +267,8 @@ public class MentorServiceImpl implements MentorService {
             finalFilterRequest = filterRequest;
         }
         
-        log.info("Finding mentors by filters - jobs: {}, experiences: {}, provinceId: {}, cityId: {}", 
-                finalFilterRequest.getJobs(), finalFilterRequest.getExperiences(),
+        log.info("Finding mentors by filters - positions: {}, experiences: {}, provinceId: {}, cityId: {}", 
+                finalFilterRequest.getPositions(), finalFilterRequest.getExperiences(),
                 finalFilterRequest.getProvinceId(), finalFilterRequest.getCityId());
 
         // 1. 전체 검증된 멘토 조회 (User 정보까지 Fetch Join)
@@ -394,11 +277,11 @@ public class MentorServiceImpl implements MentorService {
         // 2. 필터링 적용
         List<Mentor> filteredMentors = allMentors.stream()
                 .filter(mentor -> {
-                    // Position 필터링
-                    if (finalFilterRequest.getJobs() != null && !finalFilterRequest.getJobs().isEmpty()) {
-                        boolean positionMatches = finalFilterRequest.getJobs().stream()
-                                .anyMatch(job -> mentor.getPositionEntity() != null && 
-                                        mentor.getPositionEntity().getName().toLowerCase().contains(job.toLowerCase()));
+                    // Position 필터링 (positions로 받아서 position으로 처리)
+                    if (finalFilterRequest.getPositions() != null && !finalFilterRequest.getPositions().isEmpty()) {
+                        boolean positionMatches = finalFilterRequest.getPositions().stream()
+                                .anyMatch(position -> mentor.getPositionEntity() != null && 
+                                        mentor.getPositionEntity().getName().toLowerCase().contains(position.toLowerCase()));
                         if (!positionMatches) return false;
                     }
                     
@@ -446,65 +329,184 @@ public class MentorServiceImpl implements MentorService {
 
 
     @Override
-    public List<FilterOptionsResponseDto> getFilterOptions() {
-        List<FilterOptionsResponseDto> filterOptions = new ArrayList<>();
-        
-        // 직업 필터 옵션 (Position에서 동적으로 가져오기)
+    public MentorFiltersResponseDto getFilters() {
+        // Positions 조회
         List<Position> positions = positionRepository.findAll();
-        List<FilterOptionDto> jobOptions = positions.stream()
+        List<FilterOptionDto> positionOptions = positions.stream()
                 .map(position -> FilterOptionDto.builder()
                         .id(position.getId())
                         .name(position.getName())
                         .build())
                 .collect(Collectors.toList());
+
+        // Provinces 조회
+        List<Province> provinces = provinceRepository.findAll();
+        List<FilterOptionDto> provinceOptions = provinces.stream()
+                .map(province -> FilterOptionDto.builder()
+                        .id(province.getId())
+                        .name(province.getName())
+                        .build())
+                .collect(Collectors.toList());
+
+        // PersonalityTags 조회
+        List<PersonalityTag> personalityTags = personalityTagRepository.findAll();
+        List<FilterOptionDto> personalityTagOptions = personalityTags.stream()
+                .map(tag -> FilterOptionDto.builder()
+                        .id(tag.getId())
+                        .name(tag.getName())
+                        .build())
+                .collect(Collectors.toList());
+
+        return new MentorFiltersResponseDto(positionOptions, provinceOptions, personalityTagOptions);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MentorSearchResponse searchMentorsWithPrimarySecondary(MentorSearchRequestDto searchRequest) {
+        log.info("Searching mentors with primary/secondary filters - keyword: {}, positionIds: {}, experiences: {}, provinceIds: {}, personalityTagIds: {}",
+                searchRequest.keyword(), searchRequest.positionIds(), searchRequest.experiences(), 
+                searchRequest.provinceIds(), searchRequest.personalityTagIds());
+
+        // 모든 검증된 멘토 조회 (N+1 방지를 위한 fetch join)
+        List<Mentor> allMentors = mentorRepository.findAllWithUser();
         
-        FilterOptionsResponseDto jobFilter = FilterOptionsResponseDto.builder()
-                .id("job")
-                .title("직업")
-                .options(jobOptions)
-                .build();
-        filterOptions.add(jobFilter);
-        
-        // 경험 필터 옵션
-        FilterOptionsResponseDto experienceFilter = FilterOptionsResponseDto.builder()
-                .id("experience")
-                .title("경험")
-                .options(Arrays.asList(
-                        FilterOptionDto.builder().id("1-3").name("1-3년").build(),
-                        FilterOptionDto.builder().id("4-7").name("4-7년").build(),
-                        FilterOptionDto.builder().id("8-10").name("8-10년").build(),
-                        FilterOptionDto.builder().id("10+").name("10년 이상").build()
-                ))
-                .build();
-        filterOptions.add(experienceFilter);
-        
-        
-        // 지역 필터 옵션 (Province와 City를 계층 구조로 가져오기)
-        List<Province> provinces = provinceRepository.findAllWithCities(); // City를 Fetch Join하는 메소드 필요
-        List<FilterOptionDto> regionOptions = provinces.stream()
-                .map(province -> {
-                    List<FilterOptionDto> cityOptions = province.getCities().stream()
-                            .map(city -> FilterOptionDto.builder()
-                                    .id(city.getId())
-                                    .name(city.getName())
-                                    .build())
-                            .collect(Collectors.toList());
+        // Secondary 필터링: 직업/경험 기준만 적용
+        List<Mentor> secondaryFilteredMentors = allMentors.stream()
+                .filter(mentor -> {
+                    // Keyword 필터링
+                    if (searchRequest.keyword() != null && !searchRequest.keyword().isBlank()) {
+                        String keyword = searchRequest.keyword().toLowerCase();
+                        boolean keywordMatch = 
+                            (mentor.getUser().getName() != null && mentor.getUser().getName().toLowerCase().contains(keyword)) ||
+                            (mentor.getDescription() != null && mentor.getDescription().toLowerCase().contains(keyword)) ||
+                            (mentor.getIntroduction() != null && mentor.getIntroduction().toLowerCase().contains(keyword));
+                        if (!keywordMatch) return false;
+                    }
                     
-                    return FilterOptionDto.builder()
-                            .id(province.getId())
-                            .name(province.getName())
-                            .cities(cityOptions)
-                            .build();
+                    // Position 필터링
+                    if (searchRequest.positionIds() != null && !searchRequest.positionIds().isEmpty()) {
+                        boolean positionMatches = mentor.getPositionEntity() != null && 
+                                searchRequest.positionIds().contains(mentor.getPositionEntity().getId());
+                        if (!positionMatches) return false;
+                    }
+                    
+                    // Experience 문자열 필터링
+                    if (searchRequest.experiences() != null && !searchRequest.experiences().isEmpty()) {
+                        if (!matchesExperienceRanges(mentor.getExperience(), searchRequest.experiences())) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
                 })
                 .collect(Collectors.toList());
+
+        // Primary 필터링: 1순위(지역/성향), 2순위(직업/경험) 적용
+        List<Mentor> primaryFilteredMentors = secondaryFilteredMentors.stream()
+                .filter(mentor -> {
+                    // Province 필터링 (1순위)
+                    if (searchRequest.provinceIds() != null && !searchRequest.provinceIds().isEmpty()) {
+                        boolean provinceMatches = mentor.getUser() != null && 
+                                mentor.getUser().getProvince() != null && 
+                                searchRequest.provinceIds().contains(mentor.getUser().getProvince().getId());
+                        if (!provinceMatches) return false;
+                    }
+                    
+                    return true;
+                })
+                .collect(Collectors.toList());
+
+        // PersonalityTag AND 필터링 (Primary 대상으로만 적용)
+        List<Mentor> primaryPersonalityFiltered = primaryFilteredMentors;
+        if (searchRequest.personalityTagIds() != null && !searchRequest.personalityTagIds().isEmpty()) {
+            List<Long> primaryMentorIds = primaryFilteredMentors.stream()
+                    .map(Mentor::getId)
+                    .collect(Collectors.toList());
+
+            // 배치로 UserPersonalityTag 조회 (N+1 방지)
+            Map<Long, List<UserPersonalityTag>> personalityTagMap = userPersonalityTagRepository
+                    .findByUserIdInWithPersonalityTag(primaryMentorIds)
+                    .stream()
+                    .collect(Collectors.groupingBy(upt -> upt.getUser().getId()));
+
+            // 모든 personalityTagIds를 가진 멘토만 필터링 (AND 조건)
+            primaryPersonalityFiltered = primaryFilteredMentors.stream()
+                    .filter(mentor -> {
+                        List<UserPersonalityTag> userPersonalityTags = personalityTagMap.getOrDefault(mentor.getId(), List.of());
+                        Set<Long> userPersonalityIds = userPersonalityTags.stream()
+                                .map(upt -> upt.getPersonalityTag().getId())
+                                .collect(Collectors.toSet());
+                        
+                        // 모든 요구되는 personalityTagIds가 포함되어야 함 (AND 매칭)
+                        return userPersonalityIds.containsAll(searchRequest.personalityTagIds());
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        // Primary 결과를 MentorCard로 변환
+        List<MentorCard> primaryCards = convertToMentorCards(primaryPersonalityFiltered);
         
-        FilterOptionsResponseDto regionFilter = FilterOptionsResponseDto.builder()
-                .id("region")
-                .title("지역")
-                .options(regionOptions)
-                .build();
-        filterOptions.add(regionFilter);
-        
-        return filterOptions;
+        // Secondary 결과를 MentorCard로 변환
+        List<MentorCard> secondaryCards = convertToMentorCards(secondaryFilteredMentors);
+
+        return MentorSearchResponse.of(primaryCards, secondaryCards);
     }
+    
+    private List<MentorCard> convertToMentorCards(List<Mentor> mentors) {
+        if (mentors.isEmpty()) {
+            return List.of();
+        }
+        
+        // 배치로 관련 데이터 조회 (N+1 방지)
+        List<Long> mentorIds = mentors.stream()
+                .map(Mentor::getId)
+                .collect(Collectors.toList());
+
+        Map<Long, List<UserPersonalityTag>> personalityTagMap = userPersonalityTagRepository
+                .findByUserIdInWithPersonalityTag(mentorIds)
+                .stream()
+                .collect(Collectors.groupingBy(upt -> upt.getUser().getId()));
+
+        // MentorCard로 변환
+        return mentors.stream()
+                .map(mentor -> {
+                    List<UserPersonalityTag> userPersonalityTags = personalityTagMap.getOrDefault(mentor.getId(), List.of());
+                    List<MentorCareer> careers = mentorCareerRepository.findByMentorOrderByDisplayOrderAscStartDateDesc(mentor);
+                    
+                    return MentorCard.from(mentor, userPersonalityTags, careers);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private boolean matchesExperienceRanges(Integer mentorExperience, List<String> experienceRanges) {
+        if (mentorExperience == null) {
+            return false;
+        }
+        if (experienceRanges == null || experienceRanges.isEmpty()) {
+            return true; // No filter, so everything matches
+        }
+
+        for (String experienceRange : experienceRanges) {
+            if (matchesExperienceRange(mentorExperience, experienceRange)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean matchesExperienceRange(Integer mentorExperience, String experienceRange) {
+        if (mentorExperience == null || experienceRange == null || experienceRange.isBlank()) {
+            return false;
+        }
+        
+        return switch (experienceRange) {
+            case "1-3년" -> mentorExperience >= 1 && mentorExperience <= 3;
+            case "4-6년" -> mentorExperience >= 4 && mentorExperience <= 6;
+            case "7년 이상" -> mentorExperience >= 7;
+            default -> false;
+        };
+    }
+
+
 }

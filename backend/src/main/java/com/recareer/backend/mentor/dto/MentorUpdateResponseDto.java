@@ -28,7 +28,7 @@ public class MentorUpdateResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class JobDto {
+    public static class PositionDto {
         private Long id;
         private String name;
     }
@@ -90,13 +90,7 @@ public class MentorUpdateResponseDto {
                         .build() : null)
                 .description(mentor.getDescription())
                 .introduction(mentor.getIntroduction())
-                .skills(mentor.getMentorSkills() != null ? 
-                        mentor.getMentorSkills().stream()
-                                .map(mentorSkill -> SkillDto.builder()
-                                        .id(mentorSkill.getSkill().getId())
-                                        .name(mentorSkill.getSkill().getName())
-                                        .build())
-                                .toList() : List.of())
+                .skills(List.of()) // 멘토 업데이트 시점에는 스킬 정보를 별도로 조회
                 .build();
     }
 }
