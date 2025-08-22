@@ -4,7 +4,7 @@ import com.recareer.backend.availableTime.entity.AvailableTime;
 import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
-import com.recareer.backend.reservation.entity.Reservation;
+import com.recareer.backend.session.entity.Session;
 import com.recareer.backend.user.entity.Role;
 import com.recareer.backend.user.entity.User;
 import com.recareer.backend.user.repository.UserRepository;
@@ -183,7 +183,7 @@ class MentorServiceTest {
     @Test
     @DisplayName("멘토의 예약 목록 조회")
     void getMentorReservations_Success() {
-        List<Reservation> result = mentorService.getMentorReservations(mentor.getId());
+        List<Session> result = mentorService.getMentorSessions(mentor.getId());
         
         assertThat(result).isEmpty();
     }
@@ -219,7 +219,7 @@ class MentorServiceTest {
     }
 
     @Test
-    @DisplayName("특정 지역(จังหวัด)의 멘토 리스트를 조회합니다")
+    @DisplayName("특정 지역의 멘토 리스트를 조회합니다")
     void getMentorsByProvince_Success() {
         // given
         Province province = provinceRepository.findAll().stream()

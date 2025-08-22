@@ -23,8 +23,8 @@ import com.recareer.backend.personality.entity.PersonalityTag;
 import com.recareer.backend.personality.repository.PersonalityTagRepository;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
-import com.recareer.backend.reservation.entity.Reservation;
-import com.recareer.backend.reservation.repository.ReservationRepository;
+import com.recareer.backend.session.entity.Session;
+import com.recareer.backend.session.repository.SessionRepository;
 import com.recareer.backend.user.entity.User;
 import com.recareer.backend.user.entity.UserPersonalityTag;
 import com.recareer.backend.user.repository.UserPersonalityTagRepository;
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 public class MentorServiceImpl implements MentorService {
 
     private final MentorRepository mentorRepository;
-    private final ReservationRepository reservationRepository;
+    private final SessionRepository sessionRepository;
     private final AvailableTimeRepository availableTimeRepository;
     private final UserPersonalityTagRepository userPersonalityTagRepository;
     private final UserRepository userRepository;
@@ -192,9 +192,9 @@ public class MentorServiceImpl implements MentorService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Reservation> getMentorReservations(Long mentorId) {
+    public List<Session> getMentorSessions(Long mentorId) {
         return mentorRepository.findById(mentorId)
-                .map(reservationRepository::findByMentor)
+                .map(sessionRepository::findByMentor)
                 .orElse(List.of());
     }
 

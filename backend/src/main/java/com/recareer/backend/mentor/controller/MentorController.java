@@ -1,6 +1,7 @@
 package com.recareer.backend.mentor.controller;
 
 import com.recareer.backend.availableTime.dto.AvailableTimeResponseDto;
+import com.recareer.backend.availableTime.dto.AvailableTimeRequestDto;
 import com.recareer.backend.availableTime.entity.AvailableTime;
 import com.recareer.backend.feedback.dto.MentorFeedbackListResponseDto;
 import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
@@ -15,11 +16,12 @@ import com.recareer.backend.mentor.dto.MentorSearchResponse;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.service.MentorService;
 import com.recareer.backend.auth.service.JwtTokenProvider;
-import com.recareer.backend.reservation.dto.ReservationListResponseDto;
-import com.recareer.backend.reservation.entity.Reservation;
+import com.recareer.backend.session.dto.SessionListResponseDto;
+import com.recareer.backend.session.entity.Session;
 import com.recareer.backend.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -46,8 +48,17 @@ public class MentorController {
     @PostMapping
     @Operation(summary = "멘토 등록", description = "새로운 멘토를 등록합니다")
     public ResponseEntity<ApiResponse<MentorCreateResponseDto>> createMentor(
+            @RequestHeader("Authorization") String accessToken,
             @RequestBody MentorCreateRequestDto requestDto) {
         try {
+            Long userId = authUtil.validateTokenAndGetUserId(accessToken);
+            
+            // 요청 DTO의 userId와 토큰의 userId가 일치하는지 확인
+            if (!userId.equals(requestDto.getUserId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(ApiResponse.error("본인의 이름으로만 멘토를 등록할 수 있습니다"));
+            }
+            
             Mentor mentor = mentorService.createMentor(requestDto);
             MentorCreateResponseDto responseDto = MentorCreateResponseDto.from(mentor);
             return ResponseEntity.ok(ApiResponse.success("멘토가 성공적으로 등록되었습니다.", responseDto));
@@ -60,7 +71,7 @@ public class MentorController {
     }
 
     @GetMapping
-    @Operation(summary = "홈 - 당신을 위한 멘토들", description = "유저가 속한 지역(จังหวัด)의 멘토 리스트를 조회합니다")
+    @Operation(summary = "홈 - 당신을 위한 멘토들", description = "유저가 속한 지역의 멘토 리스트를 조회합니다")
     public ResponseEntity<ApiResponse<List<MentorSummaryResponseDto>>> getMentorsByProvince(
             @RequestParam(required = false, defaultValue = "1") Long provinceId) {
         try {
@@ -114,28 +125,30 @@ public class MentorController {
             @RequestHeader("Authorization") String accessToken,
             @RequestBody MentorUpdateRequestDto requestDto) {
         Long userId = authUtil.validateTokenAndGetUserId(accessToken);
-        if (!userId.equals(id)) {
+        Mentor mentor = mentorService.getMentorById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 멘토를 찾을 수 없습니다."));
+        if (!userId.equals(mentor.getUser().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
         }
         return mentorService.updateMentor(id, requestDto.getPositionId(), requestDto.getDescription(), requestDto.getIntroduction(), requestDto.getExperience(), requestDto.getSkillIds())
-                .map(mentor -> ResponseEntity.ok(ApiResponse.success("멘토 정보가 성공적으로 수정되었습니다.", MentorUpdateResponseDto.from(mentor))))
+                .map(updatedMentor -> ResponseEntity.ok(ApiResponse.success("멘토 정보가 성공적으로 수정되었습니다.", MentorUpdateResponseDto.from(updatedMentor))))
                 .orElse(ResponseEntity.status(404).body(ApiResponse.error("해당 멘토를 찾을 수 없습니다.")));
     }
 
-    @GetMapping("/{id}/reservations")
-    @Operation(summary = "멘토별 예약 목록 조회", description = "멘토별 예정된 상담을 조회합니다")
-    public ResponseEntity<ApiResponse<List<ReservationListResponseDto>>> getMentorReservations(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
-        Long userId = authUtil.validateTokenAndGetUserId(accessToken);
-        if (!userId.equals(id)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
-        }
-        List<Reservation> reservations = mentorService.getMentorReservations(id);
-        List<ReservationListResponseDto> reservationDtos = reservations.stream()
-                .map(ReservationListResponseDto::from)
-                .toList();
+    // @GetMapping("/{id}/sessions")
+    // @Operation(summary = "멘토별 세션 목록 조회", description = "멘토별 예정된 상담을 조회합니다 - /my/sessions?role=MENTOR 사용 권장")
+    // public ResponseEntity<ApiResponse<List<SessionListResponseDto>>> getMentorSessions(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
+    //     Long userId = authUtil.validateTokenAndGetUserId(accessToken);
+    //     if (!userId.equals(id)) {
+    //         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
+    //     }
+    //     List<Session> sessions = mentorService.getMentorSessions(id);
+    //     List<SessionListResponseDto> sessionDtos = sessions.stream()
+    //             .map(SessionListResponseDto::from)
+    //             .toList();
 
-        return ResponseEntity.ok(ApiResponse.success(reservationDtos));
-    }
+    //     return ResponseEntity.ok(ApiResponse.success(sessionDtos));
+    // }
 
     @GetMapping("/{id}/available-times")
     @Operation(summary = "멘토 상담 예약 - 가능한 날짜, 시간 조회", description = "각 멘토 별 멘토링이 가능한 시간대를 조회합니다")
@@ -153,14 +166,13 @@ public class MentorController {
     public ResponseEntity<ApiResponse<AvailableTimeResponseDto>> createMentorAvailableTime(
             @PathVariable Long id,
             @RequestHeader("Authorization") String accessToken,
-            @RequestParam String availableTime) {
+            @Valid @RequestBody AvailableTimeRequestDto requestDto) {
         Long userId = authUtil.validateTokenAndGetUserId(accessToken);
         if (!userId.equals(id)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
         }
         try {
-            LocalDateTime dateTime = LocalDateTime.parse(availableTime);
-            AvailableTime newAvailableTime = mentorService.createMentorAvailableTime(id, dateTime);
+            AvailableTime newAvailableTime = mentorService.createMentorAvailableTime(id, requestDto.getAvailableTime());
 
             return ResponseEntity.ok(ApiResponse.success("멘토링 가능 시간이 성공적으로 추가되었습니다.", AvailableTimeResponseDto.from(newAvailableTime)));
         } catch (IllegalArgumentException e) {
