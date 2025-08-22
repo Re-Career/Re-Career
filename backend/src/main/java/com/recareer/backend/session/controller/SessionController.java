@@ -83,7 +83,7 @@ public class SessionController {
     }
   }
   
-  @PostMapping("/{id}")
+  @PatchMapping("/{id}")
   @Operation(summary = "멘토링 상태 업데이트", description = "멘토링 상태를 업데이트합니다")
   public ResponseEntity<ApiResponse<String>> updateSessionStatus(
       @RequestHeader("Authorization") String accessToken,
