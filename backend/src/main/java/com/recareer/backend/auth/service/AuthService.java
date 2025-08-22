@@ -11,7 +11,11 @@ import com.recareer.backend.user.repository.UserRepository;
 import com.recareer.backend.user.repository.UserPersonalityTagRepository;
 import com.recareer.backend.personality.entity.PersonalityTag;
 import com.recareer.backend.personality.repository.PersonalityTagRepository;
-import com.recareer.backend.common.service.S3Service;
+import com.recareer.backend.common.entity.Province;
+import com.recareer.backend.common.entity.City;
+import com.recareer.backend.common.repository.CityRepository;
+import com.recareer.backend.common.repository.ProvinceRepository;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +34,8 @@ public class AuthService {
     private final MentorRepository mentorRepository;
     private final UserPersonalityTagRepository userPersonalityTagRepository;
     private final PersonalityTagRepository personalityTagRepository;
-    private final S3Service s3Service;
+    private final ProvinceRepository provinceRepository;
+    private final CityRepository cityRepository;
 
     @Transactional(readOnly = true)
     public UserInfoDto getUserInfo(String providerId) {
@@ -69,6 +74,16 @@ public class AuthService {
             }
         }
 
+        // Province와 City 엔티티 조회
+        Province province = provinceRepository.findById(signupRequest.getProvinceId())
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 시/도입니다: " + signupRequest.getProvinceId()));
+        
+        City city = null;
+        if (signupRequest.getCityId() != null) {
+            city = cityRepository.findById(signupRequest.getCityId())
+                    .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 시/군/구입니다: " + signupRequest.getCityId()));
+        }
+
         // 사용자 정보 업데이트
         User updatedUser = User.builder()
                 .id(user.getId())
@@ -78,7 +93,8 @@ public class AuthService {
                 .provider(user.getProvider())
                 .providerId(user.getProviderId())
                 .profileImageUrl(signupRequest.getProfileImageUrl())
-                // TODO: province/city 정보 추가 필요
+                .province(province)
+                .city(city)
                 .build();
 
         User savedUser = userRepository.save(updatedUser);
