@@ -11,7 +11,7 @@ import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.dto.MentorUpdateRequestDto;
 import com.recareer.backend.mentor.dto.MentorUpdateResponseDto;
 import com.recareer.backend.mentor.dto.MentorSearchRequestDto;
-import com.recareer.backend.mentor.dto.MentorFiltersResponseDto;
+import com.recareer.backend.mentor.dto.FilterOptionsResponseDto;
 import com.recareer.backend.mentor.dto.MentorSearchResponse;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.service.MentorService;
@@ -202,9 +202,9 @@ public class MentorController {
 
     @GetMapping("/filters")
     @Operation(summary = "멘토 필터 옵션 조회", description = "멘토 검색에 사용하는 직업, 지역, 성향 필터 옵션들을 조회합니다")
-    public ResponseEntity<ApiResponse<MentorFiltersResponseDto>> getFilters() {
+    public ResponseEntity<ApiResponse<List<FilterOptionsResponseDto>>> getFilters() {
         try {
-            MentorFiltersResponseDto filters = mentorService.getFilters();
+            List<FilterOptionsResponseDto> filters = mentorService.getFilters();
             return ResponseEntity.ok(ApiResponse.success(filters));
         } catch (Exception e) {
             log.error("Get filters failed: {}", e.getMessage());
@@ -212,6 +212,3 @@ public class MentorController {
         }
     }
 }
-
-//IS 40만원 - 2만 + 320만 = 358만
-//

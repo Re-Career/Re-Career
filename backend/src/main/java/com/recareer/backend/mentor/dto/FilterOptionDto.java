@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FilterOptionDto {
-    private Object id;
+    private String key;
     private String name;
 }

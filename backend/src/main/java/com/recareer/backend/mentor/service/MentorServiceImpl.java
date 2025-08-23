@@ -329,35 +329,64 @@ public class MentorServiceImpl implements MentorService {
 
 
     @Override
-    public MentorFiltersResponseDto getFilters() {
-        // Positions 조회
+    public List<FilterOptionsResponseDto> getFilters() {
+        List<FilterOptionsResponseDto> filterOptions = new ArrayList<>();
+        
+        // Positions 필터
         List<Position> positions = positionRepository.findAll();
         List<FilterOptionDto> positionOptions = positions.stream()
                 .map(position -> FilterOptionDto.builder()
-                        .id(position.getId())
+                        .key(position.getId().toString())
                         .name(position.getName())
                         .build())
                 .collect(Collectors.toList());
+        filterOptions.add(FilterOptionsResponseDto.builder()
+                .key("position")
+                .title("직업")
+                .options(positionOptions)
+                .build());
 
-        // Provinces 조회
+        // Experience 필터 (하드코딩)
+        List<FilterOptionDto> experienceOptions = Arrays.asList(
+                FilterOptionDto.builder().key("1-3").name("1-3년").build(),
+                FilterOptionDto.builder().key("4-6").name("4-6년").build(),
+                FilterOptionDto.builder().key("7+").name("7년 이상").build()
+        );
+        filterOptions.add(FilterOptionsResponseDto.builder()
+                .key("experience")
+                .title("경험")
+                .options(experienceOptions)
+                .build());
+
+        // Provinces 필터
         List<Province> provinces = provinceRepository.findAll();
         List<FilterOptionDto> provinceOptions = provinces.stream()
                 .map(province -> FilterOptionDto.builder()
-                        .id(province.getId())
+                        .key(province.getId().toString())
                         .name(province.getName())
                         .build())
                 .collect(Collectors.toList());
+        filterOptions.add(FilterOptionsResponseDto.builder()
+                .key("region")
+                .title("지역")
+                .options(provinceOptions)
+                .build());
 
-        // PersonalityTags 조회
+        // PersonalityTags 필터
         List<PersonalityTag> personalityTags = personalityTagRepository.findAll();
         List<FilterOptionDto> personalityTagOptions = personalityTags.stream()
                 .map(tag -> FilterOptionDto.builder()
-                        .id(tag.getId())
+                        .key(tag.getId().toString())
                         .name(tag.getName())
                         .build())
                 .collect(Collectors.toList());
+        filterOptions.add(FilterOptionsResponseDto.builder()
+                .key("PersonalityTags")
+                .title("성향")
+                .options(personalityTagOptions)
+                .build());
 
-        return new MentorFiltersResponseDto(positionOptions, provinceOptions, personalityTagOptions);
+        return filterOptions;
     }
 
     @Override
