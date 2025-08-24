@@ -18,12 +18,13 @@ const TrendpositionList = async () => {
             className="flex flex-col gap-3"
             href={`/position-detail/${position.id}`}
           >
-            <div className="relative h-40 w-40 overflow-hidden rounded-xl">
+            <div className="h-40 w-40">
               <Image
                 src={position.imageUrl}
                 alt={`position_trend_20_${position.name}`}
-                fill
-                className="object-cover"
+                width={160}
+                height={160}
+                className="h-full w-full rounded-lg object-cover object-top"
               />
             </div>
 

@@ -26,13 +26,13 @@ const IndustryNews = async () => {
                   {news.description}
                 </p>
               </div>
-              <div className="flex-shrink-0">
+              <div className="h-30 w-30 flex-shrink-0">
                 <Image
                   src={news.imageUrl}
                   alt={news.title}
                   width={120}
                   height={120}
-                  className="rounded-lg object-cover"
+                  className="h-full w-full rounded-lg object-cover object-top"
                 />
               </div>
             </div>
