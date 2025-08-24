@@ -22,7 +22,11 @@ const MatchingPageContent = () => {
     }
   })
 
-  const { data, error, isLoading } = useSWR(
+  const {
+    data: { recommendedList = [], searchedList = [] } = {},
+    error,
+    isLoading,
+  } = useSWR(
     ['filtered-mentors', mentorName, filters],
     () => getFilteredMentors({ mentorName, filters }),
     {
@@ -32,9 +36,6 @@ const MatchingPageContent = () => {
       focusThrottleInterval: 300000, // 5분
     }
   )
-
-  const recommendedMentors = data?.primary || []
-  const searchedMentors = data?.secondary || []
 
   if (error) {
     return (
@@ -71,13 +72,13 @@ const MatchingPageContent = () => {
         ) : (
           <>
             {/* 추천 멘토 리스트 */}
-            {recommendedMentors.length > 0 && (
+            {recommendedList.length > 0 && (
               <div className="mb-4 border-b border-gray-100 pb-4">
                 <h2 className="mb-4 px-4 text-lg font-bold text-gray-900">
                   추천 매칭
                 </h2>
                 <HorizontalScroll>
-                  {recommendedMentors.map((mentor) => (
+                  {recommendedList.map((mentor) => (
                     <Link
                       href={`mentor/${mentor.id}/profile`}
                       key={mentor.id}
@@ -112,14 +113,14 @@ const MatchingPageContent = () => {
             <div>
               <div className="mb-4 flex items-center gap-2 px-4">
                 <h2 className="text-lg font-bold text-gray-900">검색 결과</h2>
-                {searchedMentors.length > 0 && (
-                  <span className="text-sm">총 {searchedMentors.length}건</span>
+                {searchedList.length > 0 && (
+                  <span className="text-sm">총 {searchedList.length}건</span>
                 )}
               </div>
               <div className="px-4">
                 <div className="space-y-5">
-                  {searchedMentors.length > 0 ? (
-                    searchedMentors.map((mentor) => (
+                  {searchedList.length > 0 ? (
+                    searchedList.map((mentor) => (
                       <div key={`mentor_${mentor.id}`}>
                         <div className="flex items-center gap-4">
                           <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-full">

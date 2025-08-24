@@ -8,14 +8,27 @@ import { DatePiece, DateType } from '@/types/global'
 import { handleReserve } from '@/app/actions/reservation/action'
 import { isToday } from '@/utils/day'
 import useTimeHandler from '@/hooks/useTimeHandler'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 const ReservationForm = ({ mentorId }: { mentorId: string }) => {
+  const router = useRouter()
   const { minimumTime, isTimeBeforeMinimum } = useTimeHandler()
 
-  const [, formAction] = useActionState(handleReserve, {
+  const [state, formAction] = useActionState(handleReserve, {
     success: false,
     message: '',
   })
+
+  useEffect(() => {
+    if (state.success) {
+      const { data } = state
+
+      if (data) {
+        router.replace(`/mentor/reservation/success/${data.id}`)
+      }
+    }
+  }, [state])
 
   const [date, setDate] = useState<DatePiece>(new Date())
   const [timeValue, setTimeValue] = useState(minimumTime)

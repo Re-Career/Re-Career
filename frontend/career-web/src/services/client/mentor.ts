@@ -1,13 +1,18 @@
 import { FilterOptions, Mentor } from '@/types/mentor'
 import { api } from '../api'
 
+interface FilteredMentors {
+  recommendedList: Mentor[]
+  searchedList: Mentor[]
+}
+
 export const getFilteredMentors = async ({
   mentorName,
   filters,
 }: {
   mentorName: string
   filters: FilterOptions
-}): Promise<{ primary: Mentor[]; secondary: Mentor[] }> => {
+}): Promise<FilteredMentors> => {
   const params = new URLSearchParams()
 
   if (mentorName) {
