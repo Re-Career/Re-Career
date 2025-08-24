@@ -391,94 +391,61 @@ public class MentorServiceImpl implements MentorService {
 
     @Override
     @Transactional(readOnly = true)
-    public MentorSearchResponse searchMentorsWithPrimarySecondary(MentorSearchRequestDto searchRequest) {
-        log.info("Searching mentors with primary/secondary filters - keyword: {}, positionIds: {}, experiences: {}, provinceIds: {}, personalityTagIds: {}",
-                searchRequest.keyword(), searchRequest.positionIds(), searchRequest.experiences(), 
+    public MentorSearchResponse searchMentorsWithRecommendation(MentorSearchRequestDto searchRequest, Long userId) {
+        log.info("Searching mentors with recommendation - userId: {}, keyword: {}, positionIds: {}, experiences: {}, provinceIds: {}, personalityTagIds: {}",
+                userId, searchRequest.keyword(), searchRequest.positionIds(), searchRequest.experiences(), 
                 searchRequest.provinceIds(), searchRequest.personalityTagIds());
+
+        // 유저 정보 조회 (지역, 성향 정보 필요)
+        User user = null;
+        List<Long> userPersonalityTagIds = List.of();
+        
+        if (userId != null) {
+            user = userRepository.findById(userId).orElse(null);
+            if (user != null) {
+                // 유저의 성향 태그 조회
+                List<UserPersonalityTag> userPersonalityTags = userPersonalityTagRepository
+                        .findByUserIdInWithPersonalityTag(List.of(userId));
+                userPersonalityTagIds = userPersonalityTags.stream()
+                        .map(upt -> upt.getPersonalityTag().getId())
+                        .collect(Collectors.toList());
+            }
+        }
 
         // 모든 검증된 멘토 조회 (N+1 방지를 위한 fetch join)
         List<Mentor> allMentors = mentorRepository.findAllWithUser();
         
-        // Secondary 필터링: 직업/경험 기준만 적용
-        List<Mentor> secondaryFilteredMentors = allMentors.stream()
-                .filter(mentor -> {
-                    // Keyword 필터링
-                    if (searchRequest.keyword() != null && !searchRequest.keyword().isBlank()) {
-                        String keyword = searchRequest.keyword().toLowerCase();
-                        boolean keywordMatch = 
-                            (mentor.getUser().getName() != null && mentor.getUser().getName().toLowerCase().contains(keyword)) ||
-                            (mentor.getDescription() != null && mentor.getDescription().toLowerCase().contains(keyword)) ||
-                            (mentor.getIntroduction() != null && mentor.getIntroduction().toLowerCase().contains(keyword));
-                        if (!keywordMatch) return false;
-                    }
-                    
-                    // Position 필터링
-                    if (searchRequest.positionIds() != null && !searchRequest.positionIds().isEmpty()) {
-                        boolean positionMatches = mentor.getPositionEntity() != null && 
-                                searchRequest.positionIds().contains(mentor.getPositionEntity().getId());
-                        if (!positionMatches) return false;
-                    }
-                    
-                    // Experience 문자열 필터링
-                    if (searchRequest.experiences() != null && !searchRequest.experiences().isEmpty()) {
-                        if (!matchesExperienceRanges(mentor.getExperience(), searchRequest.experiences())) {
-                            return false;
-                        }
-                    }
-                    
-                    return true;
-                })
-                .collect(Collectors.toList());
+        // 3가지 시나리오 구분
+        boolean hasKeyword = searchRequest.keyword() != null && !searchRequest.keyword().isBlank();
+        boolean hasFilters = (searchRequest.positionIds() != null && !searchRequest.positionIds().isEmpty()) ||
+                           (searchRequest.experiences() != null && !searchRequest.experiences().isEmpty()) ||
+                           (searchRequest.provinceIds() != null && !searchRequest.provinceIds().isEmpty()) ||
+                           (searchRequest.personalityTagIds() != null && !searchRequest.personalityTagIds().isEmpty());
 
-        // Primary 필터링: 1순위(지역/성향), 2순위(직업/경험) 적용
-        List<Mentor> primaryFilteredMentors = secondaryFilteredMentors.stream()
-                .filter(mentor -> {
-                    // Province 필터링 (1순위)
-                    if (searchRequest.provinceIds() != null && !searchRequest.provinceIds().isEmpty()) {
-                        boolean provinceMatches = mentor.getUser() != null && 
-                                mentor.getUser().getProvince() != null && 
-                                searchRequest.provinceIds().contains(mentor.getUser().getProvince().getId());
-                        if (!provinceMatches) return false;
-                    }
-                    
-                    return true;
-                })
-                .collect(Collectors.toList());
+        List<MentorCard> recommendedList;
+        List<MentorCard> searchedList;
 
-        // PersonalityTag AND 필터링 (Primary 대상으로만 적용)
-        List<Mentor> primaryPersonalityFiltered = primaryFilteredMentors;
-        if (searchRequest.personalityTagIds() != null && !searchRequest.personalityTagIds().isEmpty()) {
-            List<Long> primaryMentorIds = primaryFilteredMentors.stream()
-                    .map(Mentor::getId)
-                    .collect(Collectors.toList());
-
-            // 배치로 UserPersonalityTag 조회 (N+1 방지)
-            Map<Long, List<UserPersonalityTag>> personalityTagMap = userPersonalityTagRepository
-                    .findByUserIdInWithPersonalityTag(primaryMentorIds)
-                    .stream()
-                    .collect(Collectors.groupingBy(upt -> upt.getUser().getId()));
-
-            // 모든 personalityTagIds를 가진 멘토만 필터링 (AND 조건)
-            primaryPersonalityFiltered = primaryFilteredMentors.stream()
-                    .filter(mentor -> {
-                        List<UserPersonalityTag> userPersonalityTags = personalityTagMap.getOrDefault(mentor.getId(), List.of());
-                        Set<Long> userPersonalityIds = userPersonalityTags.stream()
-                                .map(upt -> upt.getPersonalityTag().getId())
-                                .collect(Collectors.toSet());
-                        
-                        // 모든 요구되는 personalityTagIds가 포함되어야 함 (AND 매칭)
-                        return userPersonalityIds.containsAll(searchRequest.personalityTagIds());
-                    })
-                    .collect(Collectors.toList());
+        // 일관된 로직: 항상 필터링 + 개인화
+        // searchedList: 필터링 조건만 적용
+        if (hasKeyword || hasFilters) {
+            searchedList = getSearchedByConditions(allMentors, searchRequest, hasKeyword, hasFilters);
+        } else {
+            // 검색 조건 없음: 전체 멘토 리스트
+            searchedList = convertToMentorCards(allMentors);
+        }
+        
+        // recommendedList: 필터링 조건 + 개인화 요소(지역/성향)
+        if (user != null && (hasKeyword || hasFilters)) {
+            recommendedList = getRecommendedWithPersonalization(allMentors, searchRequest, user, userPersonalityTagIds, hasKeyword, hasFilters);
+        } else if (user != null) {
+            // 검색 조건 없지만 유저 있음: 개인화된 추천만
+            recommendedList = getRecommendedByUserPreferences(allMentors, user, userPersonalityTagIds);
+        } else {
+            // 유저 없음: 빈 추천
+            recommendedList = List.of();
         }
 
-        // Primary 결과를 MentorCard로 변환
-        List<MentorCard> primaryCards = convertToMentorCards(primaryPersonalityFiltered);
-        
-        // Secondary 결과를 MentorCard로 변환
-        List<MentorCard> secondaryCards = convertToMentorCards(secondaryFilteredMentors);
-
-        return MentorSearchResponse.of(primaryCards, secondaryCards);
+        return MentorSearchResponse.of(recommendedList, searchedList);
     }
     
     private List<MentorCard> convertToMentorCards(List<Mentor> mentors) {
@@ -491,16 +458,22 @@ public class MentorServiceImpl implements MentorService {
                 .map(Mentor::getId)
                 .collect(Collectors.toList());
 
+        // 멘토의 유저 ID 리스트 생성 (PersonalityTag 조회용)
+        List<Long> userIds = mentors.stream()
+                .map(mentor -> mentor.getUser().getId())
+                .collect(Collectors.toList());
+
         Map<Long, List<UserPersonalityTag>> personalityTagMap = userPersonalityTagRepository
-                .findByUserIdInWithPersonalityTag(mentorIds)
+                .findByUserIdInWithPersonalityTag(userIds)
                 .stream()
                 .collect(Collectors.groupingBy(upt -> upt.getUser().getId()));
 
-        // MentorCard로 변환
+        // MentorCard로 변환 (mentor_careers 테이블 사용 안함, mentors.company_id 사용)
         return mentors.stream()
                 .map(mentor -> {
-                    List<UserPersonalityTag> userPersonalityTags = personalityTagMap.getOrDefault(mentor.getId(), List.of());
-                    List<MentorCareer> careers = mentorCareerRepository.findByMentorOrderByDisplayOrderAscStartDateDesc(mentor);
+                    List<UserPersonalityTag> userPersonalityTags = personalityTagMap.getOrDefault(mentor.getUser().getId(), List.of());
+                    // mentor_careers 사용 안함, 빈 리스트 전달
+                    List<MentorCareer> careers = List.of();
                     
                     return MentorCard.from(mentor, userPersonalityTags, careers);
                 })
@@ -535,6 +508,154 @@ public class MentorServiceImpl implements MentorService {
             case "7년 이상" -> mentorExperience >= 7;
             default -> false;
         };
+    }
+
+    // 유저 지역 + 성향 기반 추천
+    private List<MentorCard> getRecommendedByUserPreferences(List<Mentor> allMentors, User user, List<Long> userPersonalityTagIds) {
+        // 유저 정보가 없으면 빈 추천 리스트 반환
+        if (user == null) {
+            return List.of();
+        }
+        
+        List<Mentor> recommended = allMentors.stream()
+                .filter(mentor -> {
+                    // 유저와 같은 지역인지 확인
+                    boolean sameProvince = user.getProvince() != null && 
+                            mentor.getUser().getProvince() != null && 
+                            user.getProvince().getId().equals(mentor.getUser().getProvince().getId());
+                    if (!sameProvince) return false;
+                    
+                    // 성향 매칭: 유저와 공통 성향이 있는 멘토 추천
+                    if (!userPersonalityTagIds.isEmpty()) {
+                        return hasMatchingPersonality(mentor.getId(), userPersonalityTagIds);
+                    }
+                    
+                    return true;
+                })
+                .collect(Collectors.toList());
+        
+        return convertToMentorCards(recommended);
+    }
+
+
+    // 검색 조건에 따른 필터링 (일관된 로직)
+    private List<MentorCard> getSearchedByConditions(List<Mentor> allMentors, MentorSearchRequestDto searchRequest, boolean hasKeyword, boolean hasFilters) {
+        List<Mentor> searched = allMentors.stream()
+                .filter(mentor -> {
+                    // 키워드 조건 확인
+                    if (hasKeyword) {
+                        String lowerKeyword = searchRequest.keyword().toLowerCase();
+                        boolean keywordMatch = (mentor.getUser().getName() != null && mentor.getUser().getName().toLowerCase().contains(lowerKeyword)) ||
+                                             (mentor.getDescription() != null && mentor.getDescription().toLowerCase().contains(lowerKeyword)) ||
+                                             (mentor.getIntroduction() != null && mentor.getIntroduction().toLowerCase().contains(lowerKeyword));
+                        if (!keywordMatch) return false;
+                    }
+                    
+                    // 필터 조건 확인
+                    if (hasFilters) {
+                        return matchesFilters(mentor, searchRequest);
+                    }
+                    
+                    return true;
+                })
+                .collect(Collectors.toList());
+        
+        return convertToMentorCards(searched);
+    }
+
+    // 필터링 + 개인화 요소 결합 추천
+    private List<MentorCard> getRecommendedWithPersonalization(List<Mentor> allMentors, MentorSearchRequestDto searchRequest, User user, List<Long> userPersonalityTagIds, boolean hasKeyword, boolean hasFilters) {
+        List<Mentor> recommended = allMentors.stream()
+                .filter(mentor -> {
+                    // 1단계: 필터링 조건 적용 (검색 조건과 동일)
+                    if (hasKeyword) {
+                        String lowerKeyword = searchRequest.keyword().toLowerCase();
+                        boolean keywordMatch = (mentor.getUser().getName() != null && mentor.getUser().getName().toLowerCase().contains(lowerKeyword)) ||
+                                             (mentor.getDescription() != null && mentor.getDescription().toLowerCase().contains(lowerKeyword)) ||
+                                             (mentor.getIntroduction() != null && mentor.getIntroduction().toLowerCase().contains(lowerKeyword));
+                        if (!keywordMatch) return false;
+                    }
+                    
+                    if (hasFilters && !matchesFilters(mentor, searchRequest)) {
+                        return false;
+                    }
+                    
+                    // 2단계: 개인화 요소 적용 (지역 + 성향)
+                    // 유저와 같은 지역인지 확인
+                    boolean sameProvince = user.getProvince() != null && 
+                            mentor.getUser().getProvince() != null && 
+                            user.getProvince().getId().equals(mentor.getUser().getProvince().getId());
+                    if (!sameProvince) return false;
+                    
+                    // 성향 매칭: 유저와 공통 성향이 있는 멘토 추천
+                    if (!userPersonalityTagIds.isEmpty()) {
+                        return hasMatchingPersonality(mentor.getId(), userPersonalityTagIds);
+                    }
+                    
+                    return true;
+                })
+                .collect(Collectors.toList());
+        
+        return convertToMentorCards(recommended);
+    }
+
+    // 필터 조건 매칭 헬퍼 메서드
+    private boolean matchesFilters(Mentor mentor, MentorSearchRequestDto searchRequest) {
+        // Position 필터링
+        if (searchRequest.positionIds() != null && !searchRequest.positionIds().isEmpty()) {
+            boolean positionMatches = mentor.getPositionEntity() != null && 
+                    searchRequest.positionIds().contains(mentor.getPositionEntity().getId());
+            if (!positionMatches) return false;
+        }
+        
+        // Experience 필터링
+        if (searchRequest.experiences() != null && !searchRequest.experiences().isEmpty()) {
+            if (!matchesExperienceRanges(mentor.getExperience(), searchRequest.experiences())) {
+                return false;
+            }
+        }
+        
+        // Province 필터링
+        if (searchRequest.provinceIds() != null && !searchRequest.provinceIds().isEmpty()) {
+            boolean provinceMatches = mentor.getUser() != null && 
+                    mentor.getUser().getProvince() != null && 
+                    searchRequest.provinceIds().contains(mentor.getUser().getProvince().getId());
+            if (!provinceMatches) return false;
+        }
+        
+        // PersonalityTag 필터링
+        if (searchRequest.personalityTagIds() != null && !searchRequest.personalityTagIds().isEmpty()) {
+            return hasAllPersonalityTags(mentor.getId(), searchRequest.personalityTagIds());
+        }
+        
+        return true;
+    }
+
+    // 유저와 공통 성향이 있는지 확인 (OR 매칭)
+    private boolean hasMatchingPersonality(Long mentorId, List<Long> userPersonalityTagIds) {
+        List<UserPersonalityTag> mentorPersonalityTags = userPersonalityTagRepository
+                .findByUserId(mentorId);
+        
+        Set<Long> mentorPersonalityIds = mentorPersonalityTags.stream()
+                .map(upt -> upt.getPersonalityTag().getId())
+                .collect(Collectors.toSet());
+        
+        // 유저와 멘토가 공통으로 가진 성향이 하나라도 있으면 true (OR 매칭)
+        return userPersonalityTagIds.stream()
+                .anyMatch(mentorPersonalityIds::contains);
+    }
+
+    // 모든 성향 태그를 가지고 있는지 확인 (AND 매칭)
+    private boolean hasAllPersonalityTags(Long mentorId, List<Long> personalityTagIds) {
+        List<UserPersonalityTag> mentorPersonalityTags = userPersonalityTagRepository
+                .findByUserId(mentorId);
+        
+        Set<Long> mentorPersonalityIds = mentorPersonalityTags.stream()
+                .map(upt -> upt.getPersonalityTag().getId())
+                .collect(Collectors.toSet());
+        
+        // 모든 요구되는 personalityTagIds가 포함되어야 함 (AND 매칭)
+        return mentorPersonalityIds.containsAll(personalityTagIds);
     }
 
 

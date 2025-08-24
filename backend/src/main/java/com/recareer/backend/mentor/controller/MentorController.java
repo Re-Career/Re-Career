@@ -84,8 +84,9 @@ public class MentorController {
     }
 
     @GetMapping("/search")
-    @Operation(summary = "멘토 검색", description = "키워드, 직업, 경력, 지역, 성향으로 멘토를 검색합니다. Primary(1순위: 지역/성향, 2순위: 직업/경험)와 Secondary(직업/경험만) 결과를 동시에 반환합니다.")
+    @Operation(summary = "멘토 검색", description = "키워드, 직업, 경력, 지역, 성향으로 멘토를 검색합니다. 사용자 맞춤 추천과 검색 조건 기반 결과를 동시에 반환합니다.")
     public ResponseEntity<ApiResponse<MentorSearchResponse>> searchMentors(
+            @RequestHeader(value = "Authorization", required = false) String accessToken,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) List<Long> positionIds,
             @RequestParam(required = false) List<String> experiences,
@@ -93,10 +94,15 @@ public class MentorController {
             @RequestParam(required = false) List<Long> personalityTagIds) {
         
         try {
+            Long userId = null;
+            if (accessToken != null) {
+                userId = authUtil.validateTokenAndGetUserId(accessToken);
+            }
+            
             MentorSearchRequestDto searchRequest = new MentorSearchRequestDto(
                 keyword, positionIds, experiences, provinceIds, personalityTagIds
             );
-            MentorSearchResponse mentors = mentorService.searchMentorsWithPrimarySecondary(searchRequest);
+            MentorSearchResponse mentors = mentorService.searchMentorsWithRecommendation(searchRequest, userId);
             return ResponseEntity.ok(ApiResponse.success(mentors));
             
         } catch (Exception e) {

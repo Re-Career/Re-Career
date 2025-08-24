@@ -15,16 +15,16 @@ import java.util.List;
 @Schema(description = "멘토 검색 응답 DTO")
 public class MentorSearchResponse {
     
-    @Schema(description = "1순위: 지역/성향, 2순위: 직업/경험 필터링 결과", example = "[]")
-    private List<MentorCard> primary;
+    @Schema(description = "사용자 맞춤 추천 멘토 리스트", example = "[]")
+    private List<MentorCard> recommendedList;
     
-    @Schema(description = "직업/경험 기준 필터링 결과", example = "[]")
-    private List<MentorCard> secondary;
+    @Schema(description = "검색 조건 기반 멘토 리스트", example = "[]")
+    private List<MentorCard> searchedList;
     
-    public static MentorSearchResponse of(List<MentorCard> primary, List<MentorCard> secondary) {
+    public static MentorSearchResponse of(List<MentorCard> recommendedList, List<MentorCard> searchedList) {
         return MentorSearchResponse.builder()
-                .primary(primary)
-                .secondary(secondary)
+                .recommendedList(recommendedList)
+                .searchedList(searchedList)
                 .build();
     }
 }

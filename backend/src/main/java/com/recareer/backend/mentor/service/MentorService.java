@@ -40,5 +40,5 @@ public interface MentorService {
     
     List<FilterOptionsResponseDto> getFilters();
 
-    MentorSearchResponse searchMentorsWithPrimarySecondary(MentorSearchRequestDto searchRequest);
+    MentorSearchResponse searchMentorsWithRecommendation(MentorSearchRequestDto searchRequest, Long userId);
 }

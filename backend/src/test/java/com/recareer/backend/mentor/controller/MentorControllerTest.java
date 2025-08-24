@@ -36,6 +36,8 @@ class MentorControllerTest {
 
     private MockMvc mockMvc;
 
+    private String validAccessToken = "test-token";
+
     @Autowired
     private MentorRepository mentorRepository;
 
@@ -125,8 +127,8 @@ class MentorControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data.primary").isArray())
-                .andExpect(jsonPath("$.data.secondary").isArray());
+                .andExpect(jsonPath("$.data.recommendedList").isArray())
+                .andExpect(jsonPath("$.data.searchedList").isArray());
     }
 
     @Test
@@ -146,8 +148,8 @@ class MentorControllerTest {
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data").exists())
-                    .andExpect(jsonPath("$.data.primary").isArray())
-                .andExpect(jsonPath("$.data.secondary").isArray());
+                    .andExpect(jsonPath("$.data.recommendedList").isArray())
+                .andExpect(jsonPath("$.data.searchedList").isArray());
         }
     }
 
@@ -158,8 +160,8 @@ class MentorControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data.primary").isArray())
-                .andExpect(jsonPath("$.data.secondary").isArray());
+                .andExpect(jsonPath("$.data.recommendedList").isArray())
+                .andExpect(jsonPath("$.data.searchedList").isArray());
     }
 
     @Test
@@ -177,8 +179,8 @@ class MentorControllerTest {
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data").exists())
-                    .andExpect(jsonPath("$.data.primary").isArray())
-                .andExpect(jsonPath("$.data.secondary").isArray());
+                    .andExpect(jsonPath("$.data.recommendedList").isArray())
+                .andExpect(jsonPath("$.data.searchedList").isArray());
         }
     }
 
