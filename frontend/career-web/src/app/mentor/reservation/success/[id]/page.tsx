@@ -4,7 +4,6 @@ const columns = [
   { key: 'date' as const, name: '날짜' },
   { key: 'time' as const, name: '시간' },
   { key: 'name' as const, name: '멘토' },
-  { key: 'type' as const, name: '형식' },
 ] as const
 
 const page = () => {
@@ -12,7 +11,6 @@ const page = () => {
     date: '2024-07-22',
     time: '14:00',
     name: '김지원',
-    type: '영상 통화',
   }
 
   return (
