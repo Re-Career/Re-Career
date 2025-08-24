@@ -150,7 +150,7 @@ public class SessionController {
   //   }
   // }
 
-  @GetMapping("/{id}/detail")
+  @GetMapping("/{id}")
   @Operation(summary = "완료된 상담 상세 조회")
   public ResponseEntity<ApiResponse<SessionDetailResponseDto>> getSessionDetail(
       @RequestHeader("Authorization") String accessToken,
