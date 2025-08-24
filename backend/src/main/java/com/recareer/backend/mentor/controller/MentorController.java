@@ -174,7 +174,9 @@ public class MentorController {
             @RequestHeader("Authorization") String accessToken,
             @Valid @RequestBody AvailableTimeRequestDto requestDto) {
         Long userId = authUtil.validateTokenAndGetUserId(accessToken);
-        if (!userId.equals(id)) {
+        Mentor mentor = mentorService.getMentorById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 멘토를 찾을 수 없습니다."));
+        if (!userId.equals(mentor.getUser().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
         }
         try {
