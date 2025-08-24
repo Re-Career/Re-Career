@@ -49,6 +49,37 @@
   box-sizing: border-box;
 }
 
+/* Calendar disabled dates styling */
+.react-calendar__tile:disabled {
+  color: #d1d5db !important;
+  cursor: not-allowed !important;
+}
+
+/* Calendar styling */
+/* 1. Selected date has highest priority */
+.react-calendar__tile--active {
+  background: #a8cce8 !important;
+  font-weight: 700;
+  border-radius: 9999px !important;
+}
+
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background: #7eb3d4 !important;
+}
+
+/* 2. Today's date (when not selected) */
+.react-calendar__tile--now:not(.react-calendar__tile--active) {
+  background: #f3f4f6 !important;
+  color: #374151 !important;
+  border-radius: 9999px !important;
+}
+
+.react-calendar__tile--now:not(.react-calendar__tile--active):enabled:hover,
+.react-calendar__tile--now:not(.react-calendar__tile--active):enabled:focus {
+  background: #e5e7eb !important;
+}
+
 html {
   overflow-x: hidden;
 }
@@ -78,7 +109,9 @@ input:-webkit-autofill:active {
 }
 
 input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 1000px rgb(243 244 246) inset, 0 0 0 2px #a8cce8 !important;
+  -webkit-box-shadow:
+    0 0 0 1000px rgb(243 244 246) inset,
+    0 0 0 2px #a8cce8 !important;
 }
 
 .react-calendar {

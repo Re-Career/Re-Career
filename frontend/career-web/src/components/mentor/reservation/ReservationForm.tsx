@@ -43,11 +43,11 @@ const ReservationForm = ({ mentorId }: { mentorId: string }) => {
         className="hidden"
         onChange={() => {}}
       />
-      <section className="px-4 py-4">
-        <h4 className="text-lg font-bold">날짜 및 시간 선택</h4>
-        <CustomCalendar value={date} onChange={handleDate} />
-        <CustomTimePicker value={timeValue} onChange={setTimeValue} />
-      </section>
+
+      <h4 className="section-title">날짜 및 시간 선택</h4>
+      <CustomCalendar value={date} onChange={handleDate} />
+      <CustomTimePicker value={timeValue} onChange={setTimeValue} />
+
       {/* <section className="px-4 py-3">
         <h4 className="py-4 text-lg font-bold">알림</h4>
         <label className="flex justify-between">

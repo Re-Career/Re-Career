@@ -2,8 +2,7 @@
 
 import React from 'react'
 import Calendar from 'react-calendar'
-import { ko } from 'date-fns/locale'
-import { format } from 'date-fns'
+import dayjs from 'dayjs'
 import { DatePiece, DateType } from '@/types/global'
 
 interface CustomCalendarProps {
@@ -12,20 +11,29 @@ interface CustomCalendarProps {
 }
 
 const CustomCalendar = ({ value, onChange }: CustomCalendarProps) => {
+  const today = dayjs().startOf('day').toDate()
+  const currentMonth = dayjs().startOf('month').toDate()
+  const [activeDate, setActiveDate] = React.useState(new Date())
+
   return (
     <Calendar
       value={value}
       onChange={onChange}
-      formatMonthYear={(locale, date) =>
-        format(date, 'yyyy년 M월', { locale: ko })
-      }
-      formatDay={(locale: string | undefined, date: Date) => {
-        return format(date, 'd')
+      onActiveStartDateChange={({ activeStartDate }) => {
+        if (activeStartDate) {
+          setActiveDate(activeStartDate)
+        }
       }}
-      prevLabel="‹"
+      formatMonthYear={(_, date) => dayjs(date).format('YYYY년 M월')}
+      formatDay={(_, date) => dayjs(date).format('D')}
+      prevLabel={dayjs(activeDate).isSame(dayjs(), 'month') ? '' : '‹'}
       nextLabel="›"
       prev2Label={null}
       next2Label={null}
+      minDate={currentMonth}
+      tileDisabled={({ date, view }) => {
+        return view === 'month' && date < today
+      }}
     />
   )
 }
