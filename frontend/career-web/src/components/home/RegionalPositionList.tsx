@@ -2,13 +2,12 @@ import React from 'react'
 import { getPositionByRegion } from '@/services/positions'
 import Link from 'next/link'
 import Image from 'next/image'
-import { regionalPositions } from '@/mocks/home/regional-position-list'
 
 const RegionalPositionList = async () => {
-  let data = await getPositionByRegion({ provinceId: 1 })
+  const data = await getPositionByRegion({ provinceId: 1 })
 
   if (!data) {
-    data = regionalPositions
+    return <></>
   }
 
   return (

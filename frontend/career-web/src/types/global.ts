@@ -43,3 +43,10 @@ export interface ResponseMessage {
   message: string
   data: string
 }
+
+export type Nullable<T> = null | T
+
+export interface DefaultData {
+  id: number
+  name: string
+}
