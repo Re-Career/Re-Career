@@ -103,11 +103,11 @@ export const getKoreanAddress = async (
     },
   })
 
+  const data = await response.json()
+
   if (!response.ok) {
     throw new Error('주소 변환에 실패했습니다.')
   }
-
-  const data = await response.json()
 
   if (!data.documents || data.documents.length === 0) {
     throw new Error('해당 좌표의 주소를 찾을 수 없습니다.')
