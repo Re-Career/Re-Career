@@ -4,6 +4,8 @@ import com.recareer.backend.auth.dto.SignupRequestDto;
 import com.recareer.backend.user.entity.Role;
 import com.recareer.backend.user.entity.User;
 import com.recareer.backend.user.repository.UserRepository;
+import com.recareer.backend.common.entity.Province;
+import com.recareer.backend.common.repository.ProvinceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,10 +31,21 @@ class AuthServiceTest {
     @Autowired
     private UserRepository userRepository;
     
+    @Autowired
+    private ProvinceRepository provinceRepository;
+    
     private User testUser;
+    private Province testProvince;
     
     @BeforeEach
     void setUp() {
+        // 테스트용 Province 생성
+        testProvince = Province.builder()
+                .key("seoul")
+                .name("서울특별시")
+                .build();
+        provinceRepository.save(testProvince);
+        
         testUser = User.builder()
                 .provider("google")
                 .providerId("test123")
@@ -49,7 +62,7 @@ class AuthServiceTest {
                 .role(Role.MENTOR)
                 .position("백엔드 개발자")
                 .description("5년차 개발자입니다")
-                .provinceId(1L)
+                .provinceId(testProvince.getId())
                 .personalityTagIds(List.of())
                 // profileImageUrl이 null
                 .build();
@@ -68,7 +81,7 @@ class AuthServiceTest {
                 .role(Role.MENTOR)
                 .position("백엔드 개발자")
                 .description("5년차 개발자입니다")
-                .provinceId(1L)
+                .provinceId(testProvince.getId())
                 .personalityTagIds(List.of())
                 .profileImageUrl("") // 빈 문자열
                 .build();
@@ -85,7 +98,7 @@ class AuthServiceTest {
                 .name("테스트 멘티")
                 .email("mentee@test.com")
                 .role(Role.MENTEE)
-                .provinceId(1L)
+                .provinceId(testProvince.getId())
                 .personalityTagIds(List.of())
                 // profileImageUrl이 null이어도 OK
                 .build();
