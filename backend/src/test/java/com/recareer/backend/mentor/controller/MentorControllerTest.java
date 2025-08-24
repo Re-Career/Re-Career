@@ -111,10 +111,10 @@ class MentorControllerTest {
         mockMvc.perform(get("/mentors/filters")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data.positions").isArray())
-                .andExpect(jsonPath("$.data.provinces").isArray())
-                .andExpect(jsonPath("$.data.personalityTags").isArray());
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data[0].key").exists())
+                .andExpect(jsonPath("$.data[0].title").exists())
+                .andExpect(jsonPath("$.data[0].options").isArray());
     }
 
     @Test
