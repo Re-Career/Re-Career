@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState } from 'react'
 import { getPositionsByProvince } from '@/services/server/positions'
-import { getProvinces, getCities } from '@/services/server/locations'
 import { getCurrentPosition } from '@/utils/geolocation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ProvincePosition } from '@/types/position'
-import { getCurrentLocation } from '@/app/actions/user-location/actions'
+import { UserLocationResponse } from '@/app/api/locations/kakao-address/route'
+import { City, Province } from '@/types/location'
 
 interface ProvincePositionListProps {
   positionsByProvince: ProvincePosition
@@ -23,16 +23,20 @@ const ProvincePositionList = ({
   useEffect(() => {
     const fetchUserLocationPositions = async () => {
       try {
-        const position = await getCurrentPosition()
-        const address = await getCurrentLocation(
-          position.latitude,
-          position.longitude
+        const { longitude, latitude } = await getCurrentPosition()
+        const data = await fetch(
+          `/api/locations/kakao-address?x=${longitude}&y=${latitude}`
         )
 
-        const [provinces, cities] = await Promise.all([
-          getProvinces(),
-          getCities(),
+        const address: UserLocationResponse = await data.json()
+
+        const [provRes, cityRes] = await Promise.all([
+          fetch('/api/locations/provinces', { cache: 'no-store' }),
+          fetch('/api/locations/cities', { cache: 'no-store' }),
         ])
+
+        const [provinces, cities]: [provinces: Province[], cities: City[]] =
+          await Promise.all([provRes.json(), cityRes.json()])
 
         // 현재 위치의 province와 매칭되는 province 찾기
         const matchedProvince = provinces.find(
