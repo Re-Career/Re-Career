@@ -18,7 +18,8 @@ export interface PositionDetail extends DefaultPosition {
   positionResponsibilities: PositionResponsibility[]
 }
 
-export interface RegionPosition {
-  region: string
+export interface ProvincePosition {
+  province: string
+  city?: string
   positions: DefaultPosition[]
 }

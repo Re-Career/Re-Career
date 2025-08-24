@@ -1,7 +1,7 @@
 import {
   PositionDetail,
   DefaultPosition,
-  RegionPosition,
+  ProvincePosition,
 } from '@/types/position'
 import { fetchUrl } from '../api'
 import { ONE_DAY } from '@/lib/constants/global'
@@ -24,17 +24,17 @@ export const getPositionDetail = async (
   return data
 }
 
-export const getPositionByRegion = async ({
+export const getPositionsByProvince = async ({
   provinceId,
   cityId,
 }: {
   provinceId: number
   cityId?: number
-}): Promise<RegionPosition> => {
+}): Promise<ProvincePosition> => {
   const path = cityId
     ? `provinceId=${provinceId}&cityId=${cityId}`
     : `provinceId=${provinceId}`
-  const res = await fetchUrl(`/positions/by-region?${path}`, {
+  const res = await fetchUrl(`/positions/by-province?${path}`, {
     next: { revalidate: ONE_DAY },
   })
   const { data } = await res.json()

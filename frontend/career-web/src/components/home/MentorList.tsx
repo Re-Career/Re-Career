@@ -19,13 +19,13 @@ const MentorList = async () => {
               className="flex flex-col items-center gap-3"
               href={`/mentor/${mentor.id}/profile`}
             >
-              <div className="h-32 w-32 flex-shrink-0 overflow-hidden rounded-full">
+              <div className="h-32 w-32">
                 <Image
                   src={mentor.profileImageUrl}
                   alt={`mentor_by_region_${mentor.id}`}
                   width={128}
                   height={128}
-                  className="h-full w-full object-cover object-top"
+                  className="h-full w-full rounded-lg object-cover object-top"
                 />
               </div>
 
