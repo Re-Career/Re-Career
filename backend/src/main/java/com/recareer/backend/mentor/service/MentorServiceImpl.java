@@ -409,6 +409,7 @@ public class MentorServiceImpl implements MentorService {
                 userPersonalityTagIds = userPersonalityTags.stream()
                         .map(upt -> upt.getPersonalityTag().getId())
                         .collect(Collectors.toList());
+                log.info("User {} personality tags: {}", userId, userPersonalityTagIds);
             }
         }
 
@@ -523,14 +524,13 @@ public class MentorServiceImpl implements MentorService {
                     boolean sameProvince = user.getProvince() != null && 
                             mentor.getUser().getProvince() != null && 
                             user.getProvince().getId().equals(mentor.getUser().getProvince().getId());
-                    if (!sameProvince) return false;
                     
                     // 성향 매칭: 유저와 공통 성향이 있는 멘토 추천
-                    if (!userPersonalityTagIds.isEmpty()) {
-                        return hasMatchingPersonality(mentor.getId(), userPersonalityTagIds);
-                    }
+                    boolean matchesPersonality = !userPersonalityTagIds.isEmpty() && 
+                            hasMatchingPersonality(mentor.getUser().getId(), userPersonalityTagIds);
                     
-                    return true;
+                    // OR 조건: 지역이 같거나 성향이 맞으면 추천
+                    return sameProvince || matchesPersonality;
                 })
                 .collect(Collectors.toList());
         
@@ -580,19 +580,18 @@ public class MentorServiceImpl implements MentorService {
                         return false;
                     }
                     
-                    // 2단계: 개인화 요소 적용 (지역 + 성향)
+                    // 2단계: 개인화 요소 적용 (지역 OR 성향)
                     // 유저와 같은 지역인지 확인
                     boolean sameProvince = user.getProvince() != null && 
                             mentor.getUser().getProvince() != null && 
                             user.getProvince().getId().equals(mentor.getUser().getProvince().getId());
-                    if (!sameProvince) return false;
                     
                     // 성향 매칭: 유저와 공통 성향이 있는 멘토 추천
-                    if (!userPersonalityTagIds.isEmpty()) {
-                        return hasMatchingPersonality(mentor.getId(), userPersonalityTagIds);
-                    }
+                    boolean matchesPersonality = !userPersonalityTagIds.isEmpty() && 
+                            hasMatchingPersonality(mentor.getUser().getId(), userPersonalityTagIds);
                     
-                    return true;
+                    // OR 조건: 지역이 같거나 성향이 맞으면 추천
+                    return sameProvince || matchesPersonality;
                 })
                 .collect(Collectors.toList());
         
@@ -625,30 +624,36 @@ public class MentorServiceImpl implements MentorService {
         
         // PersonalityTag 필터링
         if (searchRequest.personalityTagIds() != null && !searchRequest.personalityTagIds().isEmpty()) {
-            return hasAllPersonalityTags(mentor.getId(), searchRequest.personalityTagIds());
+            return hasAllPersonalityTags(mentor.getUser().getId(), searchRequest.personalityTagIds());
         }
         
         return true;
     }
 
     // 유저와 공통 성향이 있는지 확인 (OR 매칭)
-    private boolean hasMatchingPersonality(Long mentorId, List<Long> userPersonalityTagIds) {
+    private boolean hasMatchingPersonality(Long mentorUserId, List<Long> userPersonalityTagIds) {
         List<UserPersonalityTag> mentorPersonalityTags = userPersonalityTagRepository
-                .findByUserId(mentorId);
+                .findByUserId(mentorUserId);
         
         Set<Long> mentorPersonalityIds = mentorPersonalityTags.stream()
                 .map(upt -> upt.getPersonalityTag().getId())
                 .collect(Collectors.toSet());
         
+        log.info("Personality matching - mentorUserId: {}, mentorTags: {}, userTags: {}", 
+                mentorUserId, mentorPersonalityIds, userPersonalityTagIds);
+        
         // 유저와 멘토가 공통으로 가진 성향이 하나라도 있으면 true (OR 매칭)
-        return userPersonalityTagIds.stream()
+        boolean matches = userPersonalityTagIds.stream()
                 .anyMatch(mentorPersonalityIds::contains);
+        
+        log.info("Personality match result: {}", matches);
+        return matches;
     }
 
     // 모든 성향 태그를 가지고 있는지 확인 (AND 매칭)
-    private boolean hasAllPersonalityTags(Long mentorId, List<Long> personalityTagIds) {
+    private boolean hasAllPersonalityTags(Long mentorUserId, List<Long> personalityTagIds) {
         List<UserPersonalityTag> mentorPersonalityTags = userPersonalityTagRepository
-                .findByUserId(mentorId);
+                .findByUserId(mentorUserId);
         
         Set<Long> mentorPersonalityIds = mentorPersonalityTags.stream()
                 .map(upt -> upt.getPersonalityTag().getId())
