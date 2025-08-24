@@ -26,3 +26,11 @@ export const getFilteredMentors = async ({
 
   return data
 }
+
+export const getFeedbacks = async (mentorId: string) => {
+  const {
+    data: { data },
+  } = await api.get(`/mentors/${mentorId}/feedbacks`)
+
+  return data
+}

@@ -2,8 +2,14 @@
 
 import React from 'react'
 import Calendar from 'react-calendar'
-import dayjs from 'dayjs'
 import { DatePiece, DateType } from '@/types/global'
+import {
+  getCurrentMonth,
+  formatMonthYear,
+  formatDay,
+  isBeforeToday,
+  isSameMonth,
+} from '@/utils/day'
 
 interface CustomCalendarProps {
   value: DatePiece
@@ -11,8 +17,7 @@ interface CustomCalendarProps {
 }
 
 const CustomCalendar = ({ value, onChange }: CustomCalendarProps) => {
-  const today = dayjs().startOf('day').toDate()
-  const currentMonth = dayjs().startOf('month').toDate()
+  const currentMonth = getCurrentMonth()
   const [activeDate, setActiveDate] = React.useState(new Date())
 
   return (
@@ -24,15 +29,15 @@ const CustomCalendar = ({ value, onChange }: CustomCalendarProps) => {
           setActiveDate(activeStartDate)
         }
       }}
-      formatMonthYear={(_, date) => dayjs(date).format('YYYY년 M월')}
-      formatDay={(_, date) => dayjs(date).format('D')}
-      prevLabel={dayjs(activeDate).isSame(dayjs(), 'month') ? '' : '‹'}
+      formatMonthYear={(_, date) => formatMonthYear(date)}
+      formatDay={(_, date) => formatDay(date)}
+      prevLabel={isSameMonth(activeDate, new Date()) ? '' : '‹'}
       nextLabel="›"
       prev2Label={null}
       next2Label={null}
       minDate={currentMonth}
       tileDisabled={({ date, view }) => {
-        return view === 'month' && date < today
+        return view === 'month' && isBeforeToday(date)
       }}
     />
   )

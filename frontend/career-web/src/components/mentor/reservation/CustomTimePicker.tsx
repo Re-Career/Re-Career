@@ -1,54 +1,63 @@
 'use client'
 
-import { useRef, useCallback } from 'react'
+import { useRef, useMemo } from 'react'
+import { DatePiece } from '@/types/global'
 
-interface TimeValue {
-  hour: number
-  minute: number
-  period: string
-}
+import { calculateScrollPosition } from '@/utils/scroll'
+import { useScrollHandler } from '@/hooks/useScrollHandler'
+import useTimeHandler, { TimeValue } from '@/hooks/useTimeHandler'
+import { isToday } from '@/utils/day'
+
+export const ITEM_HEIGHT = 44
+export const SCROLL_DEBOUNCE_DELAY = 100
 
 interface CustomTimePickerProps {
   value: TimeValue
   onChange: (value: TimeValue) => void
+  selectedDate?: DatePiece
 }
 
-const CustomTimePicker = ({ value, onChange }: CustomTimePickerProps) => {
-  const { hour: selectedHour, minute: selectedMinute, period: selectedPeriod } = value
+const CustomTimePicker = ({
+  value,
+  onChange,
+  selectedDate,
+}: CustomTimePickerProps) => {
+  const {
+    hour: selectedHour,
+    minute: selectedMinute,
+    period: selectedPeriod,
+  } = value
+
+  const { getAvailableTimesForToday } = useTimeHandler()
+
+  const { handleScroll, scrollTimeoutRef } = useScrollHandler({
+    itemHeight: ITEM_HEIGHT,
+    debounceDelayTime: SCROLL_DEBOUNCE_DELAY,
+  })
+
   const hourRef = useRef<HTMLDivElement>(null)
   const minuteRef = useRef<HTMLDivElement>(null)
   const periodRef = useRef<HTMLDivElement>(null)
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const hours = Array.from({ length: 12 }, (_, i) => i + 1)
   const minutes = [0, 30]
   const periods = ['AM', 'PM']
 
-  // 디바운싱된 스크롤 핸들러
-  const handleScroll = useCallback((
-    ref: React.RefObject<HTMLDivElement | null>,
-    items: any[],
-    setter: (value: any) => void
-  ) => {
-    if (!ref.current) return
-
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current)
+  // 선택된 날짜가 오늘인지 확인하고 현재 시간 이후만 허용
+  const { availableHours, availableMinutes, availablePeriods } = useMemo(() => {
+    if (!selectedDate || !isToday(selectedDate)) {
+      return {
+        availableHours: hours,
+        availableMinutes: minutes,
+        availablePeriods: periods,
+      }
     }
 
-    scrollTimeoutRef.current = setTimeout(() => {
-      if (!ref.current) return
-      const scrollTop = ref.current.scrollTop
-      const itemHeight = 44
-      const index = Math.round(scrollTop / itemHeight)
-      const clampedIndex = Math.max(0, Math.min(index, items.length - 1))
-
-      setter(items[clampedIndex])
-    }, 100)
-  }, [])
+    return getAvailableTimesForToday(selectedHour, selectedPeriod)
+  }, [selectedDate, selectedHour, selectedPeriod, getAvailableTimesForToday])
 
   // Period 전용 스크롤 핸들러
-  const handlePeriodScroll = useCallback(() => {
+  const handlePeriodScroll = () => {
     if (!periodRef.current) return
 
     if (scrollTimeoutRef.current) {
@@ -61,12 +70,40 @@ const CustomTimePicker = ({ value, onChange }: CustomTimePickerProps) => {
 
       onChange({ ...value, period: scrollTop < 22 ? 'AM' : 'PM' })
     }, 100)
-  }, [value, onChange])
+  }
+
+  // 공통 아이템 클릭 핸들러
+  const handleItemClick = <T extends string | number>(
+    key: keyof TimeValue,
+    item: T,
+    ref: React.RefObject<HTMLDivElement | null>,
+    items: T[]
+  ) => {
+    onChange({ ...value, [key]: item })
+    const index = items.indexOf(item)
+
+    ref.current?.scrollTo({
+      top: index * ITEM_HEIGHT,
+      behavior: 'smooth',
+    })
+  }
 
   // 초기 스크롤 위치 계산
-  const initialHourScroll = hours.indexOf(selectedHour) * 44
-  const initialMinuteScroll = minutes.indexOf(selectedMinute) * 44
-  const initialPeriodScroll = periods.indexOf(selectedPeriod) * 44
+  const initialHourScroll = calculateScrollPosition({
+    items: availableHours,
+    itemHeight: ITEM_HEIGHT,
+    selectedItem: selectedHour,
+  })
+  const initialMinuteScroll = calculateScrollPosition({
+    items: availableMinutes,
+    itemHeight: ITEM_HEIGHT,
+    selectedItem: selectedMinute,
+  })
+  const initialPeriodScroll = calculateScrollPosition({
+    items: availablePeriods,
+    itemHeight: ITEM_HEIGHT,
+    selectedItem: selectedPeriod,
+  })
 
   // Ref 콜백으로 초기 스크롤 설정
   const setHourRef = (element: HTMLDivElement | null) => {
@@ -97,21 +134,26 @@ const CustomTimePicker = ({ value, onChange }: CustomTimePickerProps) => {
           ref={setHourRef}
           className="scrollbar-hide h-[132px] snap-y snap-mandatory overflow-y-scroll"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          onScroll={() => handleScroll(hourRef, hours, (hour) => onChange({ ...value, hour }))}
+          onScroll={() =>
+            handleScroll({
+              ref: hourRef,
+              items: availableHours,
+              setter: (hour) => onChange({ ...value, hour }),
+            })
+          }
         >
           <div className="h-11"></div>
-          {hours.map((hour) => (
+          {availableHours.map((hour) => (
             <div
               key={hour}
               className={`relative z-10 flex h-11 cursor-pointer snap-center items-center justify-center text-sm ${
-                hour === selectedHour ? 'font-semibold text-black' : 'text-gray-400'
+                hour === selectedHour
+                  ? 'font-semibold text-black'
+                  : 'text-gray-400'
               }`}
-              onClick={() => {
-                onChange({ ...value, hour })
-                const index = hours.indexOf(hour)
-
-                hourRef.current?.scrollTo({ top: index * 44, behavior: 'smooth' })
-              }}
+              onClick={() =>
+                handleItemClick('hour', hour, hourRef, availableHours)
+              }
             >
               {hour.toString().padStart(2, '0')}
             </div>
@@ -126,21 +168,26 @@ const CustomTimePicker = ({ value, onChange }: CustomTimePickerProps) => {
           ref={setMinuteRef}
           className="scrollbar-hide h-[132px] snap-y snap-mandatory overflow-y-scroll"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          onScroll={() => handleScroll(minuteRef, minutes, (minute) => onChange({ ...value, minute }))}
+          onScroll={() =>
+            handleScroll({
+              ref: minuteRef,
+              items: availableMinutes,
+              setter: (minute) => onChange({ ...value, minute }),
+            })
+          }
         >
           <div className="h-11"></div>
-          {minutes.map((minute) => (
+          {availableMinutes.map((minute) => (
             <div
               key={minute}
               className={`relative z-10 flex h-11 cursor-pointer snap-center items-center justify-center text-sm ${
-                minute === selectedMinute ? 'font-semibold text-black' : 'text-gray-400'
+                minute === selectedMinute
+                  ? 'font-semibold text-black'
+                  : 'text-gray-400'
               }`}
-              onClick={() => {
-                onChange({ ...value, minute })
-                const index = minutes.indexOf(minute)
-
-                minuteRef.current?.scrollTo({ top: index * 44, behavior: 'smooth' })
-              }}
+              onClick={() =>
+                handleItemClick('minute', minute, minuteRef, availableMinutes)
+              }
             >
               {minute.toString().padStart(2, '0')}
             </div>
@@ -158,18 +205,17 @@ const CustomTimePicker = ({ value, onChange }: CustomTimePickerProps) => {
           onScroll={handlePeriodScroll}
         >
           <div className="h-11"></div>
-          {periods.map((period) => (
+          {availablePeriods.map((period) => (
             <div
               key={period}
               className={`relative z-10 flex h-11 cursor-pointer snap-center items-center justify-center text-sm ${
-                period === selectedPeriod ? 'font-semibold text-black' : 'text-gray-400'
+                period === selectedPeriod
+                  ? 'font-semibold text-black'
+                  : 'text-gray-400'
               }`}
-              onClick={() => {
-                onChange({ ...value, period })
-                const index = periods.indexOf(period)
-
-                periodRef.current?.scrollTo({ top: index * 44, behavior: 'smooth' })
-              }}
+              onClick={() =>
+                handleItemClick('period', period, periodRef, availablePeriods)
+              }
             >
               {period}
             </div>
