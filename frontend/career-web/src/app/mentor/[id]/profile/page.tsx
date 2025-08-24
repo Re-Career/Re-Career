@@ -63,8 +63,8 @@ const MentorProfilePage = async ({
           </div>
 
           <div className="text-sm text-gray-500">
-            {mentor.company.name} • {mentor.experience}년 •{' '}
-            {mentor.province.name}
+            {mentor.company ? `${mentor.company.name} •` : ''}
+            경력 {mentor.experience}년 • {mentor.province.name}
           </div>
         </div>
 
@@ -72,7 +72,7 @@ const MentorProfilePage = async ({
           {/* 소개 */}
           <div className="rounded-lg bg-white p-4">
             <h2 className="mb-3 text-lg font-semibold text-gray-900">
-              {mentor.name}에 대하여
+              멘토에 대하여
             </h2>
             <p className="leading-relaxed text-gray-700">
               {mentor.introduction}
@@ -80,7 +80,7 @@ const MentorProfilePage = async ({
           </div>
 
           {/* 주요 기술 */}
-          {mentor.skills && (
+          {mentor.skills && mentor.skills.length > 0 && (
             <div className="rounded-lg bg-white p-4">
               <h2 className="mb-3 text-lg font-semibold text-gray-900">
                 주요 기술
@@ -99,7 +99,7 @@ const MentorProfilePage = async ({
           )}
 
           {/* 경력 */}
-          {mentor.career && (
+          {mentor.career && mentor.career.length > 0 && (
             <div className="rounded-lg bg-white p-4">
               <h2 className="mb-3 text-lg font-semibold text-gray-900">경력</h2>
               <div className="space-y-2">
@@ -114,7 +114,7 @@ const MentorProfilePage = async ({
           )}
 
           {/* 멘토 피드백 */}
-          {mentor.feedback && (
+          {mentor.feedback?.comments && mentor.feedback.comments.length > 0 && (
             <div className="rounded-lg bg-white p-4">
               <h2 className="mb-3 text-lg font-semibold text-gray-900">
                 멘토 피드백

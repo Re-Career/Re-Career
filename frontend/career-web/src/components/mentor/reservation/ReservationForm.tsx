@@ -55,7 +55,7 @@ const ReservationForm = ({ mentorId }: { mentorId: string }) => {
           <input name="emailAlert" type="checkbox" className="h-5 w-5" />
         </label>
       </section> */}
-      <div className="sticky bottom-0 flex border-t border-gray-100 bg-white p-4">
+      <div className="sticky bottom-0 z-60 flex border-t border-gray-100 bg-white p-4">
         <button
           className="bg-primary-500 flex-1 rounded-lg py-3 text-center font-bold"
           type="submit"

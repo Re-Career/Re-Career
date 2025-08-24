@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation'
 
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
-  
+
   let mentor
 
   try {
@@ -31,11 +31,11 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
               alt={`mentor_reservation_profile_${mentor.id}`}
               width={56}
               height={56}
-              className="rounded-full"
+              className="h-14 w-14 rounded-full object-cover object-top"
             />
             <div>
-              <p>{mentor.name}</p>
-              <p>{mentor.email}</p>
+              <p className="font-bold">{mentor.name}</p>
+              <p className="text-sm">{mentor.email}</p>
             </div>
           </div>
         </section>
