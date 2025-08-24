@@ -36,6 +36,8 @@ class MentorControllerTest {
 
     private MockMvc mockMvc;
 
+    private String validAccessToken = "test-token";
+
     @Autowired
     private MentorRepository mentorRepository;
 
@@ -111,10 +113,10 @@ class MentorControllerTest {
         mockMvc.perform(get("/mentors/filters")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data.positions").isArray())
-                .andExpect(jsonPath("$.data.provinces").isArray())
-                .andExpect(jsonPath("$.data.personalityTags").isArray());
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data[0].key").exists())
+                .andExpect(jsonPath("$.data[0].title").exists())
+                .andExpect(jsonPath("$.data[0].options").isArray());
     }
 
     @Test
@@ -125,8 +127,8 @@ class MentorControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data.primary").isArray())
-                .andExpect(jsonPath("$.data.secondary").isArray());
+                .andExpect(jsonPath("$.data.recommendedList").isArray())
+                .andExpect(jsonPath("$.data.searchedList").isArray());
     }
 
     @Test
@@ -146,8 +148,8 @@ class MentorControllerTest {
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data").exists())
-                    .andExpect(jsonPath("$.data.primary").isArray())
-                .andExpect(jsonPath("$.data.secondary").isArray());
+                    .andExpect(jsonPath("$.data.recommendedList").isArray())
+                .andExpect(jsonPath("$.data.searchedList").isArray());
         }
     }
 
@@ -158,8 +160,8 @@ class MentorControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data.primary").isArray())
-                .andExpect(jsonPath("$.data.secondary").isArray());
+                .andExpect(jsonPath("$.data.recommendedList").isArray())
+                .andExpect(jsonPath("$.data.searchedList").isArray());
     }
 
     @Test
@@ -177,8 +179,8 @@ class MentorControllerTest {
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data").exists())
-                    .andExpect(jsonPath("$.data.primary").isArray())
-                .andExpect(jsonPath("$.data.secondary").isArray());
+                    .andExpect(jsonPath("$.data.recommendedList").isArray())
+                .andExpect(jsonPath("$.data.searchedList").isArray());
         }
     }
 

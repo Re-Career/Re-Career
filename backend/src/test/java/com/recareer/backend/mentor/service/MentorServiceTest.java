@@ -181,8 +181,8 @@ class MentorServiceTest {
     }
 
     @Test
-    @DisplayName("멘토의 예약 목록 조회")
-    void getMentorReservations_Success() {
+    @DisplayName("멘토의 세션 목록 조회")
+    void getMentorSessions_Success() {
         List<Session> result = mentorService.getMentorSessions(mentor.getId());
         
         assertThat(result).isEmpty();
