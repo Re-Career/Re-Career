@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FilterOptionsResponseDto {
-    private String id;
+    private String key;
     private String title;
     private List<FilterOptionDto> options;
 }

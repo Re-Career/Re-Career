@@ -89,16 +89,13 @@ public class MentorCard {
                         .build())
                 .toList();
 
-        // 가장 최신 회사 정보 (가장 최근에 추가된 career)
+        // 멘토의 company_id에서 회사 정보 가져오기
         CompanyDto companyDto = null;
-        if (careers != null && !careers.isEmpty()) {
-            MentorCareer latestCareer = careers.get(careers.size() - 1); // 가장 마지막 career
-            if (latestCareer.getCompany() != null) {
-                companyDto = CompanyDto.builder()
-                        .id(latestCareer.getId()) // career의 ID 사용
-                        .name(latestCareer.getCompany()) // company는 String
-                        .build();
-            }
+        if (mentor.getCompany() != null) {
+            companyDto = CompanyDto.builder()
+                    .id(mentor.getCompany().getId())
+                    .name(mentor.getCompany().getName())
+                    .build();
         }
 
         return MentorCard.builder()

@@ -6,7 +6,7 @@ import com.recareer.backend.mentor.dto.MentorCreateRequestDto;
 import com.recareer.backend.mentor.dto.MentorDetailResponseDto;
 import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.dto.MentorSearchRequestDto;
-import com.recareer.backend.mentor.dto.MentorFiltersResponseDto;
+import com.recareer.backend.mentor.dto.FilterOptionsResponseDto;
 import com.recareer.backend.mentor.dto.MentorSearchResponse;
 import com.recareer.backend.mentor.dto.MentorFilterRequestDto;
 import com.recareer.backend.mentor.entity.Mentor;
@@ -38,7 +38,7 @@ public interface MentorService {
     
     MentorFeedbackListResponseDto getMentorFeedbacks(Long mentorId);
     
-    MentorFiltersResponseDto getFilters();
+    List<FilterOptionsResponseDto> getFilters();
 
-    MentorSearchResponse searchMentorsWithPrimarySecondary(MentorSearchRequestDto searchRequest);
+    MentorSearchResponse searchMentorsWithRecommendation(MentorSearchRequestDto searchRequest, Long userId);
 }

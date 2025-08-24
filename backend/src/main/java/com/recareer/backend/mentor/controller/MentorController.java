@@ -11,7 +11,7 @@ import com.recareer.backend.mentor.dto.MentorSummaryResponseDto;
 import com.recareer.backend.mentor.dto.MentorUpdateRequestDto;
 import com.recareer.backend.mentor.dto.MentorUpdateResponseDto;
 import com.recareer.backend.mentor.dto.MentorSearchRequestDto;
-import com.recareer.backend.mentor.dto.MentorFiltersResponseDto;
+import com.recareer.backend.mentor.dto.FilterOptionsResponseDto;
 import com.recareer.backend.mentor.dto.MentorSearchResponse;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.service.MentorService;
@@ -84,8 +84,9 @@ public class MentorController {
     }
 
     @GetMapping("/search")
-    @Operation(summary = "멘토 검색", description = "키워드, 직업, 경력, 지역, 성향으로 멘토를 검색합니다. Primary(1순위: 지역/성향, 2순위: 직업/경험)와 Secondary(직업/경험만) 결과를 동시에 반환합니다.")
+    @Operation(summary = "멘토 검색", description = "키워드, 직업, 경력, 지역, 성향으로 멘토를 검색합니다. 사용자 맞춤 추천과 검색 조건 기반 결과를 동시에 반환합니다.")
     public ResponseEntity<ApiResponse<MentorSearchResponse>> searchMentors(
+            @RequestHeader(value = "Authorization", required = false) String accessToken,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) List<Long> positionIds,
             @RequestParam(required = false) List<String> experiences,
@@ -93,10 +94,15 @@ public class MentorController {
             @RequestParam(required = false) List<Long> personalityTagIds) {
         
         try {
+            Long userId = null;
+            if (accessToken != null) {
+                userId = authUtil.validateTokenAndGetUserId(accessToken);
+            }
+            
             MentorSearchRequestDto searchRequest = new MentorSearchRequestDto(
                 keyword, positionIds, experiences, provinceIds, personalityTagIds
             );
-            MentorSearchResponse mentors = mentorService.searchMentorsWithPrimarySecondary(searchRequest);
+            MentorSearchResponse mentors = mentorService.searchMentorsWithRecommendation(searchRequest, userId);
             return ResponseEntity.ok(ApiResponse.success(mentors));
             
         } catch (Exception e) {
@@ -168,7 +174,9 @@ public class MentorController {
             @RequestHeader("Authorization") String accessToken,
             @Valid @RequestBody AvailableTimeRequestDto requestDto) {
         Long userId = authUtil.validateTokenAndGetUserId(accessToken);
-        if (!userId.equals(id)) {
+        Mentor mentor = mentorService.getMentorById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 멘토를 찾을 수 없습니다."));
+        if (!userId.equals(mentor.getUser().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 작업에 대한 권한이 없습니다.");
         }
         try {
@@ -202,9 +210,9 @@ public class MentorController {
 
     @GetMapping("/filters")
     @Operation(summary = "멘토 필터 옵션 조회", description = "멘토 검색에 사용하는 직업, 지역, 성향 필터 옵션들을 조회합니다")
-    public ResponseEntity<ApiResponse<MentorFiltersResponseDto>> getFilters() {
+    public ResponseEntity<ApiResponse<List<FilterOptionsResponseDto>>> getFilters() {
         try {
-            MentorFiltersResponseDto filters = mentorService.getFilters();
+            List<FilterOptionsResponseDto> filters = mentorService.getFilters();
             return ResponseEntity.ok(ApiResponse.success(filters));
         } catch (Exception e) {
             log.error("Get filters failed: {}", e.getMessage());
@@ -212,6 +220,3 @@ public class MentorController {
         }
     }
 }
-
-//IS 40만원 - 2만 + 320만 = 358만
-//
