@@ -20,7 +20,7 @@ export async function GET(req: Request) {
   const res = await fetch(
     `https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${x}&y=${y}`,
     {
-      headers: { Authorization: `KakaoAK ${process.env.KAKAO_API_KEY!}` },
+      headers: { Authorization: `KakaoAK ${process.env.KAKAO_API_KEY}` },
       cache: 'no-store',
     }
   )
