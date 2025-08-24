@@ -1,15 +1,22 @@
 'use client'
 
-import { FilterOptions } from '@/types/mentor'
-import { filterOptions } from '@/mocks/matching/filterOptions'
 import React from 'react'
 import Link from 'next/link'
+import { FilterConfig } from '@/types/mentor'
+import { DefaultData } from '@/types/global'
 
 interface FilterDropdownProps {
   isOpen: boolean
   mentorName: string
-  filters: FilterOptions
-  onFilterChange: (key: string, value: string) => void
+  filters: FilterConfig[]
+  selectedFilters: FilterConfig[]
+  onFilterChange: ({
+    filterConfig,
+    option,
+  }: {
+    filterConfig: FilterConfig
+    option: DefaultData
+  }) => void
   handleReset: () => void
   onClose: () => void
 }
@@ -18,74 +25,82 @@ const FilterDropdown = ({
   isOpen,
   mentorName,
   filters,
+  selectedFilters,
   onFilterChange,
   handleReset,
   onClose,
 }: FilterDropdownProps) => {
-  const handleSearch = () => {
+  const generateSearchUrl = () => {
     const params = new URLSearchParams()
 
-    if (mentorName) params.set('search', mentorName)
+    if (mentorName.trim()) {
+      params.set('keyword', mentorName)
+    }
 
-    // 동적으로 모든 필터 키 처리
-    Object.entries(filters).forEach(([key, values]) => {
-      if (Array.isArray(values) && values.length > 0) {
-        params.set(key, values.join(','))
+    selectedFilters.forEach((filter) => {
+      if (filter.options.length > 0) {
+        const paramKey = `${filter.key}Ids`.replace(/sIds$/, 'Ids')
+        const values = filter.options.map((option) => option.id.toString())
+        params.set(paramKey, values.join(','))
       }
     })
 
-    // URL 생성
-    const searchString = params.toString()
-
-    return searchString ? `?${searchString}` : ''
+    return params.toString() ? `?${params.toString()}` : ''
   }
 
   return (
     <div
       className={`flex transform flex-col gap-4 overflow-hidden rounded-lg bg-white shadow-xl transition-all duration-300 ease-out ${
-        isOpen
-          ? 'max-h-[calc(100vh-104px)] py-4 opacity-100'
-          : 'max-h-0 py-0 opacity-0'
+        isOpen ? 'max-h-[70vh] pt-2 pb-4 opacity-100' : 'max-h-0 py-0 opacity-0'
       }`}
     >
       <div className="flex-1 space-y-4 overflow-y-auto px-4">
-        {filterOptions.map(({ key, title, options }) => (
-          <div key={key}>
-            <h3 className="mb-3 font-medium">{title}</h3>
-            <div className="flex flex-wrap gap-2">
-              {options.map((option, index) => {
-                const filterArray = filters[key]
-                const isSelected =
-                  Array.isArray(filterArray) && filterArray.includes(option.key)
+        {filters.map((filterConfig) => {
+          const { key, title, options } = filterConfig
 
-                return (
-                  <button
-                    key={option.key + index}
-                    onClick={() => onFilterChange(key, option.key)}
-                    className={`rounded-full border px-4 py-2 text-sm transition-all duration-200 ease-in-out ${
-                      isSelected
-                        ? 'bg-secondary-500 border-secondary-500'
-                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    {option.name}
-                  </button>
-                )
-              })}
+          return (
+            <div key={key}>
+              <h3 className="mb-3 font-medium">{title}</h3>
+              <div className="flex flex-wrap gap-2">
+                {options.map((option) => {
+                  const isSelected = selectedFilters.some(
+                    (filter) =>
+                      filter.key === key &&
+                      filter.options.some(
+                        (selectedOption) => selectedOption.id === option.id
+                      )
+                  )
+
+                  return (
+                    <button
+                      key={`${key}_${option.id}`}
+                      onClick={() => onFilterChange({ filterConfig, option })}
+                      className={`rounded-full border px-4 py-2 text-sm transition-all duration-200 ease-in-out ${
+                        isSelected
+                          ? 'border-secondary-500 bg-secondary-500'
+                          : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      {option.name}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
       <div className="flex gap-2 px-4">
         <button
-          className="flex-1 rounded border border-gray-300 p-2 font-semibold"
+          type="button"
+          className="flex-1 rounded border border-gray-300 p-2 font-semibold text-gray-700 transition-colors hover:bg-gray-50"
           onClick={handleReset}
         >
           초기화
         </button>
         <Link
-          href={`/matching${handleSearch()}`}
-          className="bg-primary-500 flex-3 rounded p-2 text-center font-semibold"
+          href={`/matching${generateSearchUrl()}`}
+          className="bg-primary-500 hover:bg-primary-600 flex-[3] rounded p-2 text-center font-semibold transition-colors"
           onClick={onClose}
         >
           적용하기
