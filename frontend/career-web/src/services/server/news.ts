@@ -1,6 +1,5 @@
-import { fetchUrl } from './api'
+import { fetchUrl } from '../api'
 import { News } from '@/types/news'
-
 
 export const getNews = async (): Promise<News[]> => {
   const res = await fetchUrl('/news', {

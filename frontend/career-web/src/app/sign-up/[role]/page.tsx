@@ -1,7 +1,7 @@
 import { Header, PageWithHeader } from '@/components/layout'
 import { SignUpForm } from '@/components/sign-up'
-import { getCities, getProvinces } from '@/services/locations'
-import { getPersonalityTags } from '@/services/personality-tags'
+import { getCities, getProvinces } from '@/services/server/locations'
+import { getPersonalityTags } from '@/services/server/personality-tags'
 import { RoleType } from '@/types/global'
 
 const SignUpPage = async ({

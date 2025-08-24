@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { COOKIE_OPTIONS, ONE_DAY } from '../constants/global'
-import { getAuthMe } from '@/services/auth'
+import { getAuthMe } from '@/services/server/auth'
 
 export async function handleOAuth2Redirect(
   request: NextRequest

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { IoSearch, IoFilter } from 'react-icons/io5'
 import FilterDropdown from './FilterDropdown'
 import { FilterConfig } from '@/types/mentor'
-import { getFilterOptions } from '@/services/mentor'
+import { getFilterOptions } from '@/services/server/mentor'
 import { DefaultData } from '@/types/global'
 import useSWR from 'swr'
 

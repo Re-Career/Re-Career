@@ -2,7 +2,7 @@ import React from 'react'
 import HorizontalScroll from '@/components/common/HorizontalScroll'
 import Link from 'next/link'
 import Image from 'next/image'
-import { getMentors } from '@/services/mentor'
+import { getMentors } from '@/services/server/mentor'
 
 const MentorList = async () => {
   const mentors = await getMentors()

@@ -3,7 +3,7 @@
 import { HorizontalScroll } from '@/components/common'
 import { Header, PageWithHeader } from '@/components/layout'
 import Filter from '@/components/matching/Filter'
-import { getFilteredMentors } from '@/services/mentor'
+import { getFilteredMentors } from '@/services/client/mentor'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -179,17 +179,19 @@ const MatchingPageContent = () => {
 
 const MatchingPage = () => {
   return (
-    <Suspense fallback={
-      <>
-        <Header title="멘토 찾기" />
-        <PageWithHeader className="pt-14">
-          <div className="flex flex-col items-center justify-center py-8">
-            <div className="border-t-primary-500 h-8 w-8 animate-spin rounded-full border-4 border-gray-300"></div>
-            <p className="mt-2 text-gray-500">페이지를 불러오는 중...</p>
-          </div>
-        </PageWithHeader>
-      </>
-    }>
+    <Suspense
+      fallback={
+        <>
+          <Header title="멘토 찾기" />
+          <PageWithHeader className="pt-14">
+            <div className="flex flex-col items-center justify-center py-8">
+              <div className="border-t-primary-500 h-8 w-8 animate-spin rounded-full border-4 border-gray-300"></div>
+              <p className="mt-2 text-gray-500">페이지를 불러오는 중...</p>
+            </div>
+          </PageWithHeader>
+        </>
+      }
+    >
       <MatchingPageContent />
     </Suspense>
   )

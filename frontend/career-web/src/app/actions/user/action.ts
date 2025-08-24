@@ -5,7 +5,7 @@ import {
   putProfileImage,
   deleteProfileImage,
   putUserPersonalityTags,
-} from '@/services/user'
+} from '@/services/server/user'
 import { getTokens } from '../auth/action'
 import z from 'zod'
 import { PutUserPayload } from '@/types/user'

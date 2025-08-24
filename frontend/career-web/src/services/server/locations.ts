@@ -1,5 +1,5 @@
 import { City, Province } from '@/types/location'
-import { fetchUrl } from './api'
+import { fetchUrl } from '../api'
 
 export const getProvinces = async (): Promise<Province[]> => {
   const res = await fetchUrl('/locations/provinces', { cache: 'force-cache' })

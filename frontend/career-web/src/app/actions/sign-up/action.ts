@@ -1,11 +1,11 @@
 'use server'
 
 import { ONE_DAY } from '@/lib/constants/global'
-import { postSignUp } from '@/services/auth'
+import { postSignUp } from '@/services/server/auth'
 import { SignUpFormData } from '@/types/auth'
 import z from 'zod'
 import { setCookie } from '../global/action'
-import { putProfileImage } from '@/services/user'
+import { putProfileImage } from '@/services/server/user'
 import { clearPendingTokens, getPendingTokens } from '../auth/action'
 
 interface DefaultFormData {

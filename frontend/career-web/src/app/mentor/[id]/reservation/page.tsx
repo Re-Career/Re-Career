@@ -1,6 +1,6 @@
 import { Header, PageWithHeader } from '@/components/layout'
 import { ReservationForm } from '@/components/mentor/reservation'
-import { getMentor } from '@/services/mentor'
+import { getMentor } from '@/services/server/mentor'
 import Image from 'next/image'
 import { redirect } from 'next/navigation'
 

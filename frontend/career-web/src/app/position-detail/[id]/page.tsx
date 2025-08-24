@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import Link from 'next/link'
-import { getPositionDetail } from '@/services/positions'
+import { getPositionDetail } from '@/services/server/positions'
 import PageWithHeader from '@/components/layout/PageWithHeader'
 
 const PositionDescriptionPage = async ({

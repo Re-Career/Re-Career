@@ -1,7 +1,7 @@
 import Header from '@/components/layout/Header'
 import PageWithHeader from '@/components/layout/PageWithHeader'
 import { ProfileEditForm } from '@/components/my-page'
-import { getUserProfile } from '@/services/user'
+import { getUserProfile } from '@/services/server/user'
 
 const ProfileEditPage = async () => {
   const data = await getUserProfile()

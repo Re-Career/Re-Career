@@ -2,7 +2,7 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import HorizontalScroll from '@/components/common/HorizontalScroll'
-import { getTrendPositions } from '@/services/positions'
+import { getTrendPositions } from '@/services/server/positions'
 
 const TrendpositionList = async () => {
   const trendPositions = await getTrendPositions()

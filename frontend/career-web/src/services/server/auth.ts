@@ -1,5 +1,5 @@
 import { DefaultSignUpFormData } from '@/types/auth'
-import { fetchUrl } from './api'
+import { fetchUrl } from '../api'
 import { User } from '@/types/user'
 import { FetchResponse } from '@/types/global'
 

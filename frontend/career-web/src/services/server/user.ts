@@ -1,5 +1,5 @@
 import { getTokens } from '@/app/actions/auth/action'
-import { fetchUrl } from './api'
+import { fetchUrl } from '../api'
 import { PutUserPayload, User } from '@/types/user'
 import { FetchResponse, ResponseMessage } from '@/types/global'
 

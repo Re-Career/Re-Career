@@ -1,5 +1,5 @@
 import React from 'react'
-import { getPositionByRegion } from '@/services/positions'
+import { getPositionByRegion } from '@/services/server/positions'
 import Link from 'next/link'
 import Image from 'next/image'
 

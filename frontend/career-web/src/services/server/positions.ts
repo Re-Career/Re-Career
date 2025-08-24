@@ -3,7 +3,7 @@ import {
   DefaultPosition,
   RegionPosition,
 } from '@/types/position'
-import { fetchUrl } from './api'
+import { fetchUrl } from '../api'
 import { ONE_DAY } from '@/lib/constants/global'
 
 export const getTrendPositions = async (): Promise<DefaultPosition[]> => {

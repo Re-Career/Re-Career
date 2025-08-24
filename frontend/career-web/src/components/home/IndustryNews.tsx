@@ -1,6 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
-import { getNews } from '@/services/news'
+import { getNews } from '@/services/server/news'
 
 const IndustryNews = async () => {
   const news = await getNews()
