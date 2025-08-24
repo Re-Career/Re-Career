@@ -1,68 +1,50 @@
-import { FilterOptions, Mentor, MentorDetail } from '@/types/mentor'
-import { fetchUrl } from './api'
-import { searchMentors } from '@/mocks/home/mentors-search'
-import { mentorDetails } from '@/mocks/home/mentor-details'
+import {
+  FilterConfig,
+  FilterOptions,
+  Mentor,
+  MentorDetail,
+} from '@/types/mentor'
+import { fetchUrl, api } from './api'
 import { ONE_DAY } from '@/lib/constants/global'
+import { filterOptions } from '@/mocks/matching/filterOptions'
 
 export const getMentor = async (id: string): Promise<MentorDetail> => {
   const res = await fetchUrl(`/mentors/${id}`)
-
-  if (!res.ok) {
-    return mentorDetails[0]
-  }
 
   const { data } = await res.json()
 
   return data
 }
 
-export const getFilteredMenters = ({
+export const getFilteredMentors = async ({
   mentorName,
   filters,
 }: {
   mentorName: string
   filters: FilterOptions
-}) => {
-  const filteredMentors = searchMentors.filter((mentor) => {
-    // 이름 필터링
-    const nameMatch = mentor.name
-      .toLowerCase()
-      .includes(mentorName.toLowerCase())
+}): Promise<{ primary: Mentor[]; secondary: Mentor[] }> => {
+  const params = new URLSearchParams()
 
-    // 모든 필터 조건 확인
-    const filterMatch = Object.entries(filters).every(
-      ([filterKey, filterValues]) => {
-        if (!Array.isArray(filterValues) || filterValues.length === 0) {
-          return true // 필터가 비어있으면 통과
-        }
+  if (mentorName) {
+    params.append('keyword', mentorName)
+  }
 
-        const mentorValue = mentor[filterKey as keyof typeof mentor]
-
-        if (typeof mentorValue === 'string') {
-          return filterValues.some((value) => {
-            // meetingType의 경우 'both'는 모든 조건과 매치
-            if (filterKey === 'meetingType' && mentorValue === 'both') {
-              return true
-            }
-
-            return mentorValue.includes(value)
-          })
-        }
-
-        return false
-      }
-    )
-
-    return nameMatch && filterMatch
+  Object.entries(filters).forEach(([key, values]) => {
+    if (values && values.length > 0) {
+      params.set(key, values.join(','))
+    }
   })
 
-  return filteredMentors
+  const {
+    data: { data },
+  } = await api.get(`/mentors/search?${params.toString()}`)
+
+  return data
 }
 
-export const getRecommenedMentors = () => {
-  const recommendedMentors = searchMentors.slice(0, 3)
-
-  return recommendedMentors
+export const getFilterOptions = (): FilterConfig[] => {
+  // 임시로 mock 데이터 사용 (실제 API 데이터 문제로 인해)
+  return filterOptions
 }
 
 export const getMentors = async (region?: string): Promise<Mentor[]> => {

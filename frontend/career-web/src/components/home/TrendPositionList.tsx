@@ -16,7 +16,7 @@ const TrendpositionList = async () => {
           <Link
             key={position.id}
             className="flex flex-col gap-3"
-            href={`/position-description/${position.id}`}
+            href={`/position-detail/${position.id}`}
           >
             <div className="relative h-40 w-40 overflow-hidden rounded-xl">
               <Image

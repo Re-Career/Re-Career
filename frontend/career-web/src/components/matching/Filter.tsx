@@ -3,27 +3,68 @@
 import { useState, useEffect, useRef } from 'react'
 import { IoSearch, IoFilter } from 'react-icons/io5'
 import FilterDropdown from './FilterDropdown'
-import { FilterOptions } from '@/types/mentor'
-import { INITIAL_FILTERS } from '@/lib/constants/matching'
+import { FilterConfig } from '@/types/mentor'
+import { getFilterOptions } from '@/services/mentor'
+import { DefaultData } from '@/types/global'
+import useSWR from 'swr'
 
 interface FilterProps {
-  initialFilters: FilterOptions
+  initialFilterConfigs: Record<string, string[]>
   initialMentorName: string
 }
 
-const Filter = ({ initialFilters, initialMentorName }: FilterProps) => {
+const Filter = ({ initialFilterConfigs, initialMentorName }: FilterProps) => {
   const [mentorName, setMentorName] = useState(initialMentorName)
-  const [filters, setFilters] = useState(initialFilters)
+  const [selectedFilters, setSelectedFilters] = useState<FilterConfig[]>([])
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+
+  const { data: filterOptions = [] } = useSWR(
+    'filter-options',
+    () => getFilterOptions(),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: Infinity, // 영구 저장
+    }
+  )
 
   const filterRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    setFilters(initialFilters)
-    setMentorName(initialMentorName)
-  }, [initialFilters, initialMentorName])
+    // URL 파라미터 키를 실제 필터 키로 변환
+    const transformUrlKeyToFilterKey = (urlKey: string): string => {
+      if (urlKey.endsWith('Ids')) return `${urlKey.slice(0, -3)}s`
 
-  // 드롭다운 외부 클릭 시 닫기 & 스크롤 제어
+      return urlKey
+    }
+
+    const initialFilters = Object.entries(initialFilterConfigs)
+      .map(([urlKey, optionIds]) => {
+        const filterKey = transformUrlKeyToFilterKey(urlKey)
+        const filterConfig = filterOptions.find(
+          (config) => config.key === filterKey
+        )
+
+        if (filterConfig) {
+          const selectedOptions = filterConfig.options.filter((option) =>
+            optionIds.includes(option.id.toString())
+          )
+
+          return {
+            key: filterKey,
+            title: filterConfig.title,
+            options: selectedOptions,
+          }
+        }
+
+        return null
+      })
+      .filter((filter): filter is FilterConfig => filter !== null)
+
+    setSelectedFilters(initialFilters)
+    setMentorName(initialMentorName)
+  }, [initialFilterConfigs, initialMentorName, filterOptions])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -36,7 +77,6 @@ const Filter = ({ initialFilters, initialMentorName }: FilterProps) => {
 
     if (isFilterOpen) {
       document.documentElement.style.overflow = 'hidden'
-
       document.addEventListener('mousedown', handleClickOutside)
     } else {
       document.documentElement.style.overflow = ''
@@ -44,55 +84,79 @@ const Filter = ({ initialFilters, initialMentorName }: FilterProps) => {
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
-
       document.documentElement.style.overflow = ''
     }
   }, [isFilterOpen])
 
-  const handleMentorName = (value: string) => {
+  const handleMentorNameChange = (value: string) => {
     setMentorName(value)
   }
 
-  const handleFilterChange = (key: keyof typeof filters, value: string) => {
-    const newFilters = { ...filters }
+  const handleFilterChange = ({
+    filterConfig,
+    option,
+  }: {
+    filterConfig: FilterConfig
+    option: DefaultData
+  }) => {
+    setSelectedFilters((prevFilters) => {
+      const existingFilterIndex = prevFilters.findIndex(
+        (filter) => filter.key === filterConfig.key
+      )
 
-    // 모든 필터는 배열로 관리 (다중 선택)
-    const currentArray = Array.isArray(filters[key]) ? filters[key] : []
+      if (existingFilterIndex !== -1) {
+        const existingFilter = prevFilters[existingFilterIndex]
+        const isOptionSelected = existingFilter.options.some(
+          (existingOption) => existingOption.id === option.id
+        )
 
-    if (currentArray.includes(value)) {
-      newFilters[key] = currentArray.filter((item) => item !== value)
-    } else {
-      newFilters[key] = [...currentArray, value]
-    }
+        return prevFilters
+          .map((filter, index) =>
+            index === existingFilterIndex
+              ? {
+                  ...filter,
+                  options: isOptionSelected
+                    ? filter.options.filter(
+                        (existingOption) => existingOption.id !== option.id
+                      )
+                    : [...filter.options, option],
+                }
+              : filter
+          )
+          .filter((filter) => filter.options.length > 0)
+      }
 
-    setFilters(newFilters)
+      return [...prevFilters, { ...filterConfig, options: [option] }]
+    })
   }
 
   const handleReset = () => {
-    setFilters(INITIAL_FILTERS)
+    setSelectedFilters([])
   }
 
   return (
     <>
       <div
-        className={`pointer-events-none fixed inset-0 z-60 bg-black transition-opacity duration-300 ease-in-out ${
-          isFilterOpen ? 'pointer-events-auto opacity-10' : 'opacity-0'
+        className={`fixed inset-0 z-60 bg-black transition-opacity duration-300 ease-in-out ${
+          isFilterOpen
+            ? 'pointer-events-auto opacity-10'
+            : 'pointer-events-none opacity-0'
         }`}
         onClick={() => setIsFilterOpen(false)}
       />
 
       <div
         ref={filterRef}
-        className="fixed top-14 right-0 left-0 z-80 mx-auto max-w-[450px] bg-white py-2"
+        className="fixed top-14 right-0 left-0 z-80 mx-auto max-w-[450px] bg-white"
       >
         <div className="flex px-4">
-          <div className="focus-within:ring-primary-500 flex flex-1 items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 focus-within:ring-2">
+          <div className="focus-within:ring-primary-500 mb-2 flex flex-1 items-center gap-2 rounded-lg bg-gray-100 px-4 focus-within:ring-2">
             <IoSearch className="h-6 w-6 text-gray-400" />
             <input
               type="text"
               placeholder="멘토 검색"
               value={mentorName}
-              onChange={(e) => handleMentorName(e.target.value)}
+              onChange={(e) => handleMentorNameChange(e.target.value)}
               onFocus={() => setIsFilterOpen(true)}
               className="w-full flex-1 bg-transparent outline-none"
             />
@@ -107,7 +171,8 @@ const Filter = ({ initialFilters, initialMentorName }: FilterProps) => {
 
         <FilterDropdown
           isOpen={isFilterOpen}
-          filters={filters}
+          filters={filterOptions}
+          selectedFilters={selectedFilters}
           mentorName={mentorName}
           onFilterChange={handleFilterChange}
           handleReset={handleReset}
