@@ -85,7 +85,7 @@ const PositionDescriptionPage = async ({
         <div className="flex w-full items-center justify-center px-4">
           <Link
             className="bg-primary-500 w-full rounded-xl py-3 text-center font-bold"
-            href={`/matching?PositionId=${id}`}
+            href={`/matching?positionIds=${id}`}
           >
             멘토 찾기
           </Link>
