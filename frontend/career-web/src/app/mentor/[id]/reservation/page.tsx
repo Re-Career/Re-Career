@@ -1,12 +1,19 @@
 import { Header, PageWithHeader } from '@/components/layout'
 import { ReservationForm } from '@/components/mentor/reservation'
-import { mentorDetails } from '@/mocks/home/mentor-details'
+import { getMentor } from '@/services/mentor'
 import Image from 'next/image'
 import { redirect } from 'next/navigation'
 
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
-  const mentor = mentorDetails.find((m) => m.id === parseInt(id))
+  
+  let mentor
+
+  try {
+    mentor = await getMentor(id)
+  } catch {
+    redirect(`/mentor/${id}/profile`)
+  }
 
   if (!mentor) {
     redirect(`/mentor/${id}/profile`)

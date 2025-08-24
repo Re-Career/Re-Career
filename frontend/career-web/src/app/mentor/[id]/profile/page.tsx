@@ -71,7 +71,7 @@ const MentorProfilePage = async ({
           </div>
 
           <div className="text-sm text-gray-500">
-            {mentor.company.name} • {mentor.experience}년 • {mentor.region.name}
+            {mentor.company.name} • {mentor.experience}년 • {mentor.province.name}
           </div>
         </div>
 
@@ -98,7 +98,7 @@ const MentorProfilePage = async ({
                     key={index}
                     className="rounded-full bg-gray-200 px-3 py-1 text-sm text-gray-800"
                   >
-                    {skill}
+                    {skill.name}
                   </span>
                 ))}
               </div>

@@ -155,7 +155,7 @@ const ProfileEditForm = ({ userData }: ProfileEditFormProps) => {
         </div>
 
         {/* 멘토 전용 필드 */}
-        {userData.role === 'mentor' && (
+        {userData.role === 'MENTOR' && (
           <>
             <div>
               <label

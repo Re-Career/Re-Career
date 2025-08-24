@@ -41,6 +41,7 @@ const FilterDropdown = ({
       if (filter.options.length > 0) {
         const paramKey = `${filter.key}Ids`.replace(/sIds$/, 'Ids')
         const values = filter.options.map((option) => option.id.toString())
+
         params.set(paramKey, values.join(','))
       }
     })

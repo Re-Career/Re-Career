@@ -33,7 +33,8 @@ const Filter = ({ initialFilterConfigs, initialMentorName }: FilterProps) => {
   useEffect(() => {
     // URL 파라미터 키를 실제 필터 키로 변환
     const transformUrlKeyToFilterKey = (urlKey: string): string => {
-      if (urlKey.endsWith('Ids')) return urlKey.slice(0, -3) + 's'
+      if (urlKey.endsWith('Ids')) return `${urlKey.slice(0, -3)}s`
+
       return urlKey
     }
 
@@ -43,16 +44,19 @@ const Filter = ({ initialFilterConfigs, initialMentorName }: FilterProps) => {
         const filterConfig = filterOptions.find(
           (config) => config.key === filterKey
         )
+
         if (filterConfig) {
           const selectedOptions = filterConfig.options.filter((option) =>
             optionIds.includes(option.id.toString())
           )
+
           return {
             key: filterKey,
             title: filterConfig.title,
             options: selectedOptions,
           }
         }
+
         return null
       })
       .filter((filter): filter is FilterConfig => filter !== null)

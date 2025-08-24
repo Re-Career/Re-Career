@@ -22,6 +22,7 @@ export const getCurrentPosition = (): Promise<GeolocationPosition> => {
         code: 0,
         message: 'Geolocation is not supported by this browser.'
       } as GeolocationError)
+
       return
     }
 
@@ -58,6 +59,7 @@ export const watchPosition = (
         message: 'Geolocation is not supported by this browser.'
       })
     }
+
     return null
   }
 
@@ -127,7 +129,10 @@ export const getKoreanAddress = async (
   }
 }
 
-export const getCurrentKoreanAddress = async (kakaoApiKey: string): Promise<KoreanAddress> => {
+export const getCurrentKoreanAddress = async (
+  kakaoApiKey: string
+): Promise<KoreanAddress> => {
   const position = await getCurrentPosition()
+
   return getKoreanAddress(position.latitude, position.longitude, kakaoApiKey)
 }
