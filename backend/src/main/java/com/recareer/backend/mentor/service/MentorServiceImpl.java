@@ -336,38 +336,26 @@ public class MentorServiceImpl implements MentorService {
         List<Position> positions = positionRepository.findAll();
         List<FilterOptionDto> positionOptions = positions.stream()
                 .map(position -> FilterOptionDto.builder()
-                        .key(position.getId().toString())
+                        .id(position.getId())
                         .name(position.getName())
                         .build())
                 .collect(Collectors.toList());
         filterOptions.add(FilterOptionsResponseDto.builder()
-                .key("position")
+                .key("positions")
                 .title("직업")
                 .options(positionOptions)
-                .build());
-
-        // Experience 필터 (하드코딩)
-        List<FilterOptionDto> experienceOptions = Arrays.asList(
-                FilterOptionDto.builder().key("1-3").name("1-3년").build(),
-                FilterOptionDto.builder().key("4-6").name("4-6년").build(),
-                FilterOptionDto.builder().key("7+").name("7년 이상").build()
-        );
-        filterOptions.add(FilterOptionsResponseDto.builder()
-                .key("experience")
-                .title("경험")
-                .options(experienceOptions)
                 .build());
 
         // Provinces 필터
         List<Province> provinces = provinceRepository.findAll();
         List<FilterOptionDto> provinceOptions = provinces.stream()
                 .map(province -> FilterOptionDto.builder()
-                        .key(province.getId().toString())
+                        .id(province.getId())
                         .name(province.getName())
                         .build())
                 .collect(Collectors.toList());
         filterOptions.add(FilterOptionsResponseDto.builder()
-                .key("region")
+                .key("provinces")
                 .title("지역")
                 .options(provinceOptions)
                 .build());
@@ -376,12 +364,12 @@ public class MentorServiceImpl implements MentorService {
         List<PersonalityTag> personalityTags = personalityTagRepository.findAll();
         List<FilterOptionDto> personalityTagOptions = personalityTags.stream()
                 .map(tag -> FilterOptionDto.builder()
-                        .key(tag.getId().toString())
+                        .id(tag.getId())
                         .name(tag.getName())
                         .build())
                 .collect(Collectors.toList());
         filterOptions.add(FilterOptionsResponseDto.builder()
-                .key("PersonalityTags")
+                .key("personalityTags")
                 .title("성향")
                 .options(personalityTagOptions)
                 .build());
