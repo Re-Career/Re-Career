@@ -19,21 +19,8 @@ export enum SessionStatus {
   COMPLETED = 'COMPLETED', // 멘토링 완료
 }
 
-export interface SessionResponse {
+export interface SessionResponse extends Omit<Session, 'id'> {
   sessionId: number
-  sessionTime: string
-  status: SessionStatus
-  mentor: {
-    mentorId: number
-    name: string
-    position: DefaultData
-    profileImageUrl: string
-  }
-  mentee: {
-    menteeId: number
-    name: string
-    profileImageUrl: string
-  } | null
 }
 
 export interface Session {

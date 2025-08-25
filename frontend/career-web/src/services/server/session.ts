@@ -19,7 +19,7 @@ export const getSession = async (
   const { accessToken } = await getTokens()
   const user = await getUserProfile()
 
-  const res = await fetchUrl(`/session/${id}?role=${user.role}`, {
+  const res = await fetchUrl(`/sessions/${id}?role=${user.role}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -50,6 +50,7 @@ export const getSessionList = async (): Promise<FetchResponse<Session[]>> => {
   })
 
   const isSuccess = res.ok
+
   const jsonData = await res.json().catch(() => {})
 
   let errorMessage: string = ''
@@ -63,14 +64,9 @@ export const getSessionList = async (): Promise<FetchResponse<Session[]>> => {
   const { data } = jsonData
 
   const _data = data.map((session: SessionResponse) => {
-    const formattedTime = dayjs(session.sessionTime).format(
-      'YYYY년 M월 D일 A h:mm'
-    )
-
     return {
       id: session.sessionId,
       sessionTime: session.sessionTime,
-      sessionTimeFormatted: formattedTime,
       status: session.status,
       mentor: session.mentor,
       mentee: session.mentee,
