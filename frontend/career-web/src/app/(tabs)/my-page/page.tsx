@@ -1,5 +1,5 @@
 import { Header, PageWithHeader } from '@/components/layout'
-import { MyMentoringList, ProfileImage } from '@/components/my-page'
+import { MySessionList, ProfileImage } from '@/components/my-page'
 import { LogoutButton } from '@/components/my-page/LogoutButton'
 import PersonalityTagsSection from '@/components/my-page/PersonalityTagsSection'
 import { getPersonalityTags } from '@/services/server/personality-tags'
@@ -41,7 +41,7 @@ const MyPagePage = async () => {
 
         <section>
           <h2 className="section-title">내 멘토링</h2>
-          <MyMentoringList />
+          <MySessionList />
         </section>
 
         <section>
