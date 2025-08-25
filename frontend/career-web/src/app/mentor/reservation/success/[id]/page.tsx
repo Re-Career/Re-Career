@@ -1,16 +1,46 @@
 import { Header, PageWithHeader } from '@/components/layout'
+import { getSession } from '@/services/server/session'
+import { notFound, redirect } from 'next/navigation'
+import dayjs from 'dayjs'
 
 const columns = [
   { key: 'date' as const, name: '날짜' },
   { key: 'time' as const, name: '시간' },
-  { key: 'name' as const, name: '멘토' },
+  { key: 'mentorName' as const, name: '멘토' },
 ] as const
 
-const page = () => {
-  const data = {
-    date: '2024-07-22',
-    time: '14:00',
-    name: '김지원',
+const ReservationSuccessPage = async ({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) => {
+  const { id } = await params
+
+  const { data, status } = await getSession(id)
+
+  if (status === 401 || status === 403) {
+    return redirect('/')
+  }
+
+  if (!data) {
+    return notFound()
+  }
+
+  const mentorName = data.mentor.name
+
+  const getData = (key: string): string => {
+    const sessionDate = dayjs(data.sessionTime)
+
+    switch (key) {
+      case 'mentorName':
+        return mentorName
+      case 'date':
+        return sessionDate.format('YYYY년 MM월 DD일')
+      case 'time':
+        return sessionDate.format('HH:mm')
+      default:
+        return ''
+    }
   }
 
   return (
@@ -19,18 +49,18 @@ const page = () => {
       <PageWithHeader>
         <section className="space-y-4 px-4 pt-4">
           <h2 className="text-center text-2xl font-bold">상담 예약 완료</h2>
-          <p>
-            김지원님과의 상담이 준비되었습니다. 모든 세부 사항이 포함된 확인
-            이메일을 발송했습니다.
-          </p>
+          <div>
+            <p>{mentorName}님과의 상담이 준비되었습니다.</p>
+            <p>모든 세부 사항이 포함된 확인 이메일을 발송했습니다.</p>
+          </div>
         </section>
 
         <section className="px-4">
           <h4 className="py-4 text-lg font-bold">섹션 세부 사항</h4>
-          {columns.map((column) => (
-            <div key={column.key} className="border-t border-gray-200 py-5">
-              <div className="text-gray-600">{column.name}</div>
-              <div>{data[column.key]}</div>
+          {columns.map(({ key, name }) => (
+            <div key={key} className="border-t border-gray-200 py-5">
+              <div className="text-gray-600">{name}</div>
+              <div>{getData(key)}</div>
             </div>
           ))}
           <h4 className="py-4 text-lg font-bold">참여 방법</h4>
@@ -47,4 +77,4 @@ const page = () => {
   )
 }
 
-export default page
+export default ReservationSuccessPage
