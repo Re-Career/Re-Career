@@ -7,22 +7,21 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (pathname.startsWith('/sign-up/')) {
-    const role = pathname.split('/sign-up/')[1]
-    const pendingAccessToken = request.cookies.get('pendingAccessToken')
-    const pendingRefreshToken = request.cookies.get('pendingRefreshToken')
     const accessToken = request.cookies.get('accessToken')
     const refreshToken = request.cookies.get('refreshToken')
-
-    const _role = role?.toLocaleUpperCase() as RoleType
-
-    const hasPendingTokens = pendingAccessToken || pendingRefreshToken
     const hasTokens = accessToken || refreshToken
 
-    if (
-      !hasPendingTokens ||
-      hasTokens ||
-      !Object.values(ROLE_TYPES).includes(_role)
-    ) {
+    if (hasTokens) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
+
+    const pendingAccessToken = request.cookies.get('pendingAccessToken')
+    const pendingRefreshToken = request.cookies.get('pendingRefreshToken')
+    const role = pathname.split('/sign-up/')[1]
+    const _role = role?.toLocaleUpperCase() as RoleType
+    const hasPendingTokens = pendingAccessToken || pendingRefreshToken
+
+    if (!hasPendingTokens || !Object.values(ROLE_TYPES).includes(_role)) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
   }
