@@ -6,16 +6,14 @@ import { FetchResponse, ResponseMessage } from '@/types/global'
 export const getUserProfile = async (): Promise<User> => {
   const { accessToken } = await getTokens()
 
-  const res = await fetchUrl('/user/profile', {
+  const response = await fetchUrl<User>('/user/profile', {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
   })
 
-  const { data } = await res.json()
-
-  return data
+  return response.data
 }
 
 export const putProfileImage = async ({
@@ -37,27 +35,13 @@ export const putProfileImage = async ({
 
   formData.append('file', imageFile)
 
-  const res = await fetchUrl('/user/profile/image', {
+  return await fetchUrl<ResponseMessage>('/user/profile/image', {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
     },
     body: formData,
   })
-
-  const isSuccess = res.ok
-
-  const data = await res.json().catch(() => {})
-
-  let errorMessage: string = ''
-  let errors = {}
-
-  if (!isSuccess) {
-    errors = data?.errors
-    errorMessage = data?.message || '이미지 업로드에 실패했습니다.'
-  }
-
-  return { errorMessage, data: data.data, errors }
 }
 
 export const deleteProfileImage = async (
@@ -71,23 +55,12 @@ export const deleteProfileImage = async (
     token = tokenFromCookies
   }
 
-  const res = await fetchUrl('/user/profile/image', {
+  return await fetchUrl<ResponseMessage>('/user/profile/image', {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,
     },
   })
-
-  const isSuccess = res.ok
-  const data = await res.json().catch(() => {})
-
-  let errorMessage: string = ''
-
-  if (!isSuccess) {
-    errorMessage = data?.message || '이미지 삭제에 실패했습니다.'
-  }
-
-  return { errorMessage, data: data.data }
 }
 
 export const putUser = async ({
@@ -105,26 +78,13 @@ export const putUser = async ({
     token = accessToken
   }
 
-  const res = await fetchUrl('/user/profile', {
+  return await fetchUrl<ResponseMessage>('/user/profile', {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(userData),
   })
-
-  const isSuccess = res.ok
-  const data = await res.json().catch(() => {})
-
-  let errorMessage: string = ''
-  let errors = {}
-
-  if (!isSuccess) {
-    errors = data?.errors
-    errorMessage = data?.message || '프로필 업데이트에 실패했습니다.'
-  }
-
-  return { errorMessage, data: data.data, errors, status: res.status }
 }
 
 export const putUserPersonalityTags = async ({
@@ -142,7 +102,7 @@ export const putUserPersonalityTags = async ({
     token = accessToken
   }
 
-  const res = await fetchUrl('/user/personality-tags', {
+  return await fetchUrl<ResponseMessage>('/user/personality-tags', {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -150,17 +110,4 @@ export const putUserPersonalityTags = async ({
     },
     body: JSON.stringify({ personalityTagIds }),
   })
-
-  const isSuccess = res.ok
-  const data = await res.json().catch(() => {})
-
-  let errorMessage: string = ''
-  let errors = {}
-
-  if (!isSuccess) {
-    errors = data?.errors
-    errorMessage = data?.message || '성향 태그 업데이트에 실패했습니다.'
-  }
-
-  return { errorMessage, data: data.data, errors, status: res.status }
 }

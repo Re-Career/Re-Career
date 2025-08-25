@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { getMentors } from '@/services/server/mentor'
 
 const MentorList = async () => {
-  const mentors = await getMentors()
+  const { data: mentors } = await getMentors()
 
   return (
     <section className="">

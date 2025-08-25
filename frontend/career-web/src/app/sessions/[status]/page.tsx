@@ -18,7 +18,11 @@ const page = async ({ params }: PageProps) => {
     notFound()
   }
 
-  const { data } = await getSessionList()
+  const { data: sessions } = await getSessionList()
+
+  if (!sessions) {
+    notFound()
+  }
 
   const statusParam = status as SessionStatus
 
@@ -31,7 +35,7 @@ const page = async ({ params }: PageProps) => {
     statusParam === SessionStatus.CONFIRMED
   ) {
     // 예정된 상담 (REQUESTED + CONFIRMED)
-    filteredSessions = data.filter((session) =>
+    filteredSessions = sessions.filter((session) =>
       [SessionStatus.REQUESTED, SessionStatus.CONFIRMED].includes(
         session.status
       )
@@ -39,7 +43,7 @@ const page = async ({ params }: PageProps) => {
     pageTitle = '예정된 상담'
   } else {
     // 완료된 상담 (CANCELED + COMPLETED)
-    filteredSessions = data.filter((session) =>
+    filteredSessions = sessions.filter((session) =>
       [SessionStatus.CANCELED, SessionStatus.COMPLETED].includes(session.status)
     )
     pageTitle = '완료된 상담'

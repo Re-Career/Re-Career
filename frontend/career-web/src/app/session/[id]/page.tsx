@@ -8,17 +8,17 @@ import { notFound, redirect } from 'next/navigation'
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
 
-  const { data, status } = await getSession(id)
+  const { data: session, status } = await getSession(id)
 
   if (status === 401 || status === 403) {
     return redirect('/')
   }
 
-  if (!data) {
+  if (!session) {
     return notFound()
   }
 
-  const { sessionTime, mentor } = data
+  const { sessionTime, mentor } = session
 
   return (
     <>

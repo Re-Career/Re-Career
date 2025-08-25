@@ -7,7 +7,7 @@ const ProfileEditPage = async () => {
   const data = await getUserProfile()
 
   if (!data) {
-    return
+    return <></>
   }
 
   return (

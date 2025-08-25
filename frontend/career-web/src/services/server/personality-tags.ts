@@ -1,9 +1,7 @@
 import { PersonalityTag } from '@/types/personality-tags'
 import { fetchUrl } from '../api'
+import { FetchResponse } from '@/types/global'
 
-export const getPersonalityTags = async (): Promise<PersonalityTag[]> => {
-  const res = await fetchUrl('/personality-tags', { cache: 'force-cache' })
-  const { data } = await res.json()
-
-  return data
+export const getPersonalityTags = async (): Promise<FetchResponse<PersonalityTag[]>> => {
+  return await fetchUrl<PersonalityTag[]>('/personality-tags', { cache: 'force-cache' })
 }

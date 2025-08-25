@@ -10,9 +10,9 @@ import { LuLogOut as LogoutIcon } from 'react-icons/lu'
 
 const MyPagePage = async () => {
   const user = await getUserProfile()
-  const tags = await getPersonalityTags()
+  const { data: tags } = await getPersonalityTags()
 
-  if (!user) {
+  if (!user || !tags) {
     return (
       <>
         <Header title="마이페이지" />

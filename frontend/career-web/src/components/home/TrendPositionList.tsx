@@ -5,7 +5,7 @@ import HorizontalScroll from '@/components/common/HorizontalScroll'
 import { getTrendPositions } from '@/services/server/positions'
 
 const TrendpositionList = async () => {
-  const trendPositions = await getTrendPositions()
+  const { data: trendPositions } = await getTrendPositions()
 
   return (
     <section>

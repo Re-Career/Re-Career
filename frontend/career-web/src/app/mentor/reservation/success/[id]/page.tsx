@@ -16,20 +16,20 @@ const ReservationSuccessPage = async ({
 }) => {
   const { id } = await params
 
-  const { data, status } = await getSession(id)
+  const { data: session, status } = await getSession(id)
 
   if (status === 401 || status === 403) {
     return redirect('/')
   }
 
-  if (!data) {
+  if (!session) {
     return notFound()
   }
 
-  const mentorName = data.mentor.name
+  const mentorName = session.mentor.name
 
   const getData = (key: string): string => {
-    const sessionDate = dayjs(data.sessionTime)
+    const sessionDate = dayjs(session.sessionTime)
 
     switch (key) {
       case 'mentorName':

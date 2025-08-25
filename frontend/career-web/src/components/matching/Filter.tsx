@@ -18,15 +18,22 @@ const Filter = ({ initialFilterConfigs, initialMentorName }: FilterProps) => {
   const [selectedFilters, setSelectedFilters] = useState<FilterConfig[]>([])
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
-  const { data: filterOptions = [], isLoading: isFilterOptionsLoading } = useSWR(
-    'filter-options',
-    () => getFilterOptions(),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: Infinity, // 영구 저장
-    }
-  )
+  const { data: filterOptionsResponse, isLoading: isFilterOptionsLoading } =
+    useSWR(
+      'filter-options',
+      async () => {
+        const { data } = await getFilterOptions()
+
+        return data
+      },
+      {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        dedupingInterval: Infinity, // 영구 저장
+      }
+    )
+
+  const filterOptions = filterOptionsResponse || []
 
   const filterRef = useRef<HTMLDivElement>(null)
 

@@ -7,13 +7,7 @@ import { redirect } from 'next/navigation'
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
 
-  let mentor
-
-  try {
-    mentor = await getMentor(id)
-  } catch {
-    redirect(`/mentor/${id}/profile`)
-  }
+  const { data: mentor } = await getMentor(id)
 
   if (!mentor) {
     redirect(`/mentor/${id}/profile`)

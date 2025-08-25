@@ -1,11 +1,9 @@
 import { fetchUrl } from '../api'
 import { News } from '@/types/news'
+import { FetchResponse } from '@/types/global'
 
-export const getNews = async (): Promise<News[]> => {
-  const res = await fetchUrl('/news', {
+export const getNews = async (): Promise<FetchResponse<News[]>> => {
+  return await fetchUrl<News[]>('/news', {
     next: { revalidate: 60 * 60 },
   })
-  const { data } = await res.json()
-
-  return data
 }

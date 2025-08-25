@@ -1,16 +1,11 @@
 import { City, Province } from '@/types/location'
 import { fetchUrl } from '../api'
+import { FetchResponse } from '@/types/global'
 
-export const getProvinces = async (): Promise<Province[]> => {
-  const res = await fetchUrl('/locations/provinces', { cache: 'force-cache' })
-  const { data } = await res.json()
-
-  return data
+export const getProvinces = async (): Promise<FetchResponse<Province[]>> => {
+  return await fetchUrl<Province[]>('/locations/provinces', { cache: 'force-cache' })
 }
 
-export const getCities = async (): Promise<City[]> => {
-  const res = await fetchUrl('/locations/cities', { cache: 'force-cache' })
-  const { data } = await res.json()
-
-  return data
+export const getCities = async (): Promise<FetchResponse<City[]>> => {
+  return await fetchUrl<City[]>('/locations/cities', { cache: 'force-cache' })
 }

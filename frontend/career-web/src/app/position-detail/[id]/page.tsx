@@ -12,7 +12,7 @@ const PositionDescriptionPage = async ({
   params: Promise<{ id: string }>
 }) => {
   const { id } = await params
-  const positionDetail = await getPositionDetail(id)
+  const { data: positionDetail } = await getPositionDetail(id)
 
   if (!positionDetail) {
     notFound()

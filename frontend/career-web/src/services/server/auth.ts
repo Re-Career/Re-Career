@@ -6,24 +6,11 @@ import { FetchResponse } from '@/types/global'
 export const getAuthMe = async (
   accessToken: string
 ): Promise<FetchResponse<User>> => {
-  const res = await fetchUrl('/auth/me', {
+  return await fetchUrl<User>('/auth/me', {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   })
-
-  const isSuccess = res.ok
-  const data = await res.json().catch(() => {})
-
-  let errorMessage: string = ''
-  let errors = {}
-
-  if (!isSuccess) {
-    errors = data?.errors
-    errorMessage = data?.message || `접근 권한이 없습니다.`
-  }
-
-  return { errorMessage, data: data.data, errors }
 }
 
 export const postSignUp = async ({
@@ -33,28 +20,11 @@ export const postSignUp = async ({
   accessToken: string
   formData: DefaultSignUpFormData
 }): Promise<FetchResponse<User>> => {
-  const res = await fetchUrl('/auth/signup', {
+  return await fetchUrl<User>('/auth/signup', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify(formData),
   })
-
-  const isSuccess = res.ok
-  const data = await res.json().catch(() => {})
-
-  let errorMessage: string = ''
-  let errors = {}
-
-  if (!isSuccess) {
-    errors = data?.errors
-
-    errorMessage =
-      errors && typeof errors === 'object'
-        ? data?.message || '입력 정보를 확인해주세요.'
-        : data?.message || `회원가입에 실패했습니다.`
-  }
-
-  return { errorMessage, data: data.data, errors, status: res.status }
 }

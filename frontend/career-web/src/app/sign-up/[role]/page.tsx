@@ -10,11 +10,8 @@ const SignUpPage = async ({
   params: Promise<{ role: string }>
 }) => {
   const { role } = await params
-  const [tags, provinces, cities] = await Promise.all([
-    getPersonalityTags(),
-    getProvinces(),
-    getCities(),
-  ])
+  const [{ data: tags }, { data: provinces }, { data: cities }] =
+    await Promise.all([getPersonalityTags(), getProvinces(), getCities()])
 
   const _role = role.toLocaleUpperCase() as RoleType
 

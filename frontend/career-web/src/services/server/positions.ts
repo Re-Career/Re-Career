@@ -5,23 +5,20 @@ import {
 } from '@/types/position'
 import { fetchUrl } from '../api'
 import { ONE_DAY } from '@/lib/constants/global'
+import { FetchResponse } from '@/types/global'
 
-export const getTrendPositions = async (): Promise<DefaultPosition[]> => {
-  const res = await fetchUrl('/positions/trend-20', {
+export const getTrendPositions = async (): Promise<
+  FetchResponse<DefaultPosition[]>
+> => {
+  return await fetchUrl<DefaultPosition[]>('/positions/trend-20', {
     next: { revalidate: ONE_DAY },
   })
-  const { data } = await res.json()
-
-  return data
 }
 
 export const getPositionDetail = async (
   id: string
-): Promise<PositionDetail> => {
-  const res = await fetchUrl(`/positions/${id}`)
-  const { data } = await res.json()
-
-  return data
+): Promise<FetchResponse<PositionDetail>> => {
+  return await fetchUrl<PositionDetail>(`/positions/${id}`)
 }
 
 export const getPositionsByProvince = async ({
@@ -30,14 +27,12 @@ export const getPositionsByProvince = async ({
 }: {
   provinceId: number
   cityId?: number
-}): Promise<ProvincePosition> => {
+}): Promise<FetchResponse<ProvincePosition>> => {
   const path = cityId
     ? `provinceId=${provinceId}&cityId=${cityId}`
     : `provinceId=${provinceId}`
-  const res = await fetchUrl(`/positions/by-province?${path}`, {
+
+  return await fetchUrl<ProvincePosition>(`/positions/by-province?${path}`, {
     next: { revalidate: ONE_DAY },
   })
-  const { data } = await res.json()
-
-  return data
 }

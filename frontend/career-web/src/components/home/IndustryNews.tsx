@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { getNews } from '@/services/server/news'
 
 const IndustryNews = async () => {
-  const news = await getNews()
+  const { data: news } = await getNews()
 
   return (
     <section>

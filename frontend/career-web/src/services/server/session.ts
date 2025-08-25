@@ -19,51 +19,28 @@ export const getSession = async (
   const { accessToken } = await getTokens()
   const user = await getUserProfile()
 
-  const res = await fetchUrl(`/sessions/${id}?role=${user.role}`, {
+  return await fetchUrl<Session>(`/sessions/${id}?role=${user.role}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   })
-
-  const isSuccess = res.ok
-  const data = await res.json().catch(() => {})
-
-  let errorMessage: string = ''
-  let errors = {}
-
-  if (!isSuccess) {
-    errors = data?.errors
-    errorMessage = data?.message || `해당 상담이 없습니다.`
-  }
-
-  return { errorMessage, data: data.data, errors, status: res.status }
 }
 
 export const getSessionList = async (): Promise<FetchResponse<Session[]>> => {
   const { accessToken } = await getTokens()
   const user = await getUserProfile()
 
-  const res = await fetchUrl(`/sessions?role=${user.role}`, {
+  const response = await fetchUrl<SessionResponse[]>(`/sessions?role=${user.role}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   })
 
-  const isSuccess = res.ok
-
-  const jsonData = await res.json().catch(() => {})
-
-  let errorMessage: string = ''
-  let errors = {}
-
-  if (!isSuccess) {
-    errors = jsonData?.errors
-    errorMessage = jsonData?.message || `상담리스트 로딩에 실패했습니다.`
+  if (response.errorMessage) {
+    return { ...response, data: [] }
   }
 
-  const { data } = jsonData
-
-  const _data = data.map((session: SessionResponse) => {
+  const _data = response.data.map((session: SessionResponse) => {
     return {
       id: session.sessionId,
       sessionTime: session.sessionTime,
@@ -73,7 +50,7 @@ export const getSessionList = async (): Promise<FetchResponse<Session[]>> => {
     }
   })
 
-  return { errorMessage, data: _data, errors, status: res.status }
+  return { ...response, data: _data }
 }
 
 export const postSession = async (
@@ -81,29 +58,11 @@ export const postSession = async (
 ): Promise<FetchResponse<PostSessionResponse>> => {
   const { accessToken } = await getTokens()
 
-  const res = await fetchUrl('/sessions', {
+  return await fetchUrl<PostSessionResponse>('/sessions', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}2`,
     },
     body: JSON.stringify(payload),
   })
-
-  const isSuccess = res.ok
-  const data = await res.json().catch(() => {})
-
-  let errorMessage: string = ''
-  let errors = {}
-
-  if (!isSuccess) {
-    errors = data?.errors ?? {}
-    errorMessage = data?.message || '상담 신청에 실패했습니다.'
-  }
-
-  return {
-    errorMessage,
-    data: data.data,
-    errors,
-    status: res.status,
-  }
 }

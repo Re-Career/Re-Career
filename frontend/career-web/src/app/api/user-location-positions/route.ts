@@ -16,11 +16,22 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const [provinces, cities, address] = await Promise.all([
+    const [
+      { data: provinces },
+      { data: cities },
+      address
+    ] = await Promise.all([
       getProvinces(),
       getCities(),
       getKakaoAddress(longitude, latitude),
     ])
+
+    if (!provinces || !cities) {
+      return NextResponse.json(
+        { error: '지역 정보를 가져올 수 없습니다' },
+        { status: 500 }
+      )
+    }
 
     // 현재 위치의 province와 매칭되는 province 찾기
     const matchedProvince = provinces.find(
@@ -44,10 +55,17 @@ export async function GET(request: NextRequest) {
     }
 
     // 위치 기반 직업 정보 가져오기
-    const positionData = await getPositionsByProvince({
+    const { data: positionData } = await getPositionsByProvince({
       provinceId: matchedProvince.id,
       cityId: matchedCity.id,
     })
+
+    if (!positionData) {
+      return NextResponse.json(
+        { error: '위치 기반 직업 정보를 가져올 수 없습니다' },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json(positionData)
   } catch (error) {

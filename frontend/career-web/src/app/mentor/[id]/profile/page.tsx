@@ -21,7 +21,7 @@ const MentorProfilePage = async ({
   params: Promise<{ id: string }>
 }) => {
   const { id } = await params
-  const mentor = await getMentor(id)
+  const { data: mentor } = await getMentor(id)
 
   if (!mentor) {
     notFound()
