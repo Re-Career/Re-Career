@@ -68,13 +68,7 @@
   background: #7eb3d4 !important;
 }
 
-/* 2. Today's date (when not selected) */
-.react-calendar__tile--now:not(.react-calendar__tile--active) {
-  background: #f3f4f6 !important;
-  color: #374151 !important;
-  border-radius: 9999px !important;
-}
-
+/* 오늘 날짜 호버 효과 */
 .react-calendar__tile--now:not(.react-calendar__tile--active):enabled:hover,
 .react-calendar__tile--now:not(.react-calendar__tile--active):enabled:focus {
   background: #e5e7eb !important;
@@ -174,13 +168,23 @@ input:-webkit-autofill:focus {
   cursor: default;
 }
 
-.react-calendar__tile--now {
-  background: transparent;
+/* 오늘 날짜 스타일 (선택되지 않았을 때만 밑줄 표시) */
+.react-calendar__tile--now:not(.react-calendar__tile--active) {
+  background: transparent !important;
+  color: #374151 !important;
+  position: relative;
 }
 
-.react-calendar__tile--now:enabled:hover,
-.react-calendar__tile--now:enabled:focus {
-  background: #f3f4f6;
+.react-calendar__tile--now:not(.react-calendar__tile--active)::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 2px;
+  background-color: #a8cce8;
+  border-radius: 1px;
 }
 
 .react-calendar__tile--active {

@@ -17,6 +17,7 @@ export const handleCreateSession = async (
   const mentorId = formData.get('mentorId') as string
   const sessionTime = formData.get('sessionTime') as string
 
+  console.log({ sessionTime })
   const { errorMessage, errors, data, status } = await postSession({
     mentorId: Number(mentorId),
     sessionTime,

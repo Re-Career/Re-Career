@@ -84,7 +84,7 @@ export const postSession = async (
   const res = await fetchUrl('/sessions', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${accessToken}2`,
     },
     body: JSON.stringify(payload),
   })

@@ -6,7 +6,7 @@ import CustomCalendar from './CustomCalendar'
 import CustomTimePicker from './CustomTimePicker'
 import { DatePiece, DateType } from '@/types/global'
 import { handleCreateSession } from '@/app/actions/reservation/action'
-import { isToday } from '@/utils/day'
+import { isToday, convertTo24HourFormat } from '@/utils/day'
 import useTimeHandler from '@/hooks/useTimeHandler'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -52,23 +52,32 @@ const ReservationForm = ({ mentorId }: { mentorId: string }) => {
       <input name="mentorId" value={mentorId} type="hidden" />
       <input
         name="sessionTime"
-        value={date ? dayjs(date).format('YYYY-MM-DDTHH:mm:ss') : ''}
+        value={
+          date && timeValue 
+            ? dayjs(date)
+                .hour(convertTo24HourFormat(timeValue.hour, timeValue.period))
+                .minute(timeValue.minute)
+                .second(0)
+                .format('YYYY-MM-DDTHH:mm:ss')
+            : ''
+        }
         type="hidden"
       />
 
       <h4 className="section-title">날짜 및 시간 선택</h4>
-      <CustomCalendar value={date} onChange={handleDate} />
-      <CustomTimePicker
-        key={useMemo(
-          () =>
-            `${dayjs(date).format('YYYY-MM-DD')}-${timeValue.hour}-${timeValue.minute}-${timeValue.period}`,
-          [date, timeValue]
-        )}
-        value={timeValue}
-        onChange={setTimeValue}
-        selectedDate={date}
-      />
-
+      <div className="px-4">
+        <CustomCalendar value={date} onChange={handleDate} />
+        <CustomTimePicker
+          key={useMemo(
+            () =>
+              `${dayjs(date).format('YYYY-MM-DD')}-${timeValue.hour}-${timeValue.minute}-${timeValue.period}`,
+            [date, timeValue]
+          )}
+          value={timeValue}
+          onChange={setTimeValue}
+          selectedDate={date}
+        />
+      </div>
       <div className="sticky bottom-0 z-60 flex border-t border-gray-100 bg-white p-4">
         <button
           className="bg-primary-500 flex-1 rounded-lg py-3 text-center font-bold"
