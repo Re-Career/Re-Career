@@ -33,7 +33,7 @@ const ProvincePositionList = ({
         const currentPosition = await getCurrentPosition()
         const currentLocationString = JSON.stringify(currentPosition)
 
-        if (cachedLocation && cachedLocation !== currentLocationString) {
+        if (!cachedLocation || cachedLocation !== currentLocationString) {
           await setCookie({
             name: 'location',
             value: currentLocationString,
@@ -54,18 +54,18 @@ const ProvincePositionList = ({
 
   const sectionTitle = data
     ? `${data.city ? `${data.province}  ${data.city}` : data.province}의 주요 직업`
-    : '위치 기반 주요 직업'
+    : ''
 
   return (
     <section>
-      {isLoading ? (
-        <div className="mb-4 h-6 w-48 animate-pulse rounded bg-gray-200" />
+      {isLoading || !cachedLocation ? (
+        <div className="mx-4 mb-4 h-6 w-48 animate-pulse rounded bg-gray-200" />
       ) : (
         <h2 className="section-title">{sectionTitle}</h2>
       )}
 
       <div className="space-y-3 px-4">
-        {isLoading ? (
+        {isLoading || !cachedLocation ? (
           // 스켈레톤 UI
           Array.from({ length: 5 }).map((_, index) => (
             <div key={index} className="flex items-center gap-4 rounded-lg">
