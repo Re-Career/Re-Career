@@ -107,10 +107,6 @@ public class SessionServiceImpl implements SessionService {
           throw new IllegalStateException("완료된 멘토링은 취소할 수 없습니다.");
         }
         session.setStatus(SessionStatus.CANCELED);
-        // 취소 사유는 선택사항
-        if (updateRequestDto.getCancelReason() != null && !updateRequestDto.getCancelReason().trim().isEmpty()) {
-          session.setCancelReason(updateRequestDto.getCancelReason());
-        }
       }
       default -> throw new IllegalArgumentException("지원하지 않는 상태입니다: " + newStatus);
     }

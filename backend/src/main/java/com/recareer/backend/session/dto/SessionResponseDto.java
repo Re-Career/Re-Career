@@ -24,9 +24,6 @@ public class SessionResponseDto {
     // 세션 상태
     private SessionStatus status;
     
-    // 취소 사유 (취소된 경우에만)
-    private String cancelReason;
-    
     // 멘토 정보
     private MentorInfo mentor;
     
@@ -69,7 +66,6 @@ public class SessionResponseDto {
                 .sessionId(session.getId())
                 .sessionTime(session.getSessionTime())
                 .status(session.getStatus())
-                .cancelReason(session.getStatus() == SessionStatus.CANCELED ? session.getCancelReason() : null)
                 .mentor(MentorInfo.builder()
                         .mentorId(session.getMentor().getId())
                         .name(session.getMentor().getUser().getName())
@@ -88,7 +84,6 @@ public class SessionResponseDto {
                 .sessionId(session.getId())
                 .sessionTime(session.getSessionTime())
                 .status(session.getStatus())
-                .cancelReason(session.getStatus() == SessionStatus.CANCELED ? session.getCancelReason() : null)
                 .mentee(MenteeInfo.builder()
                         .menteeId(session.getUser().getId())
                         .name(session.getUser().getName())
