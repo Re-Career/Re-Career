@@ -18,7 +18,7 @@ const Filter = ({ initialFilterConfigs, initialMentorName }: FilterProps) => {
   const [selectedFilters, setSelectedFilters] = useState<FilterConfig[]>([])
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
-  const { data: filterOptions = [] } = useSWR(
+  const { data: filterOptions = [], isLoading: isFilterOptionsLoading } = useSWR(
     'filter-options',
     () => getFilterOptions(),
     {
@@ -37,6 +37,9 @@ const Filter = ({ initialFilterConfigs, initialMentorName }: FilterProps) => {
 
       return urlKey
     }
+
+    // filterOptions가 로딩 중이면 초기화하지 않음
+    if (isFilterOptionsLoading || filterOptions.length === 0) return
 
     const initialFilters = Object.entries(initialFilterConfigs)
       .map(([urlKey, optionIds]) => {

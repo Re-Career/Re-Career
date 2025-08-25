@@ -1,7 +1,6 @@
 import { FilterConfig, Mentor, MentorDetail } from '@/types/mentor'
 import { fetchUrl } from '../api'
 import { ONE_DAY } from '@/lib/constants/global'
-import { filterOptions } from '@/mocks/matching/filterOptions'
 
 export const getMentor = async (id: string): Promise<MentorDetail> => {
   const res = await fetchUrl(`/mentors/${id}`, {
@@ -13,9 +12,14 @@ export const getMentor = async (id: string): Promise<MentorDetail> => {
   return data
 }
 
-export const getFilterOptions = (): FilterConfig[] => {
-  // 임시로 mock 데이터 사용 (실제 API 데이터 문제로 인해)
-  return filterOptions
+export const getFilterOptions = async (): Promise<FilterConfig[]> => {
+  const res = await fetchUrl(`/mentors/filters`, {
+    next: { revalidate: ONE_DAY },
+  })
+
+  const { data } = await res.json()
+
+  return data
 }
 
 export const getMentors = async (region?: string): Promise<Mentor[]> => {
