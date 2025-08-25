@@ -9,21 +9,10 @@ import { GoPerson as PersonIcon } from 'react-icons/go'
 import { LuLogOut as LogoutIcon } from 'react-icons/lu'
 
 const MyPagePage = async () => {
-  const user = await getUserProfile()
-  const { data: tags } = await getPersonalityTags()
-
-  if (!user || !tags) {
-    return (
-      <>
-        <Header title="마이페이지" />
-        <PageWithHeader>
-          <div className="flex h-64 items-center justify-center">
-            <p>사용자 정보를 불러올 수 없습니다.</p>
-          </div>
-        </PageWithHeader>
-      </>
-    )
-  }
+  const [{ data: user }, { data: tags }] = await Promise.all([
+    getUserProfile(),
+    getPersonalityTags(),
+  ])
 
   return (
     <>

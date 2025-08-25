@@ -3,17 +3,15 @@ import { fetchUrl } from '../api'
 import { PutUserPayload, User } from '@/types/user'
 import { FetchResponse, ResponseMessage } from '@/types/global'
 
-export const getUserProfile = async (): Promise<User> => {
+export const getUserProfile = async (): Promise<FetchResponse<User>> => {
   const { accessToken } = await getTokens()
 
-  const response = await fetchUrl<User>('/user/profile', {
+  return await fetchUrl<User>('/user/profile', {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
   })
-
-  return response.data
 }
 
 export const putProfileImage = async ({

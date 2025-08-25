@@ -7,7 +7,7 @@ import {
   Session,
   SessionResponse,
 } from '@/types/session'
-import { getUserProfile } from './user'
+import { decodeJWT } from '@/lib/utils/jwt'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ko'
 
@@ -17,9 +17,30 @@ export const getSession = async (
   id: string
 ): Promise<FetchResponse<Session>> => {
   const { accessToken } = await getTokens()
-  const user = await getUserProfile()
 
-  return await fetchUrl<Session>(`/sessions/${id}?role=${user.role}`, {
+  if (!accessToken) {
+    return {
+      errorMessage: 'No access token',
+      data: null as any,
+      errors: {},
+      status: 401,
+    }
+  }
+
+  const payload = decodeJWT(accessToken)
+
+  if (!payload) {
+    return {
+      errorMessage: 'Invalid token',
+      data: null as any,
+      errors: {},
+      status: 401,
+    }
+  }
+
+  const role = payload.role.replace('ROLE_', '')
+  
+  return await fetchUrl<Session>(`/sessions/${id}?role=${role}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -28,13 +49,32 @@ export const getSession = async (
 
 export const getSessionList = async (): Promise<FetchResponse<Session[]>> => {
   const { accessToken } = await getTokens()
-  const user = await getUserProfile()
 
-  const response = await fetchUrl<SessionResponse[]>(`/sessions?role=${user.role}`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  })
+  if (!accessToken) {
+    return {
+      errorMessage: 'No access token',
+      data: [],
+      errors: {},
+      status: 401,
+    }
+  }
+
+  const payload = decodeJWT(accessToken)
+
+  if (!payload) {
+    return { errorMessage: 'Invalid token', data: [], errors: {}, status: 401 }
+  }
+
+  const role = payload.role.replace('ROLE_', '')
+  
+  const response = await fetchUrl<SessionResponse[]>(
+    `/sessions?role=${role}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  )
 
   if (response.errorMessage) {
     return { ...response, data: [] }
