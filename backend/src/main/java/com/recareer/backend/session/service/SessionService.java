@@ -32,5 +32,7 @@ public interface SessionService {
   
   Long uploadSessionAudio(Long sessionId, MultipartFile audioFile);
   
-  SessionDetailResponseDto getSessionDetail(Long sessionId);
+  SessionDetailResponseDto getSessionDetailForMentee(Long sessionId);
+  
+  SessionDetailResponseDto getSessionDetailForMentor(Long sessionId);
 }

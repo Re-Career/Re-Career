@@ -194,8 +194,15 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     @Transactional(readOnly = true)
-    public SessionDetailResponseDto getSessionDetail(Long sessionId) {
+    public SessionDetailResponseDto getSessionDetailForMentee(Long sessionId) {
         Session session = findById(sessionId);
-        return SessionDetailResponseDto.from(session);
+        return SessionDetailResponseDto.fromForMentee(session);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public SessionDetailResponseDto getSessionDetailForMentor(Long sessionId) {
+        Session session = findById(sessionId);
+        return SessionDetailResponseDto.fromForMentor(session);
     }
 }

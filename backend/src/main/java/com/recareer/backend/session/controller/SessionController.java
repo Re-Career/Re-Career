@@ -153,23 +153,38 @@ public class SessionController {
   // }
 
   @GetMapping("/{id}")
-  @Operation(summary = "완료된 상담 상세 조회")
+  @Operation(summary = "상담 상세 조회")
   public ResponseEntity<ApiResponse<SessionDetailResponseDto>> getSessionDetail(
       @RequestHeader("Authorization") String accessToken,
-      @PathVariable Long id) {
+      @PathVariable Long id,
+      @RequestParam(required = true) String role) {
     
     try {
       Long userId = authUtil.validateTokenAndGetUserId(accessToken);
       Session session = sessionService.findById(id);
       
-      // 해당 세션의 참여자만 조회 가능
-      if (!session.isMentorParticipant(userId) && 
-          !session.isMenteeParticipant(userId)) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-            .body(ApiResponse.error("해당 세션 참여자만 조회할 수 있습니다"));
+      // role 검증
+      if (!"MENTOR".equals(role) && !"MENTEE".equals(role)) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ApiResponse.error("역할은 MENTOR 또는 MENTEE만 가능합니다"));
       }
       
-      SessionDetailResponseDto responseDto = sessionService.getSessionDetail(id);
+      SessionDetailResponseDto responseDto;
+      if ("MENTOR".equals(role)) {
+        // MENTOR로 요청한 경우: 실제로 멘토인지 검증하고 멘티 정보 반환
+        if (!session.isMentorParticipant(userId)) {
+          return ResponseEntity.status(HttpStatus.FORBIDDEN)
+              .body(ApiResponse.error("해당 세션의 멘토가 아닙니다"));
+        }
+        responseDto = sessionService.getSessionDetailForMentor(id);
+      } else {
+        // MENTEE로 요청한 경우: 실제로 멘티인지 검증하고 멘토 정보 반환
+        if (!session.isMenteeParticipant(userId)) {
+          return ResponseEntity.status(HttpStatus.FORBIDDEN)
+              .body(ApiResponse.error("해당 세션의 멘티가 아닙니다"));
+        }
+        responseDto = sessionService.getSessionDetailForMentee(id);
+      }
 
       return ResponseEntity.ok(ApiResponse.success(responseDto));
       
