@@ -1,5 +1,6 @@
 package com.recareer.backend.session.controller;
 
+import com.recareer.backend.mentor.repository.MentorRepository;
 import com.recareer.backend.session.dto.SessionCancelRequestDto;
 import com.recareer.backend.session.dto.SessionCreateResponseDto;
 import com.recareer.backend.session.dto.SessionRequestDto;
@@ -29,6 +30,7 @@ public class SessionController {
 
   private final SessionService sessionService;
   private final AuthUtil authUtil;
+  private final MentorRepository mentorRepository;
 
   @GetMapping
   @Operation(summary = "상담 내역 조회", description = "역할(MENTOR/MENTEE)에 따른 예정/완료된 상담 목록을 조회합니다.")
@@ -47,6 +49,11 @@ public class SessionController {
       
       List<SessionResponseDto> sessions;
       if ("MENTOR".equals(role)) {
+        // 실제로 해당 userId가 멘토인지 검증
+        if (mentorRepository.findByUserId(userId).isEmpty()) {
+          return ResponseEntity.status(HttpStatus.FORBIDDEN)
+              .body(ApiResponse.error("멘토로 등록되지 않은 사용자입니다"));
+        }
         sessions = sessionService.findSessionsByMentorId(userId);
       } else {
         sessions = sessionService.findSessionsByMenteeId(userId);

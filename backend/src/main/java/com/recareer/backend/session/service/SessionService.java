@@ -14,8 +14,6 @@ import java.util.List;
 
 public interface SessionService {
 
-  List<SessionResponseDto> findAllSessionsByUserId(Long userId);
-  
   List<SessionResponseDto> findSessionsByMentorId(Long mentorId);
   
   List<SessionResponseDto> findSessionsByMenteeId(Long menteeId);
