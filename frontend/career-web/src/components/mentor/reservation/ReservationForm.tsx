@@ -5,7 +5,7 @@ import dayjs from 'dayjs'
 import CustomCalendar from './CustomCalendar'
 import CustomTimePicker from './CustomTimePicker'
 import { DatePiece, DateType } from '@/types/global'
-import { handleReserve } from '@/app/actions/reservation/action'
+import { handleCreateSession } from '@/app/actions/reservation/action'
 import { isToday } from '@/utils/day'
 import useTimeHandler from '@/hooks/useTimeHandler'
 import { useEffect } from 'react'
@@ -15,7 +15,7 @@ const ReservationForm = ({ mentorId }: { mentorId: string }) => {
   const router = useRouter()
   const { minimumTime, isTimeBeforeMinimum } = useTimeHandler()
 
-  const [state, formAction] = useActionState(handleReserve, {
+  const [state, formAction] = useActionState(handleCreateSession, {
     success: false,
     message: '',
   })
@@ -52,7 +52,7 @@ const ReservationForm = ({ mentorId }: { mentorId: string }) => {
       <input name="mentorId" value={mentorId} type="hidden" />
       <input
         name="sessionTime"
-        value={date ? dayjs(date).format() : ''}
+        value={date ? dayjs(date).format('YYYY-MM-DDTHH:mm:ss') : ''}
         type="hidden"
       />
 

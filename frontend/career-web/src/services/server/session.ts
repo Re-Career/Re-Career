@@ -1,16 +1,11 @@
 import { getTokens } from '@/app/actions/auth/action'
 import { fetchUrl } from '../api'
 import { FetchResponse } from '@/types/global'
-
-interface FormData {
-  mentorId: number
-  userId: number
-  sessionTime: string
-}
+import { PostSessionPayload, PostSessionResponse } from '@/types/session'
 
 export const postSession = async (
-  formData: FormData
-): Promise<FetchResponse<{ id: number }>> => {
+  payload: PostSessionPayload
+): Promise<FetchResponse<PostSessionResponse>> => {
   const { accessToken } = await getTokens()
 
   const res = await fetchUrl('/sessions', {
@@ -18,7 +13,7 @@ export const postSession = async (
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
-    body: JSON.stringify(formData),
+    body: JSON.stringify(payload),
   })
 
   const isSuccess = res.ok
@@ -34,7 +29,7 @@ export const postSession = async (
 
   return {
     errorMessage,
-    data: { id: 1 },
+    data,
     errors,
     status: res.status,
   }

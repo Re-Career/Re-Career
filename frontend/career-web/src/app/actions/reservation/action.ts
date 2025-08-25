@@ -1,29 +1,25 @@
 'use server'
 
 import { postSession } from '@/services/server/session'
-import { getUserProfile } from '@/services/server/user'
+import { PostSessionResponse } from '@/types/session'
 
 interface FormState {
   success: boolean
   message: string
-  data?: { id: number }
+  data?: PostSessionResponse
   errors?: Record<string, string>
 }
 
-export const handleReserve = async (
+export const handleCreateSession = async (
   _: FormState,
   formData: FormData
 ): Promise<FormState> => {
   const mentorId = formData.get('mentorId') as string
   const sessionTime = formData.get('sessionTime') as string
 
-  const user = await getUserProfile()
-  const userId = user.id
-
   const { errorMessage, errors, data, status } = await postSession({
     mentorId: Number(mentorId),
     sessionTime,
-    userId,
   })
 
   if (status === 401 || errorMessage) {
