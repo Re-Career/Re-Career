@@ -5,16 +5,10 @@ import {
   IndustryNews,
 } from '@/components/home'
 import { Header, PageWithHeader } from '@/components/layout'
-import { getPositionsByProvince } from '@/services/server/positions'
-import { getUserProfile } from '@/services/server/user'
+import { getCookie } from '../actions/global/action'
 
 const HomePage = async () => {
-  const user = await getUserProfile()
-  const params = user.cityId
-    ? { provinceId: user.provinceId, cityId: user.cityId }
-    : { provinceId: user.provinceId ?? 1 }
-
-  const positionsByProvince = await getPositionsByProvince(params)
+  const cachedLocation = await getCookie('location')
 
   return (
     <>
@@ -22,7 +16,7 @@ const HomePage = async () => {
       <PageWithHeader>
         <main className="flex flex-col gap-4">
           <TrendPositionList />
-          <ProvincePositionList positionsByProvince={positionsByProvince} />
+          <ProvincePositionList cachedLocation={cachedLocation} />
           <MentorList />
           <IndustryNews />
         </main>
