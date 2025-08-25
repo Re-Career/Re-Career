@@ -2,6 +2,7 @@ import { getTokens } from '@/app/actions/auth/action'
 import { fetchUrl } from '../api'
 import { PutUserPayload, User } from '@/types/user'
 import { FetchResponse, ResponseMessage } from '@/types/global'
+import { ONE_DAY } from '@/lib/constants/global'
 
 export const getUserProfile = async (): Promise<FetchResponse<User>> => {
   const { accessToken } = await getTokens()
@@ -11,6 +12,7 @@ export const getUserProfile = async (): Promise<FetchResponse<User>> => {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
+    next: { revalidate: ONE_DAY },
   })
 }
 

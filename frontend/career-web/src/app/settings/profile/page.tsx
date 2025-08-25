@@ -4,7 +4,7 @@ import { ProfileEditForm } from '@/components/my-page'
 import { getUserProfile } from '@/services/server/user'
 
 const ProfileEditPage = async () => {
-  const data = await getUserProfile()
+  const { data } = await getUserProfile()
 
   if (!data) {
     return <></>
