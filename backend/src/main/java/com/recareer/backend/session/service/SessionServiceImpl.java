@@ -2,6 +2,7 @@ package com.recareer.backend.session.service;
 
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
+import com.recareer.backend.session.dto.SessionCreateResponseDto;
 import com.recareer.backend.session.dto.SessionListResponseDto;
 import com.recareer.backend.session.dto.SessionCancelRequestDto;
 import com.recareer.backend.session.dto.SessionRequestDto;
@@ -37,19 +38,10 @@ public class SessionServiceImpl implements SessionService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<SessionResponseDto> findAllSessionsByUserId(Long userId) {
-    List<Session> sessions = sessionRepository.findAllByUserId(userId);
-    return sessions.stream()
-            .map(SessionResponseDto::from)
-            .toList();
-  }
-  
-  @Override
-  @Transactional(readOnly = true)
   public List<SessionResponseDto> findSessionsByMentorId(Long mentorId) {
     List<Session> sessions = sessionRepository.findAllByMentorUserId(mentorId);
     return sessions.stream()
-            .map(SessionResponseDto::from)
+            .map(SessionResponseDto::fromForMentor)
             .toList();
   }
   
@@ -58,16 +50,16 @@ public class SessionServiceImpl implements SessionService {
   public List<SessionResponseDto> findSessionsByMenteeId(Long menteeId) {
     List<Session> sessions = sessionRepository.findAllByUserId(menteeId);
     return sessions.stream()
-            .map(SessionResponseDto::from)
+            .map(SessionResponseDto::fromForMentee)
             .toList();
   }
 
   @Override
   @Transactional()
-  public Long createSession(SessionRequestDto requestDto) {
+  public SessionCreateResponseDto createSession(SessionRequestDto requestDto, Long userId) {
     Mentor mentor = mentorRepository.findById(requestDto.getMentorId())
         .orElseThrow(() -> new EntityNotFoundException("해당 멘토를 찾을 수 없습니다."));
-    User user = userRepository.findById(requestDto.getUserId())
+    User user = userRepository.findById(userId)
         .orElseThrow(() -> new EntityNotFoundException("해당 유저를 찾을 수 없습니다."));
 
     Session session = Session.builder()
@@ -79,7 +71,7 @@ public class SessionServiceImpl implements SessionService {
 
     Session newSession = sessionRepository.save(session);
 
-    return newSession.getId();
+    return SessionCreateResponseDto.from(newSession);
     }
 
   @Override
@@ -115,10 +107,6 @@ public class SessionServiceImpl implements SessionService {
           throw new IllegalStateException("완료된 멘토링은 취소할 수 없습니다.");
         }
         session.setStatus(SessionStatus.CANCELED);
-        // 취소 사유는 선택사항
-        if (updateRequestDto.getCancelReason() != null && !updateRequestDto.getCancelReason().trim().isEmpty()) {
-          session.setCancelReason(updateRequestDto.getCancelReason());
-        }
       }
       default -> throw new IllegalArgumentException("지원하지 않는 상태입니다: " + newStatus);
     }
@@ -202,8 +190,15 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     @Transactional(readOnly = true)
-    public SessionDetailResponseDto getSessionDetail(Long sessionId) {
+    public SessionDetailResponseDto getSessionDetailForMentee(Long sessionId) {
         Session session = findById(sessionId);
-        return SessionDetailResponseDto.from(session);
+        return SessionDetailResponseDto.fromForMentee(session);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public SessionDetailResponseDto getSessionDetailForMentor(Long sessionId) {
+        Session session = findById(sessionId);
+        return SessionDetailResponseDto.fromForMentor(session);
     }
 }

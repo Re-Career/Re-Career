@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface MentorRepository extends JpaRepository<Mentor, Long> {
     Optional<Mentor> findByUser(User user);
     
+    Optional<Mentor> findByUserId(Long userId);
+    
     @Query("SELECT m FROM Mentor m JOIN m.user u WHERE m.id = :id AND u.role = 'MENTOR'")
     Optional<Mentor> findById(@Param("id") Long id);
     

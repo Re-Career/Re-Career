@@ -24,11 +24,11 @@ public class SessionResponseDto {
     // 세션 상태
     private SessionStatus status;
     
-    // 취소 사유 (취소된 경우에만)
-    private String cancelReason;
-    
     // 멘토 정보
     private MentorInfo mentor;
+    
+    // 멘티 정보
+    private MenteeInfo mentee;
     
     @Getter
     @Builder
@@ -45,18 +45,27 @@ public class SessionResponseDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class MenteeInfo {
+        private Long menteeId;
+        private String name;
+        private String profileImageUrl;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class PositionDto {
         private Long id;
         private String name;
     }
 
-    // Entity를 DTO로 변환하는 정적 메소드
-    public static SessionResponseDto from(Session session) {
+    // Entity를 DTO로 변환하는 정적 메소드 - 멘티 관점용 (멘토 정보 포함)
+    public static SessionResponseDto fromForMentee(Session session) {
         return SessionResponseDto.builder()
                 .sessionId(session.getId())
                 .sessionTime(session.getSessionTime())
                 .status(session.getStatus())
-                .cancelReason(session.getStatus() == SessionStatus.CANCELED ? session.getCancelReason() : null)
                 .mentor(MentorInfo.builder()
                         .mentorId(session.getMentor().getId())
                         .name(session.getMentor().getUser().getName())
@@ -65,6 +74,20 @@ public class SessionResponseDto {
                                 .name(session.getMentor().getPositionEntity().getName())
                                 .build())
                         .profileImageUrl(session.getMentor().getUser().getProfileImageUrl())
+                        .build())
+                .build();
+    }
+
+    // Entity를 DTO로 변환하는 정적 메소드 - 멘토 관점용 (멘티 정보 포함)
+    public static SessionResponseDto fromForMentor(Session session) {
+        return SessionResponseDto.builder()
+                .sessionId(session.getId())
+                .sessionTime(session.getSessionTime())
+                .status(session.getStatus())
+                .mentee(MenteeInfo.builder()
+                        .menteeId(session.getUser().getId())
+                        .name(session.getUser().getName())
+                        .profileImageUrl(session.getUser().getProfileImageUrl())
                         .build())
                 .build();
     }
