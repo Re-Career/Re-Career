@@ -22,10 +22,6 @@ public class SessionRequestDto {
   @NotNull(message = "멘토 ID는 필수입니다.")
   private Long mentorId;
 
-  @Schema(description = "멘티(사용자) ID", example = "2")
-  @NotNull(message = "멘티 ID는 필수입니다.")
-  private Long userId;
-
   @Schema(description = "세션 시간", example = "2025-08-01T14:00:00")
   @Future(message = "세션 시간은 현재보다 이후여야 합니다.")
   @NotNull(message = "세션 시간은 필수입니다.")

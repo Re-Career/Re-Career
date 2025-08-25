@@ -11,6 +11,4 @@ public class SessionUpdateRequestDto {
     
     @NotNull(message = "상태는 필수입니다")
     private SessionStatus status;
-    
-    private String cancelReason; // CANCELED일 때만 사용
 }

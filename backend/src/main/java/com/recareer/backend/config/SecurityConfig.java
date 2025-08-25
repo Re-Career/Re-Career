@@ -49,6 +49,7 @@ public class SecurityConfig {
                 "/cities/**",
                 "/positions/**",
                 "/news/**",
+                "/sessions/**",
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
                 "/h2-console/**"
