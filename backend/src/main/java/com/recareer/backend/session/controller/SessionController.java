@@ -1,6 +1,7 @@
 package com.recareer.backend.session.controller;
 
 import com.recareer.backend.session.dto.SessionCancelRequestDto;
+import com.recareer.backend.session.dto.SessionCreateResponseDto;
 import com.recareer.backend.session.dto.SessionRequestDto;
 import com.recareer.backend.session.dto.SessionResponseDto;
 import com.recareer.backend.session.dto.SessionUpdateRequestDto;
@@ -61,21 +62,15 @@ public class SessionController {
 
   @PostMapping
   @Operation(summary = "멘토링 세션 생성")
-  public ResponseEntity<ApiResponse<Long>> createSession(
+  public ResponseEntity<ApiResponse<SessionCreateResponseDto>> createSession(
       @RequestHeader("Authorization") String accessToken,
       @Valid @RequestBody SessionRequestDto requestDto) {
     
     try {
       Long userId = authUtil.validateTokenAndGetUserId(accessToken);
       
-      // 요청 DTO의 userId와 토큰의 userId가 일치하는지 확인
-      if (!userId.equals(requestDto.getUserId())) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-            .body(ApiResponse.error("본인의 이름으로만 세션을 생성할 수 있습니다"));
-      }
-      
-      Long newSessionId = sessionService.createSession(requestDto);
-      return ResponseEntity.ok(ApiResponse.success(newSessionId));
+      SessionCreateResponseDto response = sessionService.createSession(requestDto, userId);
+      return ResponseEntity.ok(ApiResponse.success(response));
       
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

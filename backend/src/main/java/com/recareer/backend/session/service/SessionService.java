@@ -1,5 +1,6 @@
 package com.recareer.backend.session.service;
 
+import com.recareer.backend.session.dto.SessionCreateResponseDto;
 import com.recareer.backend.session.dto.SessionListResponseDto;
 import com.recareer.backend.session.dto.SessionCancelRequestDto;
 import com.recareer.backend.session.dto.SessionRequestDto;
@@ -19,7 +20,7 @@ public interface SessionService {
   
   List<SessionResponseDto> findSessionsByMenteeId(Long menteeId);
 
-  Long createSession(SessionRequestDto requestDto);
+  SessionCreateResponseDto createSession(SessionRequestDto requestDto, Long userId);
 
   Session findById(Long sessionId);
   

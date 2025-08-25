@@ -2,6 +2,7 @@ package com.recareer.backend.session.service;
 
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.mentor.repository.MentorRepository;
+import com.recareer.backend.session.dto.SessionCreateResponseDto;
 import com.recareer.backend.session.dto.SessionListResponseDto;
 import com.recareer.backend.session.dto.SessionCancelRequestDto;
 import com.recareer.backend.session.dto.SessionRequestDto;
@@ -64,10 +65,10 @@ public class SessionServiceImpl implements SessionService {
 
   @Override
   @Transactional()
-  public Long createSession(SessionRequestDto requestDto) {
+  public SessionCreateResponseDto createSession(SessionRequestDto requestDto, Long userId) {
     Mentor mentor = mentorRepository.findById(requestDto.getMentorId())
         .orElseThrow(() -> new EntityNotFoundException("해당 멘토를 찾을 수 없습니다."));
-    User user = userRepository.findById(requestDto.getUserId())
+    User user = userRepository.findById(userId)
         .orElseThrow(() -> new EntityNotFoundException("해당 유저를 찾을 수 없습니다."));
 
     Session session = Session.builder()
@@ -79,7 +80,7 @@ public class SessionServiceImpl implements SessionService {
 
     Session newSession = sessionRepository.save(session);
 
-    return newSession.getId();
+    return SessionCreateResponseDto.from(newSession);
     }
 
   @Override
