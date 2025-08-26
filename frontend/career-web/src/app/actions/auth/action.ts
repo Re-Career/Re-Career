@@ -22,9 +22,9 @@ export const getPendingTokens = async () => {
 }
 
 export const clearTokens = async () => {
-  return tokenList.forEach((key) => deleteCookie(key))
+  await Promise.all(tokenList.map((key) => deleteCookie(key)))
 }
 
 export const clearPendingTokens = async () => {
-  return pendingTokenList.forEach((key) => deleteCookie(key))
+  await Promise.all(pendingTokenList.map((key) => deleteCookie(key)))
 }
