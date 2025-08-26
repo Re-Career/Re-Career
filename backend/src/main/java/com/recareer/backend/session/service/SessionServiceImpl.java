@@ -18,6 +18,7 @@ import com.recareer.backend.session.dto.SessionDetailResponseDto;
 import com.recareer.backend.common.service.S3Service;
 import com.recareer.backend.common.service.AudioTranscriptionService;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -200,5 +201,25 @@ public class SessionServiceImpl implements SessionService {
     public SessionDetailResponseDto getSessionDetailForMentor(Long sessionId) {
         Session session = findById(sessionId);
         return SessionDetailResponseDto.fromForMentor(session);
+    }
+
+    @Override
+    @Transactional
+    public int completeExpiredSessions() {
+        List<SessionStatus> expiredStatuses = List.of(SessionStatus.REQUESTED, SessionStatus.CONFIRMED);
+        LocalDateTime oneHourAgo = java.time.LocalDateTime.now().minusHours(1);
+        List<Session> expiredSessions = sessionRepository.findExpiredSessions(oneHourAgo, expiredStatuses);
+        
+        int completedCount = 0;
+        for (Session session : expiredSessions) {
+            session.setStatus(SessionStatus.COMPLETED);
+            sessionRepository.save(session);
+            completedCount++;
+            log.info("세션 시작 1시간 후 자동 완료 처리: 세션 ID {}, 예약 시간 {}", 
+                    session.getId(), session.getSessionTime());
+        }
+        
+        log.info("총 {}개의 세션을 시작 1시간 후 완료 처리했습니다.", completedCount);
+        return completedCount;
     }
 }
