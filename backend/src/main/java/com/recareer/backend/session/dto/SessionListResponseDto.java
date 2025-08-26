@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class SessionListResponseDto {
 
-    private Long sessionId;
+    private Long id;
     private LocalDateTime sessionTime;
     private SessionStatus status;
     private String cancelReason;
@@ -43,7 +43,7 @@ public class SessionListResponseDto {
 
     public static SessionListResponseDto from(Session session) {
         return SessionListResponseDto.builder()
-                .sessionId(session.getId())
+                .id(session.getId())
                 .sessionTime(session.getSessionTime())
                 .status(session.getStatus())
                 .cancelReason(session.getStatus() == SessionStatus.CANCELED ? session.getCancelReason() : null)
