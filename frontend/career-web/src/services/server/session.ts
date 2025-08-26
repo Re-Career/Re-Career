@@ -9,6 +9,7 @@ import {
 import { decodeJWT } from '@/lib/utils/jwt'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ko'
+import { ONE_DAY } from '@/lib/constants/global'
 
 dayjs.locale('ko')
 
@@ -71,7 +72,7 @@ export const getSessionList = async (): Promise<FetchResponse<Session[]>> => {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
-    next: { tags: ['sessions', 'session-list'] },
+    next: { revalidate: ONE_DAY, tags: ['sessions', 'session-list'] },
   })
 }
 
