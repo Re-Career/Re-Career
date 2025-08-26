@@ -1,6 +1,7 @@
 import { FixedSizeImage, HorizontalScroll } from '@/components/common'
 import { Header, PageWithHeader } from '@/components/layout'
 import Filter from '@/components/matching/Filter'
+import ReserveButton from '@/components/matching/ReserveButton'
 import { getFilteredMentors } from '@/services/server/mentor'
 import Link from 'next/link'
 
@@ -93,20 +94,22 @@ const MatchingPage = async ({
           <div className="px-4">
             <div className="space-y-4">
               {searchedList.length > 0 ? (
-                searchedList.map((mentor) => (
-                  <Link
-                    href={`/mentor/${mentor.id}/profile`}
+                searchedList.map((mentor, index) => (
+                  <div
                     key={mentor.id}
                     className="flex cursor-pointer gap-4 rounded bg-white px-4 py-2 shadow"
                   >
-                    <FixedSizeImage
-                      src={mentor.profileImageUrl}
-                      alt={`mentor_image_${mentor.name}`}
-                      size="sm"
-                    />
+                    <Link href={`/mentor/${mentor.id}/profile`}>
+                      <FixedSizeImage
+                        src={mentor.profileImageUrl}
+                        alt={`mentor_image_${mentor.name}`}
+                        size="sm"
+                        priority={index < 5}
+                      />
+                    </Link>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <div>
+                        <div className="flex-1">
                           <h3 className="font-semibold text-gray-900">
                             {mentor.name}
                             <span className="ml-1 text-sm text-gray-500">
@@ -123,15 +126,10 @@ const MatchingPage = async ({
                               .join(', ')}
                           </p>
                         </div>
-                        <Link
-                          href={`/mentor/${mentor.id}/reservation`}
-                          className="bg-primary-500 flex-shrink-0 rounded-xl px-4 py-1.5 text-sm"
-                        >
-                          1:1 예약
-                        </Link>
+                        <ReserveButton id={mentor.id} />
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 ))
               ) : (
                 <p>검색결과가 없습니다.🥲</p>

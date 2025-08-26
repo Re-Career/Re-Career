@@ -35,7 +35,7 @@ const MentorList = ({ provinceId }: MentorListProps) => {
       <section className="">
         <div>
           <div className="mx-4 mb-4 h-6 w-48 animate-pulse rounded bg-gray-200" />
-          <div className="flex gap-4 overflow-x-auto px-4">
+          <div className="flex gap-4 overflow-x-hidden px-4">
             {Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={index}

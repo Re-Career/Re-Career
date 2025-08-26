@@ -12,7 +12,7 @@ const TrendpositionList = async () => {
       <h2 className="section-title">최신 트렌드 TOP 20 직업</h2>
 
       <HorizontalScroll>
-        {trendPositions.map((position) => (
+        {trendPositions.map((position, index) => (
           <Link
             key={position.id}
             className="flex flex-col gap-3"
@@ -23,6 +23,7 @@ const TrendpositionList = async () => {
               alt={`position_trend_20_${position.name}`}
               size="lg"
               isCircle={false}
+              priority={index < 3}
             />
             <div>
               <h3 className="font-medium text-neutral-900">{position.name}</h3>
