@@ -13,12 +13,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SessionUpdateResponseDto {
     
-    private Long sessionId;
+    private Long id;
     private SessionStatus status;
     
     public static SessionUpdateResponseDto from(Session session) {
         return SessionUpdateResponseDto.builder()
-                .sessionId(session.getId())
+                .id(session.getId())
                 .status(session.getStatus())
                 .build();
     }
