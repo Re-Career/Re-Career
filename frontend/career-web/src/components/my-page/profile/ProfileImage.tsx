@@ -48,6 +48,7 @@ const ProfileImage = ({ user }: ProfileImageProps) => {
             <FixedSizeImage
               src={user.profileImageUrl!}
               alt={`user_profile_image_${user.id}`}
+              priority
             />
           ) : (
             <div className="flex h-32 w-32 items-center justify-center rounded-full bg-gray-200">

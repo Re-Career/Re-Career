@@ -81,7 +81,7 @@ const Header: React.FC<HeaderProps> = ({
             onClick={handleCancelPress}
             className="absolute top-0 right-0 p-4"
           >
-            <CloseIcon />
+            <CloseIcon className="h-6 w-6" />
           </button>
         )}
         {showHomeButton && (
