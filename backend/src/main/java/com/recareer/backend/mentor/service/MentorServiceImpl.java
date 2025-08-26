@@ -380,8 +380,8 @@ public class MentorServiceImpl implements MentorService {
     @Override
     @Transactional(readOnly = true)
     public MentorSearchResponse searchMentorsWithRecommendation(MentorSearchRequestDto searchRequest, Long userId) {
-        log.info("Searching mentors with recommendation - userId: {}, keyword: {}, positionIds: {}, experiences: {}, provinceIds: {}, personalityTagIds: {}",
-                userId, searchRequest.keyword(), searchRequest.positionIds(), searchRequest.experiences(), 
+        log.info("Searching mentors with recommendation - userId: {}, keyword: {}, positionIds: {}, provinceIds: {}, personalityTagIds: {}",
+                userId, searchRequest.keyword(), searchRequest.positionIds(),
                 searchRequest.provinceIds(), searchRequest.personalityTagIds());
 
         // 유저 정보 조회 (지역, 성향 정보 필요)
@@ -407,7 +407,6 @@ public class MentorServiceImpl implements MentorService {
         // 3가지 시나리오 구분
         boolean hasKeyword = searchRequest.keyword() != null && !searchRequest.keyword().isBlank();
         boolean hasFilters = (searchRequest.positionIds() != null && !searchRequest.positionIds().isEmpty()) ||
-                           (searchRequest.experiences() != null && !searchRequest.experiences().isEmpty()) ||
                            (searchRequest.provinceIds() != null && !searchRequest.provinceIds().isEmpty()) ||
                            (searchRequest.personalityTagIds() != null && !searchRequest.personalityTagIds().isEmpty());
 
@@ -593,13 +592,6 @@ public class MentorServiceImpl implements MentorService {
             boolean positionMatches = mentor.getPositionEntity() != null && 
                     searchRequest.positionIds().contains(mentor.getPositionEntity().getId());
             if (!positionMatches) return false;
-        }
-        
-        // Experience 필터링
-        if (searchRequest.experiences() != null && !searchRequest.experiences().isEmpty()) {
-            if (!matchesExperienceRanges(mentor.getExperience(), searchRequest.experiences())) {
-                return false;
-            }
         }
         
         // Province 필터링
