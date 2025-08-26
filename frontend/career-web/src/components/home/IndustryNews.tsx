@@ -1,6 +1,6 @@
 import React from 'react'
-import Image from 'next/image'
 import { getNews } from '@/services/server/news'
+import { FixedSizeImage } from '../common'
 
 const IndustryNews = async () => {
   const { data: news } = await getNews()
@@ -26,15 +26,11 @@ const IndustryNews = async () => {
                   {news.description}
                 </p>
               </div>
-              <div className="h-30 w-30 flex-shrink-0">
-                <Image
-                  src={news.imageUrl}
-                  alt={news.title}
-                  width={120}
-                  height={120}
-                  className="h-full w-full rounded-lg object-cover object-top"
-                />
-              </div>
+              <FixedSizeImage
+                src={news.imageUrl}
+                alt={`new_image_${news.title}`}
+                isCircle={false}
+              />
             </div>
           </div>
         ))}

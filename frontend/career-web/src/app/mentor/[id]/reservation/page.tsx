@@ -1,7 +1,7 @@
+import { FixedSizeImage } from '@/components/common'
 import { Header, PageWithHeader } from '@/components/layout'
 import { ReservationForm } from '@/components/mentor/reservation'
 import { getMentor } from '@/services/server/mentor'
-import Image from 'next/image'
 import { redirect } from 'next/navigation'
 
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
@@ -20,12 +20,10 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
         <section>
           <h4 className="section-title">멘토 정보</h4>
           <div className="flex gap-4 px-4">
-            <Image
+            <FixedSizeImage
               src={mentor.profileImageUrl}
               alt={`mentor_reservation_profile_${mentor.id}`}
-              width={56}
-              height={56}
-              className="h-14 w-14 rounded-full object-cover object-top"
+              size="sm"
             />
             <div>
               <p className="font-bold">{mentor.name}</p>

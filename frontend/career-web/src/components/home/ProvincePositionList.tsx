@@ -2,9 +2,10 @@
 
 import useSWR from 'swr'
 import Link from 'next/link'
-import Image from 'next/image'
+
 import { UserLocation } from '@/types/location'
 import { getPositionsByProvince } from '@/services/server/positions'
+import { FixedSizeImage } from '../common'
 
 interface ProvincePositionListProps {
   locationsIds?: UserLocation
@@ -61,16 +62,11 @@ const ProvincePositionList = ({ locationsIds }: ProvincePositionListProps) => {
             className="flex items-center gap-4 rounded-lg"
             href={`/position-detail/${position.id}`}
           >
-            <div className="h-12 w-12">
-              <Image
-                src={position.imageUrl}
-                alt={position.name}
-                width={48}
-                height={48}
-                className="rounded-lg object-cover"
-              />
-            </div>
-
+            <FixedSizeImage
+              src={position.imageUrl}
+              alt={`province_position_image_${position.name}`}
+              size="sm"
+            />
             <div className="min-w-0 flex-1">
               <h4 className="truncate font-medium text-neutral-900">
                 {position.name}

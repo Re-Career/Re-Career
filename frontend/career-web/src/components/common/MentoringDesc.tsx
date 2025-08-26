@@ -1,9 +1,9 @@
 import { Session, SessionStatus } from '@/types/session'
 import { isToday } from '@/utils/day'
 import dayjs from 'dayjs'
-import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
+import FixedSizeImage from './FixedSizeImage'
 
 const MentoringDesc = ({ session }: { session: Session }) => {
   const { id, sessionTime, status, mentor } = session
@@ -51,15 +51,14 @@ const MentoringDesc = ({ session }: { session: Session }) => {
         }`}
       >
         <div className="flex items-start gap-4">
-          <div className="relative h-16 w-16 flex-shrink-0">
-            <Image
-              width={64}
-              height={64}
-              alt="mentor_profile_image"
-              src={mentor.profileImageUrl}
-              className="h-full w-full rounded-xl object-cover object-top ring-2 ring-gray-100"
-            />
-          </div>
+          <FixedSizeImage
+            src={mentor.profileImageUrl}
+            alt={`mentor_profile_image_${mentor.name}`}
+            divClassName="relative"
+            className="ring-2 ring-gray-100"
+            size="sm"
+            isCircle={false}
+          />
 
           <div className="flex-1 space-y-3">
             <div className="flex items-start justify-between">

@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useActionState, useEffect } from 'react'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { IoCameraOutline } from 'react-icons/io5'
 import { User } from '@/types/user'
 import { BsExclamationCircle } from 'react-icons/bs'
 import { hasProfileImage } from '@/lib/constants/images'
 import { updateProfileAction } from '@/app/actions/user/action'
+import { FixedSizeImage } from '@/components/common'
 
 interface ProfileEditFormProps {
   userData: User
@@ -85,12 +85,9 @@ const ProfileEditForm = ({ userData }: ProfileEditFormProps) => {
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
             {hasProfileImage(profileImage) ? (
-              <Image
+              <FixedSizeImage
                 src={profileImage!}
-                alt="Profile"
-                width={128}
-                height={128}
-                className="h-32 w-32 rounded-full object-cover"
+                alt={`user_profile_${userData.id}`}
                 onError={() => setProfileImage(null)}
               />
             ) : (

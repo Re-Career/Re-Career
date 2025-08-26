@@ -2,9 +2,9 @@
 
 import HorizontalScroll from '@/components/common/HorizontalScroll'
 import Link from 'next/link'
-import Image from 'next/image'
 import { getMentors } from '@/services/server/mentor'
 import useSWR from 'swr'
+import { FixedSizeImage } from '../common'
 
 interface MentorListProps {
   provinceId?: number
@@ -63,16 +63,10 @@ const MentorList = ({ provinceId }: MentorListProps) => {
               className="flex flex-col items-center gap-3"
               href={`/mentor/${mentor.id}/profile`}
             >
-              <div className="h-32 w-32">
-                <Image
-                  src={mentor.profileImageUrl}
-                  alt={`mentor_by_region_${mentor.id}`}
-                  width={128}
-                  height={128}
-                  className="h-full w-full rounded-lg object-cover object-top"
-                />
-              </div>
-
+              <FixedSizeImage
+                src={mentor.profileImageUrl}
+                alt={`mentor_by_province_${mentor.id}`}
+              />
               <div className="text-center">
                 <h3 className="font-medium text-neutral-900">{mentor.name}</h3>
                 <p className="text-sm text-gray-600">{mentor.position.name}</p>

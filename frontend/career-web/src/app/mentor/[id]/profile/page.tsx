@@ -1,6 +1,6 @@
+import { FixedSizeImage } from '@/components/common'
 import { Header, PageWithHeader } from '@/components/layout'
 import { getMentor } from '@/services/server/mentor'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -33,15 +33,12 @@ const MentorProfilePage = async ({
       <PageWithHeader>
         {/* 프로필 상단 */}
         <div className="bg-white p-6 text-center">
-          <div className="mx-auto mb-4 h-32 w-32 overflow-hidden rounded-full">
-            <Image
-              src={mentor.profileImageUrl}
-              alt={mentor.name}
-              width={128}
-              height={128}
-              className="h-full w-full object-cover object-top"
-            />
-          </div>
+          <FixedSizeImage
+            src={mentor.profileImageUrl}
+            alt={`mentor_image_${mentor.name}`}
+            divClassName="mx-auto mb-4"
+            size="md"
+          />
 
           <h1 className="mb-1 text-xl font-bold text-gray-900">
             {mentor.name}

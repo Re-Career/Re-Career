@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header'
 import Link from 'next/link'
 import { getPositionDetail } from '@/services/server/positions'
 import PageWithHeader from '@/components/layout/PageWithHeader'
+import { FixedSizeImage } from '@/components/common'
 
 const PositionDescriptionPage = async ({
   params,
@@ -54,19 +55,19 @@ const PositionDescriptionPage = async ({
 
           <div className="space-y-4">
             {positionDetail.positionResponsibilities.map(
-              (responsibility, index) => (
+              ({ imageUrl, name }, index) => (
                 <div key={index} className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-200 text-2xl">
-                    <Image
-                      src={responsibility.imageUrl}
-                      width={24}
-                      height={24}
-                      alt={responsibility.imageUrl}
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-200">
+                    <FixedSizeImage
+                      src={imageUrl}
+                      alt={`position_responsibility_image_${name}`}
+                      isCircle={false}
+                      size="xs"
                     />
                   </div>
                   <div>
                     <h3 className="mb-1 font-semibold text-neutral-900">
-                      {responsibility.name}
+                      {name}
                     </h3>
                   </div>
                 </div>

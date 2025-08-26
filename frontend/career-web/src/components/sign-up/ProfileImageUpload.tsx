@@ -1,7 +1,7 @@
 'use client'
 
-import Image from 'next/image'
 import { useState } from 'react'
+import { FixedSizeImage } from '../common'
 
 const ProfileImageUpload = () => {
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
@@ -51,13 +51,10 @@ const ProfileImageUpload = () => {
 
       {profileImagePreview && (
         <div className="mt-1 flex justify-center">
-          <Image
-            width={200}
-            height={200}
+          <FixedSizeImage
             src={profileImagePreview}
             alt="profile_image_preview"
-            className="rounded-lg object-cover"
-            style={{ width: 'auto', height: 'auto' }}
+            isCircle={false}
           />
         </div>
       )}

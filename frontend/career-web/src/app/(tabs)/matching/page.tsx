@@ -1,8 +1,7 @@
-import { HorizontalScroll } from '@/components/common'
+import { FixedSizeImage, HorizontalScroll } from '@/components/common'
 import { Header, PageWithHeader } from '@/components/layout'
 import Filter from '@/components/matching/Filter'
 import { getFilteredMentors } from '@/services/server/mentor'
-import Image from 'next/image'
 import Link from 'next/link'
 
 const MatchingPage = async ({
@@ -59,17 +58,13 @@ const MatchingPage = async ({
                 <Link
                   href={`/mentor/${mentor.id}/profile`}
                   key={mentor.id}
-                  className="flex-shrink-0 cursor-pointer rounded-lg bg-white"
+                  className="flex-shrink-0 cursor-pointer rounded-lg bg-white pt-3"
                 >
-                  <div className="mb-3 h-40 w-40">
-                    <Image
-                      src={mentor.profileImageUrl}
-                      alt={mentor.name}
-                      width={160}
-                      height={160}
-                      className="h-full w-full rounded-lg object-cover object-top"
-                    />
-                  </div>
+                  <FixedSizeImage
+                    src={mentor.profileImageUrl}
+                    alt={`recommended_mentor_image_${mentor.name}`}
+                    size="lg"
+                  />
                   <div>
                     <h3 className="mb-1 font-semibold text-gray-900">
                       {mentor.name}
@@ -101,16 +96,11 @@ const MatchingPage = async ({
                 searchedList.map((mentor) => (
                   <div key={`mentor_${mentor.id}`}>
                     <div className="flex items-center gap-4">
-                      <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-full">
-                        <Image
-                          src={mentor.profileImageUrl}
-                          alt={mentor.name}
-                          width={56}
-                          height={56}
-                          className="h-full w-full object-cover object-top"
-                        />
-                      </div>
-
+                      <FixedSizeImage
+                        src={mentor.profileImageUrl}
+                        alt={`mentor_image_${mentor.name}`}
+                        size="sm"
+                      />
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <div>
@@ -120,7 +110,6 @@ const MatchingPage = async ({
                                 {mentor.position.name}
                               </span>
                             </h3>
-
                             <p className="text-xs text-gray-900">
                               {mentor.company?.name ?? ''} • {mentor.experience}
                               년 • {mentor.province.name}
@@ -131,7 +120,6 @@ const MatchingPage = async ({
                                 .join(', ')}
                             </p>
                           </div>
-
                           <Link
                             href={`/mentor/${mentor.id}/profile`}
                             className="bg-primary-500 flex-shrink-0 rounded-xl px-4 py-1.5 text-sm"

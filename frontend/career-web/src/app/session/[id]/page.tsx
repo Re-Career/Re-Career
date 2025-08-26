@@ -1,7 +1,7 @@
+import { FixedSizeImage } from '@/components/common'
 import { Header, PageWithHeader } from '@/components/layout'
 import { getSession } from '@/services/server/session'
 import dayjs from 'dayjs'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 
@@ -32,24 +32,30 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
         <div className="space-y-3">
           <h2 className="text-xl font-bold text-neutral-900">멘토 정보</h2>
           <Link
-            className="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200/50 transition-all duration-200 hover:shadow-md hover:ring-gray-300/50"
+            className="group block rounded-xl bg-white px-4 py-2 shadow-sm ring-1 ring-gray-200/50 transition-all duration-200 hover:shadow-md hover:ring-gray-300/50"
             href={`/mentor/${mentor.mentorId}/profile`}
           >
             <div className="flex items-center gap-4">
-              <div className="relative h-16 w-16 flex-shrink-0">
-                <Image
-                  width={64}
-                  height={64}
-                  alt="mentor_profile_image"
-                  src={mentor.profileImageUrl}
-                  className="h-full w-full rounded-xl object-cover object-top ring-2 ring-gray-100"
-                />
-              </div>
+              <FixedSizeImage
+                src={mentor.profileImageUrl}
+                alt={`mentor_profile_image_${mentor.name}`}
+                size="sm"
+              />
               <div className="flex-1 space-y-1">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-gray-900">{mentor.name}</h3>
-                  <svg className="h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg
+                    className="h-5 w-5 text-gray-400 transition-colors group-hover:text-gray-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </div>
                 <p className="text-sm text-gray-600">{mentor.position.name}</p>
