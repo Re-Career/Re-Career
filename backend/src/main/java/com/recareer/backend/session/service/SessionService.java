@@ -35,4 +35,6 @@ public interface SessionService {
   SessionDetailResponseDto getSessionDetailForMentee(Long sessionId);
   
   SessionDetailResponseDto getSessionDetailForMentor(Long sessionId);
+  
+  int completeExpiredSessions();
 }
