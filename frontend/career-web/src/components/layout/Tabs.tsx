@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { GoHome, GoHomeFill, GoPerson, GoPersonFill } from 'react-icons/go'
 import { BsPeople, BsPeopleFill } from 'react-icons/bs'
 import Link from 'next/link'

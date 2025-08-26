@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useActionState, useEffect, useCallback } from 'react'
+import { useState, useActionState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import TagList from './TagList'
 import ProfileImageUpload from './ProfileImageUpload'
