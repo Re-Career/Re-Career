@@ -3,12 +3,13 @@ import { Header, PageWithHeader } from '@/components/layout'
 import Filter from '@/components/matching/Filter'
 import ReserveButton from '@/components/matching/ReserveButton'
 import { getFilteredMentors } from '@/services/server/mentor'
+import { SearchParams } from 'next/dist/server/request/search-params'
 import Link from 'next/link'
 
 const MatchingPage = async ({
   searchParams,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>
+  searchParams: Promise<SearchParams>
 }) => {
   const params = await searchParams
 
@@ -95,18 +96,18 @@ const MatchingPage = async ({
             <div className="space-y-4">
               {searchedList.length > 0 ? (
                 searchedList.map((mentor, index) => (
-                  <div
+                  <Link
+                    href={`/mentor/${mentor.id}/profile`}
                     key={mentor.id}
                     className="flex cursor-pointer gap-4 rounded bg-white px-4 py-2 shadow"
                   >
-                    <Link href={`/mentor/${mentor.id}/profile`}>
-                      <FixedSizeImage
-                        src={mentor.profileImageUrl}
-                        alt={`mentor_image_${mentor.name}`}
-                        size="sm"
-                        priority={index < 5}
-                      />
-                    </Link>
+                    <FixedSizeImage
+                      src={mentor.profileImageUrl}
+                      alt={`mentor_image_${mentor.name}`}
+                      size="sm"
+                      priority={index < 5}
+                    />
+
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
@@ -129,7 +130,7 @@ const MatchingPage = async ({
                         <ReserveButton id={mentor.id} />
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))
               ) : (
                 <p>검색결과가 없습니다.🥲</p>

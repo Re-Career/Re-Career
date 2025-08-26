@@ -7,7 +7,11 @@ const ReserveButton = ({ id }: { id: number }) => {
 
   return (
     <button
-      onClick={() => router.push(`/mentor/${id}/reservation`)}
+      onClick={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        router.push(`/mentor/${id}/reservation`)
+      }}
       className="bg-primary-500 flex-shrink-0 rounded-xl px-4 py-1.5 text-sm"
     >
       1:1 예약
