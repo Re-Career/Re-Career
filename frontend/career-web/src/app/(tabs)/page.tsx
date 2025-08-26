@@ -12,12 +12,10 @@ const HomePage = async () => {
   return (
     <>
       <Header title="Re:Career" />
-      <PageWithHeader>
-        <main className="flex flex-col gap-4">
-          <TrendPositionList />
-          <RelatedLocationGroup cachedLocation={cachedLocation} />
-          <IndustryNews />
-        </main>
+      <PageWithHeader className="space-y-4">
+        <TrendPositionList />
+        <RelatedLocationGroup cachedLocation={cachedLocation} />
+        <IndustryNews />
       </PageWithHeader>
     </>
   )
