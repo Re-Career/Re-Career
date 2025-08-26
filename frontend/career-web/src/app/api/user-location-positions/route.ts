@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCities, getProvinces } from '@/services/server/locations'
-import { getKakaoAddress } from '@/app/actions/kakao/action'
+import { getKakaoAddress } from '@/services/server/kakao'
 
 export async function GET(request: NextRequest) {
   try {

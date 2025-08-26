@@ -1,14 +1,12 @@
-'use server'
-
 export type UserLocationResponse = {
   province: string
   city: string
 }
 
-export async function getKakaoAddress(
+export const getKakaoAddress = async (
   longitude: string,
   latitude: string
-): Promise<UserLocationResponse> {
+): Promise<UserLocationResponse> => {
   const res = await fetch(
     `${process.env.KAKAO_GEO_URL}?x=${longitude}&y=${latitude}`,
     {
