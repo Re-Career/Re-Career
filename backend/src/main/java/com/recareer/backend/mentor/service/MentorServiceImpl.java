@@ -36,7 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -86,7 +85,6 @@ public class MentorServiceImpl implements MentorService {
                 .user(user)
                 .position(position)
                 .company(company)
-                // region 필드 제거됨 - User 엔티티에서 Province/City로 관리
                 .description(requestDto.getDescription())
                 .introduction(requestDto.getIntroduction())
                 .experience(requestDto.getExperience())
@@ -372,8 +370,8 @@ public class MentorServiceImpl implements MentorService {
     @Override
     @Transactional(readOnly = true)
     public MentorSearchResponse searchMentorsWithRecommendation(MentorSearchRequestDto searchRequest, Long userId) {
-        log.info("Searching mentors with recommendation - userId: {}, keyword: {}, positionIds: {}, experiences: {}, provinceIds: {}, personalityTagIds: {}",
-                userId, searchRequest.keyword(), searchRequest.positionIds(), searchRequest.experiences(), 
+        log.info("Searching mentors with recommendation - userId: {}, keyword: {}, positionIds: {}, provinceIds: {}, personalityTagIds: {}",
+                userId, searchRequest.keyword(), searchRequest.positionIds(),
                 searchRequest.provinceIds(), searchRequest.personalityTagIds());
 
         // 유저 정보 조회 (지역, 성향 정보 필요)
@@ -399,7 +397,6 @@ public class MentorServiceImpl implements MentorService {
         // 3가지 시나리오 구분
         boolean hasKeyword = searchRequest.keyword() != null && !searchRequest.keyword().isBlank();
         boolean hasFilters = (searchRequest.positionIds() != null && !searchRequest.positionIds().isEmpty()) ||
-                           (searchRequest.experiences() != null && !searchRequest.experiences().isEmpty()) ||
                            (searchRequest.provinceIds() != null && !searchRequest.provinceIds().isEmpty()) ||
                            (searchRequest.personalityTagIds() != null && !searchRequest.personalityTagIds().isEmpty());
 
@@ -526,7 +523,6 @@ public class MentorServiceImpl implements MentorService {
         return convertToMentorCards(recommended);
     }
 
-
     // 검색 조건에 따른 필터링 (일관된 로직)
     private List<MentorCard> getSearchedByConditions(List<Mentor> allMentors, MentorSearchRequestDto searchRequest, boolean hasKeyword, boolean hasFilters) {
         List<Mentor> searched = allMentors.stream()
@@ -605,13 +601,6 @@ public class MentorServiceImpl implements MentorService {
             if (!positionMatches) return false;
         }
         
-        // Experience 필터링
-        if (searchRequest.experiences() != null && !searchRequest.experiences().isEmpty()) {
-            if (!matchesExperienceRanges(mentor.getExperience(), searchRequest.experiences())) {
-                return false;
-            }
-        }
-        
         // Province 필터링
         if (searchRequest.provinceIds() != null && !searchRequest.provinceIds().isEmpty()) {
             boolean provinceMatches = mentor.getUser() != null && 
@@ -639,12 +628,6 @@ public class MentorServiceImpl implements MentorService {
             if (!positionMatches) return false;
         }
         
-        // Experience 필터링
-        if (searchRequest.experiences() != null && !searchRequest.experiences().isEmpty()) {
-            if (!matchesExperienceRanges(mentor.getExperience(), searchRequest.experiences())) {
-                return false;
-            }
-        }
         
         // Province 필터링
         if (searchRequest.provinceIds() != null && !searchRequest.provinceIds().isEmpty()) {
@@ -711,53 +694,6 @@ public class MentorServiceImpl implements MentorService {
     }
     
     /**
-     * N+1 문제 해결을 위한 배치 조회 메소드
-     * 멘토 리스트에 대한 경력과 성향태그 데이터를 한번에 조회
-     * 
-     * @param mentors 멘토 리스트
-     * @return MentorSummaryResponseDto 리스트
-     */
-    private List<MentorSummaryResponseDto> getMentorSummariesWithBatchFetch(List<Mentor> mentors) {
-        if (mentors.isEmpty()) {
-            return List.of();
-        }
-        
-        // 멘토 ID 리스트 생성
-        List<Long> mentorIds = mentors.stream()
-                .map(Mentor::getId)
-                .collect(Collectors.toList());
-
-        // 리스트의 사용자 ID 리스트 생성 (PersonalityTag 조회용)
-        List<Long> userIds = mentors.stream()
-                .map(mentor -> mentor.getUser().getId())
-                .collect(Collectors.toList());
-        
-        log.debug("Batch fetching data for {} mentors", mentors.size());
-
-        // 배치 조회 1: 모든 멘토의 경력 정보 한번에 조회
-        Map<Long, List<MentorCareer>> careerMap = mentorCareerRepository.findByMentorIdInOrderByDisplayOrder(mentorIds)
-                .stream()
-                .collect(Collectors.groupingBy(career -> career.getMentor().getId()));
-        
-        // 배치 조회 2: 모든 사용자의 성향태그 정보 한번에 조회
-        Map<Long, List<UserPersonalityTag>> personalityTagMap = userPersonalityTagRepository
-                .findByUserIdInWithPersonalityTag(userIds)
-                .stream()
-                .collect(Collectors.groupingBy(upt -> upt.getUser().getId()));
-
-        // MentorSummaryResponseDto로 변환 (배치 조회된 데이터 사용)
-        return mentors.stream()
-                .map(mentor -> {
-                    // 맵에서 데이터 가져오기 (N+1 문제 없이)
-                    List<MentorCareer> careers = careerMap.getOrDefault(mentor.getId(), List.of());
-                    List<UserPersonalityTag> userPersonalityTags = personalityTagMap.getOrDefault(mentor.getUser().getId(), List.of());
-                    
-                    return MentorSummaryResponseDto.from(mentor, userPersonalityTags, careers);
-                })
-                .collect(Collectors.toList());
-    }
-    
-    /**
      * 성향 매칭을 위한 배치 조회 맵 생성
      * PersonalityTag 조회를 배치로 처리하여 N+1 문제 해결
      * 
@@ -780,6 +716,4 @@ public class MentorServiceImpl implements MentorService {
                         )
                 ));
     }
-
-
 }

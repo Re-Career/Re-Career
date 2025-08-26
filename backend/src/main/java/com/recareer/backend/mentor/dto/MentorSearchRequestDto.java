@@ -5,7 +5,6 @@ import java.util.List;
 public record MentorSearchRequestDto(
     String keyword,
     List<Long> positionIds,
-    List<String> experiences,
     List<Long> provinceIds,
     List<Long> personalityTagIds
 ) {
