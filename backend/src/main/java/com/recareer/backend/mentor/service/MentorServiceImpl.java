@@ -128,18 +128,14 @@ public class MentorServiceImpl implements MentorService {
 
         // 1. 지역별 멘토 조회 (User 정보까지 Fetch Join)
         List<Mentor> mentors = mentorRepository.findByUserProvinceIdWithUser(provinceId);
+        
+        if (mentors.isEmpty()) {
+            return List.of();
+        }
 
-        // 2. 각 멘토에 대한 추가 정보 조회
+        // 2. 단순한 DTO 변환 (N+1 문제 없이 단순 정보만 사용)
         return mentors.stream()
-                .map(mentor -> {
-                    // 경력 정보 조회
-                    List<MentorCareer> careers = mentorCareerRepository.findByMentorOrderByDisplayOrderAscStartDateDesc(mentor);
-                    
-                    // 성향 태그 조회
-                    List<UserPersonalityTag> userPersonalityTags = userPersonalityTagRepository.findByUserId(mentor.getUser().getId());
-                    
-                    return MentorSummaryResponseDto.from(mentor, userPersonalityTags, careers);
-                })
+                .map(mentor -> MentorSummaryResponseDto.from(mentor, List.of(), List.of()))
                 .toList();
     }
 
@@ -312,18 +308,14 @@ public class MentorServiceImpl implements MentorService {
                     return true;
                 })
                 .toList();
+        
+        if (filteredMentors.isEmpty()) {
+            return List.of();
+        }
 
-        // 3. MentorSummaryResponseDto로 변환
+        // 3. 단순한 DTO 변환 (N+1 문제 없이 단순 정보만 사용)
         return filteredMentors.stream()
-                .map(mentor -> {
-                    // 경력 정보 조회
-                    List<MentorCareer> careers = mentorCareerRepository.findByMentorOrderByDisplayOrderAscStartDateDesc(mentor);
-                    
-                    // 성향 태그 조회
-                    List<UserPersonalityTag> userPersonalityTags = userPersonalityTagRepository.findByUserId(mentor.getUser().getId());
-                    
-                    return MentorSummaryResponseDto.from(mentor, userPersonalityTags, careers);
-                })
+                .map(mentor -> MentorSummaryResponseDto.from(mentor, List.of(), List.of()))
                 .toList();
     }
 
@@ -499,12 +491,21 @@ public class MentorServiceImpl implements MentorService {
         };
     }
 
-    // 유저 지역 + 성향 기반 추천
+    /**
+     * 유저 지역 + 성향 기반 추천
+     * N+1 문제 해결을 위해 배치 조회 사용
+     */
     private List<MentorCard> getRecommendedByUserPreferences(List<Mentor> allMentors, User user, List<Long> userPersonalityTagIds) {
         // 유저 정보가 없으면 빈 추천 리스트 반환
         if (user == null) {
             return List.of();
         }
+        
+        // N+1 문제 해결: 성향 매칭을 위한 배치 데이터 준비
+        List<Long> mentorUserIds = allMentors.stream()
+                .map(mentor -> mentor.getUser().getId())
+                .collect(Collectors.toList());
+        Map<Long, Set<Long>> userPersonalityMap = createUserPersonalityMap(mentorUserIds);
         
         List<Mentor> recommended = allMentors.stream()
                 .filter(mentor -> {
@@ -513,9 +514,9 @@ public class MentorServiceImpl implements MentorService {
                             mentor.getUser().getProvince() != null && 
                             user.getProvince().getId().equals(mentor.getUser().getProvince().getId());
                     
-                    // 성향 매칭: 유저와 공통 성향이 있는 멘토 추천
+                    // 성향 매칭: 유저와 공통 성향이 있는 멘토 추천 (배치 조회 사용)
                     boolean matchesPersonality = !userPersonalityTagIds.isEmpty() && 
-                            hasMatchingPersonality(mentor.getUser().getId(), userPersonalityTagIds);
+                            hasMatchingPersonality(mentor.getUser().getId(), userPersonalityTagIds, userPersonalityMap);
                     
                     // OR 조건: 지역이 같거나 성향이 맞으면 추천
                     return sameProvince || matchesPersonality;
@@ -551,8 +552,17 @@ public class MentorServiceImpl implements MentorService {
         return convertToMentorCards(searched);
     }
 
-    // 필터링 + 개인화 요소 결합 추천
+    /**
+     * 필터링 + 개인화 요소 결합 추천
+     * N+1 문제 해결을 위해 배치 조회 사용
+     */
     private List<MentorCard> getRecommendedWithPersonalization(List<Mentor> allMentors, MentorSearchRequestDto searchRequest, User user, List<Long> userPersonalityTagIds, boolean hasKeyword, boolean hasFilters) {
+        // N+1 문제 해결: 성향 매칭을 위한 배치 데이터 준비
+        List<Long> mentorUserIds = allMentors.stream()
+                .map(mentor -> mentor.getUser().getId())
+                .collect(Collectors.toList());
+        Map<Long, Set<Long>> userPersonalityMap = createUserPersonalityMap(mentorUserIds);
+        
         List<Mentor> recommended = allMentors.stream()
                 .filter(mentor -> {
                     // 1단계: 필터링 조건 적용 (검색 조건과 동일)
@@ -564,7 +574,7 @@ public class MentorServiceImpl implements MentorService {
                         if (!keywordMatch) return false;
                     }
                     
-                    if (hasFilters && !matchesFilters(mentor, searchRequest)) {
+                    if (hasFilters && !matchesFilters(mentor, searchRequest, userPersonalityMap)) {
                         return false;
                     }
                     
@@ -574,9 +584,9 @@ public class MentorServiceImpl implements MentorService {
                             mentor.getUser().getProvince() != null && 
                             user.getProvince().getId().equals(mentor.getUser().getProvince().getId());
                     
-                    // 성향 매칭: 유저와 공통 성향이 있는 멘토 추천
+                    // 성향 매칭: 유저와 공통 성향이 있는 멘토 추천 (배치 조회 사용)
                     boolean matchesPersonality = !userPersonalityTagIds.isEmpty() && 
-                            hasMatchingPersonality(mentor.getUser().getId(), userPersonalityTagIds);
+                            hasMatchingPersonality(mentor.getUser().getId(), userPersonalityTagIds, userPersonalityMap);
                     
                     // OR 조건: 지역이 같거나 성향이 맞으면 추천
                     return sameProvince || matchesPersonality;
@@ -617,8 +627,57 @@ public class MentorServiceImpl implements MentorService {
         
         return true;
     }
+    
+    /**
+     * 필터 조건 매칭 헬퍼 메소드 (배치 조회 지원)
+     */
+    private boolean matchesFilters(Mentor mentor, MentorSearchRequestDto searchRequest, Map<Long, Set<Long>> userPersonalityMap) {
+        // Position 필터링
+        if (searchRequest.positionIds() != null && !searchRequest.positionIds().isEmpty()) {
+            boolean positionMatches = mentor.getPositionEntity() != null && 
+                    searchRequest.positionIds().contains(mentor.getPositionEntity().getId());
+            if (!positionMatches) return false;
+        }
+        
+        // Experience 필터링
+        if (searchRequest.experiences() != null && !searchRequest.experiences().isEmpty()) {
+            if (!matchesExperienceRanges(mentor.getExperience(), searchRequest.experiences())) {
+                return false;
+            }
+        }
+        
+        // Province 필터링
+        if (searchRequest.provinceIds() != null && !searchRequest.provinceIds().isEmpty()) {
+            boolean provinceMatches = mentor.getUser() != null && 
+                    mentor.getUser().getProvince() != null && 
+                    searchRequest.provinceIds().contains(mentor.getUser().getProvince().getId());
+            if (!provinceMatches) return false;
+        }
+        
+        // PersonalityTag 필터링 (배치 조회 사용)
+        if (searchRequest.personalityTagIds() != null && !searchRequest.personalityTagIds().isEmpty()) {
+            return hasAllPersonalityTags(mentor.getUser().getId(), searchRequest.personalityTagIds(), userPersonalityMap);
+        }
+        
+        return true;
+    }
 
-    // 유저와 공통 성향이 있는지 확인 (OR 매칭)
+    // 유저와 공통 성향이 있는지 확인 (OR 매칭) - 배치 조회 버전
+    private boolean hasMatchingPersonality(Long mentorUserId, List<Long> userPersonalityTagIds, Map<Long, Set<Long>> userPersonalityMap) {
+        Set<Long> mentorPersonalityIds = userPersonalityMap.getOrDefault(mentorUserId, Set.of());
+        
+        log.debug("Personality matching - mentorUserId: {}, mentorTags: {}, userTags: {}", 
+                mentorUserId, mentorPersonalityIds, userPersonalityTagIds);
+        
+        // 유저와 멘토가 공통으로 가진 성향이 하나라도 있으면 true (OR 매칭)
+        boolean matches = userPersonalityTagIds.stream()
+                .anyMatch(mentorPersonalityIds::contains);
+        
+        log.debug("Personality match result: {}", matches);
+        return matches;
+    }
+    
+    // 기존 메소드 호호성을 위한 래퍼 메소드
     private boolean hasMatchingPersonality(Long mentorUserId, List<Long> userPersonalityTagIds) {
         List<UserPersonalityTag> mentorPersonalityTags = userPersonalityTagRepository
                 .findByUserId(mentorUserId);
@@ -627,18 +686,19 @@ public class MentorServiceImpl implements MentorService {
                 .map(upt -> upt.getPersonalityTag().getId())
                 .collect(Collectors.toSet());
         
-        log.info("Personality matching - mentorUserId: {}, mentorTags: {}, userTags: {}", 
-                mentorUserId, mentorPersonalityIds, userPersonalityTagIds);
-        
-        // 유저와 멘토가 공통으로 가진 성향이 하나라도 있으면 true (OR 매칭)
-        boolean matches = userPersonalityTagIds.stream()
+        return userPersonalityTagIds.stream()
                 .anyMatch(mentorPersonalityIds::contains);
-        
-        log.info("Personality match result: {}", matches);
-        return matches;
     }
 
-    // 모든 성향 태그를 가지고 있는지 확인 (AND 매칭)
+    // 모든 성향 태그를 가지고 있는지 확인 (AND 매칭) - 배치 조회 버전
+    private boolean hasAllPersonalityTags(Long mentorUserId, List<Long> personalityTagIds, Map<Long, Set<Long>> userPersonalityMap) {
+        Set<Long> mentorPersonalityIds = userPersonalityMap.getOrDefault(mentorUserId, Set.of());
+        
+        // 모든 요구되는 personalityTagIds가 포함되어야 함 (AND 매칭)
+        return mentorPersonalityIds.containsAll(personalityTagIds);
+    }
+    
+    // 기존 메소드 호환성을 위한 래퍼 메소드
     private boolean hasAllPersonalityTags(Long mentorUserId, List<Long> personalityTagIds) {
         List<UserPersonalityTag> mentorPersonalityTags = userPersonalityTagRepository
                 .findByUserId(mentorUserId);
@@ -647,8 +707,78 @@ public class MentorServiceImpl implements MentorService {
                 .map(upt -> upt.getPersonalityTag().getId())
                 .collect(Collectors.toSet());
         
-        // 모든 요구되는 personalityTagIds가 포함되어야 함 (AND 매칭)
         return mentorPersonalityIds.containsAll(personalityTagIds);
+    }
+    
+    /**
+     * N+1 문제 해결을 위한 배치 조회 메소드
+     * 멘토 리스트에 대한 경력과 성향태그 데이터를 한번에 조회
+     * 
+     * @param mentors 멘토 리스트
+     * @return MentorSummaryResponseDto 리스트
+     */
+    private List<MentorSummaryResponseDto> getMentorSummariesWithBatchFetch(List<Mentor> mentors) {
+        if (mentors.isEmpty()) {
+            return List.of();
+        }
+        
+        // 멘토 ID 리스트 생성
+        List<Long> mentorIds = mentors.stream()
+                .map(Mentor::getId)
+                .collect(Collectors.toList());
+
+        // 리스트의 사용자 ID 리스트 생성 (PersonalityTag 조회용)
+        List<Long> userIds = mentors.stream()
+                .map(mentor -> mentor.getUser().getId())
+                .collect(Collectors.toList());
+        
+        log.debug("Batch fetching data for {} mentors", mentors.size());
+
+        // 배치 조회 1: 모든 멘토의 경력 정보 한번에 조회
+        Map<Long, List<MentorCareer>> careerMap = mentorCareerRepository.findByMentorIdInOrderByDisplayOrder(mentorIds)
+                .stream()
+                .collect(Collectors.groupingBy(career -> career.getMentor().getId()));
+        
+        // 배치 조회 2: 모든 사용자의 성향태그 정보 한번에 조회
+        Map<Long, List<UserPersonalityTag>> personalityTagMap = userPersonalityTagRepository
+                .findByUserIdInWithPersonalityTag(userIds)
+                .stream()
+                .collect(Collectors.groupingBy(upt -> upt.getUser().getId()));
+
+        // MentorSummaryResponseDto로 변환 (배치 조회된 데이터 사용)
+        return mentors.stream()
+                .map(mentor -> {
+                    // 맵에서 데이터 가져오기 (N+1 문제 없이)
+                    List<MentorCareer> careers = careerMap.getOrDefault(mentor.getId(), List.of());
+                    List<UserPersonalityTag> userPersonalityTags = personalityTagMap.getOrDefault(mentor.getUser().getId(), List.of());
+                    
+                    return MentorSummaryResponseDto.from(mentor, userPersonalityTags, careers);
+                })
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * 성향 매칭을 위한 배치 조회 맵 생성
+     * PersonalityTag 조회를 배치로 처리하여 N+1 문제 해결
+     * 
+     * @param userIds 사용자 ID 리스트
+     * @return userId -> PersonalityTag ID Set 맵
+     */
+    private Map<Long, Set<Long>> createUserPersonalityMap(List<Long> userIds) {
+        if (userIds.isEmpty()) {
+            return Map.of();
+        }
+        
+        return userPersonalityTagRepository
+                .findByUserIdInWithPersonalityTag(userIds)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        upt -> upt.getUser().getId(),
+                        Collectors.mapping(
+                                upt -> upt.getPersonalityTag().getId(),
+                                Collectors.toSet()
+                        )
+                ));
     }
 
 

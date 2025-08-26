@@ -3,7 +3,6 @@ package com.recareer.backend.mentor.dto;
 import com.recareer.backend.mentor.entity.Mentor;
 import com.recareer.backend.user.entity.UserPersonalityTag;
 import com.recareer.backend.career.entity.MentorCareer;
-import com.recareer.backend.position.dto.PositionDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,91 +18,27 @@ public class MentorSummaryResponseDto {
 
     private Long id;
     private String name;
-    private PositionDto position;
-    private String email;
+    private PositionSummaryDto position;
     private String profileImageUrl;
-    private CompanyDto company;
-    private Integer experience;
-    private ProvinceDto province;
-    private String meetingType;
-    private List<PersonalityTagDto> personalityTags;
-
+    
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class CompanyDto {
-        private Long id;
-        private String name;
-    }
-
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class ProvinceDto {
-        private Long id;
-        private String name;
-    }
-
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class PersonalityTagDto {
+    public static class PositionSummaryDto {
         private Long id;
         private String name;
     }
 
     public static MentorSummaryResponseDto from(Mentor mentor, List<UserPersonalityTag> userPersonalityTags, List<MentorCareer> careers) {
-        String meetingType = "ONLINE"; // 미팅 방식은 온라인으로 통일
-        
-        // 성향 태그 변환
-        List<PersonalityTagDto> personalityTagDtos = userPersonalityTags.stream()
-                .map(upt -> PersonalityTagDto.builder()
-                        .id(upt.getPersonalityTag().getId())
-                        .name(upt.getPersonalityTag().getName())
-                        .build())
-                .toList();
-
-        // 현재 회사 정보 (멘토의 회사 또는 가장 최신 경력에서 추출)
-        CompanyDto companyDto = null;
-        if (mentor.getCompany() != null) {
-            companyDto = CompanyDto.builder()
-                    .id(mentor.getCompany().getId())
-                    .name(mentor.getCompany().getName())
-                    .build();
-        } else {
-            // 멘토에 회사 정보가 없으면 최신 경력에서 추출 (기존 로직 유지)
-            String currentCompanyName = careers.stream()
-                    .filter(MentorCareer::getIsCurrent)
-                    .findFirst()
-                    .map(MentorCareer::getCompany)
-                    .orElse(null);
-            if (currentCompanyName != null) {
-                companyDto = CompanyDto.builder()
-                        .id(null) // 경력에서 가져온 회사는 ID가 없음
-                        .name(currentCompanyName)
-                        .build();
-            }
-        }
-
         return MentorSummaryResponseDto.builder()
                 .id(mentor.getId())
                 .name(mentor.getUser().getName())
-                .position(mentor.getPositionEntity() != null ? PositionDto.builder()
+                .position(mentor.getPositionEntity() != null ? PositionSummaryDto.builder()
                         .id(mentor.getPositionEntity().getId())
                         .name(mentor.getPositionEntity().getName())
                         .build() : null)
-                .email(mentor.getUser().getEmail())
-                .profileImageUrl(mentor.getUser().getProfileImageUrl()) // nullable
-                .company(companyDto)
-                .experience(mentor.getExperience())
-                .province(mentor.getUser() != null && mentor.getUser().getProvince() != null ? ProvinceDto.builder()
-                        .id(mentor.getUser().getProvince().getId())
-                        .name(mentor.getUser().getProvince().getName())
-                        .build() : null)
-                .personalityTags(personalityTagDtos)
+                .profileImageUrl(mentor.getUser().getProfileImageUrl())
                 .build();
     }
 

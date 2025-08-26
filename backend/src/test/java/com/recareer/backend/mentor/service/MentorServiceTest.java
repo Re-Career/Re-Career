@@ -233,7 +233,8 @@ class MentorServiceTest {
         // then
         assertThat(mentors).isNotNull();
         assertThat(mentors).isNotEmpty();
-        assertThat(mentors.get(0).getProvince().getName()).isEqualTo("서울특별시");
+        // province 필드가 제거되었으므로 예상되는 멘토 개수만 확인
+        assertThat(mentors.size()).isGreaterThan(0);
     }
 
 }
