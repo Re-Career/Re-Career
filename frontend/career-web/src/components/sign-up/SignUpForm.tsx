@@ -10,10 +10,10 @@ import { PersonalityTag } from '@/types/personality-tags'
 import { signUpAction } from '@/app/actions/sign-up/action'
 import { isWebView, sendAuthTokensToNative } from '@/utils/webview'
 import { getTokens } from '@/app/actions/auth/action'
-import { BsExclamationCircle } from 'react-icons/bs'
 import { deleteCookie, getCookie } from '@/app/actions/global/action'
 import { ROLE_TYPES } from '@/lib/constants/global'
 import { City, Province } from '@/types/location'
+import { useToast } from '@/hooks/useToast'
 
 interface SignUpFormProps {
   role: RoleType
@@ -24,17 +24,18 @@ interface SignUpFormProps {
 
 const SignUpForm = ({ role, tags, provinces, cities }: SignUpFormProps) => {
   const router = useRouter()
-
-  const [selectedTags, setSelectedTags] = useState<number[]>([])
-  const [selectedProvinceId, setSelectedProvinceId] = useState<number>(0)
-  const [selectedCityId, setSelectedCityId] = useState<number>(0)
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const { showError, showSuccess } = useToast()
 
   const [state, formAction] = useActionState(signUpAction, {
     success: false,
     message: '',
     formData: { name: '', email: '' },
   })
+
+  const [selectedTags, setSelectedTags] = useState<number[]>([])
+  const [selectedProvinceId, setSelectedProvinceId] = useState<number>(0)
+  const [selectedCityId, setSelectedCityId] = useState<number>(0)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const saveNativeAuth = useCallback(async () => {
     const { accessToken } = await getTokens()
@@ -58,6 +59,10 @@ const SignUpForm = ({ role, tags, provinces, cities }: SignUpFormProps) => {
 
     if (status === 401) {
       router.replace('/login')
+    }
+
+    if (state.message) {
+      state.success ? showSuccess(state.message) : showError(state.message)
     }
 
     if (success) {
@@ -121,17 +126,6 @@ const SignUpForm = ({ role, tags, provinces, cities }: SignUpFormProps) => {
         </h1>
         <div className="p-4">
           <h3 className="mb-3 font-bold text-neutral-900">기본 정보</h3>
-          {state.message && !state.success && (
-            <div className="mb-4 flex gap-1 rounded-xl bg-red-100 p-2 text-sm text-gray-800">
-              <div className="flex h-5 w-5 items-center">
-                <BsExclamationCircle
-                  className="h-4 w-4 text-red-500"
-                  strokeWidth={0.3}
-                />
-              </div>
-              <p className="leading-[20px]">{state.message}</p>
-            </div>
-          )}
           <div className="flex-1">
             <div className="flex flex-col gap-6">
               {/* Hidden inputs */}

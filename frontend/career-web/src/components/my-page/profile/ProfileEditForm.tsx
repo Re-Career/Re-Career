@@ -8,6 +8,7 @@ import { BsExclamationCircle } from 'react-icons/bs'
 import { hasProfileImage } from '@/lib/constants/images'
 import { updateProfileAction } from '@/app/actions/user/action'
 import { FixedSizeImage } from '@/components/common'
+import { useToast } from '@/hooks/useToast'
 
 interface ProfileEditFormProps {
   userData: User
@@ -15,8 +16,7 @@ interface ProfileEditFormProps {
 
 const ProfileEditForm = ({ userData }: ProfileEditFormProps) => {
   const router = useRouter()
-  const [profileImage, setProfileImage] = useState(userData.profileImageUrl)
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const { showError, showSuccess } = useToast()
 
   const [state, formAction] = useActionState(updateProfileAction, {
     success: false,
@@ -28,6 +28,9 @@ const ProfileEditForm = ({ userData }: ProfileEditFormProps) => {
       mentorDescription: userData.mentorDescription || '',
     },
   })
+
+  const [profileImage, setProfileImage] = useState(userData.profileImageUrl)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -48,6 +51,10 @@ const ProfileEditForm = ({ userData }: ProfileEditFormProps) => {
 
     if (status === 401) {
       router.replace('/login')
+    }
+
+    if (state.message) {
+      state.success ? showSuccess(state.message) : showError(state.message)
     }
 
     if (success) {

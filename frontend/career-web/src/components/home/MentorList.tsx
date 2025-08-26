@@ -5,12 +5,15 @@ import Link from 'next/link'
 import { getMentors } from '@/services/server/mentor'
 import useSWR from 'swr'
 import { FixedSizeImage } from '../common'
+import { useToast } from '@/hooks/useToast'
 
 interface MentorListProps {
   provinceId?: number
 }
 
 const MentorList = ({ provinceId }: MentorListProps) => {
+  const { showError } = useToast()
+
   const { data } = useSWR(
     provinceId ? ['user-location-positions', provinceId] : null,
     ([, provinceId]) => getMentors(provinceId),
@@ -22,6 +25,8 @@ const MentorList = ({ provinceId }: MentorListProps) => {
   )
 
   if (data?.errorMessage) {
+    showError(data?.errorMessage)
+
     return <></>
   }
 

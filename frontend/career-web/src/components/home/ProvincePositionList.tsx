@@ -6,12 +6,15 @@ import Link from 'next/link'
 import { UserLocation } from '@/types/location'
 import { getPositionsByProvince } from '@/services/server/positions'
 import { FixedSizeImage } from '../common'
+import { useToast } from '@/hooks/useToast'
 
 interface ProvincePositionListProps {
   locationsIds?: UserLocation
 }
 
 const ProvincePositionList = ({ locationsIds }: ProvincePositionListProps) => {
+  const { showError } = useToast()
+
   const { data } = useSWR(
     locationsIds ? ['user-location-positions', locationsIds] : null,
     ([, locationData]) => getPositionsByProvince(locationData),
@@ -23,9 +26,10 @@ const ProvincePositionList = ({ locationsIds }: ProvincePositionListProps) => {
   )
 
   if (data?.errorMessage) {
+    showError(data?.errorMessage)
+
     return <></>
   }
-
   if (!data) {
     return (
       <section>
