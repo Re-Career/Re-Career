@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class SessionResponseDto {
 
     // 세션 ID
-    private Long sessionId;
+    private Long id;
     
     // 세션 시간
     private LocalDateTime sessionTime;
@@ -63,7 +63,7 @@ public class SessionResponseDto {
     // Entity를 DTO로 변환하는 정적 메소드 - 멘티 관점용 (멘토 정보 포함)
     public static SessionResponseDto fromForMentee(Session session) {
         return SessionResponseDto.builder()
-                .sessionId(session.getId())
+                .id(session.getId())
                 .sessionTime(session.getSessionTime())
                 .status(session.getStatus())
                 .mentor(MentorInfo.builder()
@@ -81,7 +81,7 @@ public class SessionResponseDto {
     // Entity를 DTO로 변환하는 정적 메소드 - 멘토 관점용 (멘티 정보 포함)
     public static SessionResponseDto fromForMentor(Session session) {
         return SessionResponseDto.builder()
-                .sessionId(session.getId())
+                .id(session.getId())
                 .sessionTime(session.getSessionTime())
                 .status(session.getStatus())
                 .mentee(MenteeInfo.builder()
