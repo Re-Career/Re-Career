@@ -1,5 +1,5 @@
 import { Session, SessionStatus } from '@/types/session'
-import { isToday } from '@/utils/day'
+import { isToday } from '@/lib/utils/day'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import React from 'react'

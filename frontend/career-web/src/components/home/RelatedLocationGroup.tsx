@@ -1,7 +1,7 @@
 'use client'
 
 import { setCookie } from '@/app/actions/global/action'
-import { getCurrentPosition } from '@/utils/geolocation'
+import { getCurrentPosition } from '@/lib/utils/geolocation'
 import { useEffect, useMemo, useState } from 'react'
 import ProvincePositionList from './ProvincePositionList'
 import MentorList from './MentorList'

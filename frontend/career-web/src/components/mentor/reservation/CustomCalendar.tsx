@@ -9,7 +9,7 @@ import {
   formatDay,
   isBeforeToday,
   isSameMonth,
-} from '@/utils/day'
+} from '@/lib/utils/day'
 
 interface CustomCalendarProps {
   value: DatePiece

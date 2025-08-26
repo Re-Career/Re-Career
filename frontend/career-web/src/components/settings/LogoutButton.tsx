@@ -2,7 +2,7 @@
 
 import { clearTokens } from '@/app/actions/auth/action'
 import { WEBVIEW_MESSAGE_TYPES } from '@/lib/constants/global'
-import { sendMessageToNative } from '@/utils/webview'
+import { sendMessageToNative } from '@/lib/utils/webview'
 import React from 'react'
 
 const LogoutButton = () => {

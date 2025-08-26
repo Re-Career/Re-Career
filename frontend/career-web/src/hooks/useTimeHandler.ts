@@ -1,4 +1,4 @@
-import { convertTo12HourFormat, convertTo24HourFormat } from '@/utils/day'
+import { convertTo12HourFormat, convertTo24HourFormat } from '@/lib/utils/day'
 import dayjs from 'dayjs'
 import { useCallback, useMemo } from 'react'
 
