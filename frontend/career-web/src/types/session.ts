@@ -19,10 +19,6 @@ export enum SessionStatus {
   COMPLETED = 'COMPLETED', // 멘토링 완료
 }
 
-export interface SessionResponse extends Omit<Session, 'id'> {
-  sessionId: number
-}
-
 export interface Session {
   id: number
   sessionTime: string

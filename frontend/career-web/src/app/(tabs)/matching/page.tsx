@@ -14,7 +14,6 @@ const MatchingPage = async ({
 
   const mentorName = (params?.mentorName as string) ?? ''
 
-  // string | string[] | undefined -> string[] 로 일관화
   const toArray = (v: string | string[] | undefined): string[] => {
     if (!v) return []
 

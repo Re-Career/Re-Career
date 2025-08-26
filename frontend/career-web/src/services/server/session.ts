@@ -5,7 +5,6 @@ import {
   PostSessionPayload,
   PostSessionResponse,
   Session,
-  SessionResponse,
 } from '@/types/session'
 import { decodeJWT } from '@/lib/utils/jwt'
 import dayjs from 'dayjs'
@@ -39,7 +38,7 @@ export const getSession = async (
   }
 
   const role = payload.role.replace('ROLE_', '')
-  
+
   return await fetchUrl<Session>(`/sessions/${id}?role=${role}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -66,31 +65,12 @@ export const getSessionList = async (): Promise<FetchResponse<Session[]>> => {
   }
 
   const role = payload.role.replace('ROLE_', '')
-  
-  const response = await fetchUrl<SessionResponse[]>(
-    `/sessions?role=${role}`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  )
 
-  if (response.errorMessage) {
-    return { ...response, data: [] }
-  }
-
-  const _data = response.data.map((session: SessionResponse) => {
-    return {
-      id: session.sessionId,
-      sessionTime: session.sessionTime,
-      status: session.status,
-      mentor: session.mentor,
-      mentee: session.mentee,
-    }
+  return await fetchUrl<Session[]>(`/sessions?role=${role}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
   })
-
-  return { ...response, data: _data }
 }
 
 export const postSession = async (
