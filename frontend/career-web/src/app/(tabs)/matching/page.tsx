@@ -91,45 +91,47 @@ const MatchingPage = async ({
             )}
           </div>
           <div className="px-4">
-            <div className="space-y-5">
+            <div className="space-y-4">
               {searchedList.length > 0 ? (
                 searchedList.map((mentor) => (
-                  <div key={`mentor_${mentor.id}`}>
-                    <div className="flex items-center gap-4">
-                      <FixedSizeImage
-                        src={mentor.profileImageUrl}
-                        alt={`mentor_image_${mentor.name}`}
-                        size="sm"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold text-gray-900">
-                              {mentor.name}
-                              <span className="ml-1 text-sm text-gray-500">
-                                {mentor.position.name}
-                              </span>
-                            </h3>
-                            <p className="text-xs text-gray-900">
-                              {mentor.company?.name ?? ''} • {mentor.experience}
-                              년 • {mentor.province.name}
-                            </p>
-                            <p className="text-xs text-gray-900">
-                              {mentor.personalityTags
-                                ?.map((t) => t.name)
-                                .join(', ')}
-                            </p>
-                          </div>
-                          <Link
-                            href={`/mentor/${mentor.id}/profile`}
-                            className="bg-primary-500 flex-shrink-0 rounded-xl px-4 py-1.5 text-sm"
-                          >
-                            1:1 예약
-                          </Link>
+                  <Link
+                    href={`/mentor/${mentor.id}/profile`}
+                    key={mentor.id}
+                    className="flex cursor-pointer gap-4 rounded bg-white px-4 py-2 shadow"
+                  >
+                    <FixedSizeImage
+                      src={mentor.profileImageUrl}
+                      alt={`mentor_image_${mentor.name}`}
+                      size="sm"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold text-gray-900">
+                            {mentor.name}
+                            <span className="ml-1 text-sm text-gray-500">
+                              {mentor.position.name}
+                            </span>
+                          </h3>
+                          <p className="text-xs text-gray-900">
+                            {mentor.company?.name ?? ''} • {mentor.experience}년
+                            • {mentor.province.name}
+                          </p>
+                          <p className="text-xs text-gray-900">
+                            {mentor.personalityTags
+                              ?.map((t) => t.name)
+                              .join(', ')}
+                          </p>
                         </div>
+                        <Link
+                          href={`/mentor/${mentor.id}/reservation`}
+                          className="bg-primary-500 flex-shrink-0 rounded-xl px-4 py-1.5 text-sm"
+                        >
+                          1:1 예약
+                        </Link>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))
               ) : (
                 <p>검색결과가 없습니다.🥲</p>
