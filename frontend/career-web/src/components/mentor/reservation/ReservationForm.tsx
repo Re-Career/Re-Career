@@ -10,10 +10,12 @@ import { isToday, convertTo24HourFormat } from '@/utils/day'
 import useTimeHandler from '@/hooks/useTimeHandler'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/hooks/useToast'
 
 const ReservationForm = ({ mentorId }: { mentorId: string }) => {
   const router = useRouter()
   const { minimumTime, isTimeBeforeMinimum } = useTimeHandler()
+  const { showError, showSuccess } = useToast()
 
   const [state, formAction] = useActionState(handleCreateSession, {
     success: false,
@@ -25,10 +27,13 @@ const ReservationForm = ({ mentorId }: { mentorId: string }) => {
       const { data } = state
 
       if (data) {
+        showSuccess('예약이 완료되었습니다')
         router.replace(`/mentor/reservation/success/${data.id}`)
       }
+    } else if (state.message) {
+      showError(state.message)
     }
-  }, [state])
+  }, [state, showError, showSuccess, router])
 
   const [date, setDate] = useState<DatePiece>(new Date())
   const [timeValue, setTimeValue] = useState(minimumTime)
@@ -53,7 +58,7 @@ const ReservationForm = ({ mentorId }: { mentorId: string }) => {
       <input
         name="sessionTime"
         value={
-          date && timeValue 
+          date && timeValue
             ? dayjs(date)
                 .hour(convertTo24HourFormat(timeValue.hour, timeValue.period))
                 .minute(timeValue.minute)

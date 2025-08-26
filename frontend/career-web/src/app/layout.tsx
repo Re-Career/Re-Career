@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Noto_Sans, Noto_Sans_KR } from 'next/font/google'
+import { Toaster } from 'react-hot-toast'
 import './globals.css'
 
 const notoSans = Noto_Sans({
@@ -34,6 +35,16 @@ export default function RootLayout({
       >
         <div className="flex-1 bg-white">{children}</div>
         <div className="h-4 bg-white" />
+        <Toaster 
+          position="top-center"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: '#363636',
+              color: '#fff',
+            },
+          }}
+        />
       </body>
     </html>
   )
