@@ -5,7 +5,12 @@ import Link from 'next/link'
 import React from 'react'
 import FixedSizeImage from './FixedSizeImage'
 
-const MentoringDesc = ({ session }: { session: Session }) => {
+interface MentoringDescProps {
+  session: Session
+  priority: boolean
+}
+
+const MentoringDesc = ({ session, priority }: MentoringDescProps) => {
   const { id, sessionTime, status, mentor } = session
 
   const todaySession = isToday(sessionTime)
@@ -58,6 +63,7 @@ const MentoringDesc = ({ session }: { session: Session }) => {
             className="ring-2 ring-gray-100"
             size="sm"
             isCircle={false}
+            priority={priority}
           />
 
           <div className="flex-1 space-y-3">

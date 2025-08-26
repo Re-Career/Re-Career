@@ -112,8 +112,12 @@ const page = async ({ params }: PageProps) => {
           <div key={month} className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-800">{month}</h2>
             <div className="space-y-3">
-              {sessions.map((session) => (
-                <MentoringDesc key={session.id} session={session} />
+              {sessions.map((session, index) => (
+                <MentoringDesc
+                  key={session.id}
+                  session={session}
+                  priority={index < 5}
+                />
               ))}
             </div>
           </div>
