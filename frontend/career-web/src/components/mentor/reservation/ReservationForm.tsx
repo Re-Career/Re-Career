@@ -11,13 +11,14 @@ import useTimeHandler from '@/hooks/useTimeHandler'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/hooks/useToast'
+import { Spinner } from '@/components/common'
 
 const ReservationForm = ({ mentorId }: { mentorId: string }) => {
   const router = useRouter()
   const { minimumTime, isTimeBeforeMinimum } = useTimeHandler()
   const { showError, showSuccess } = useToast()
 
-  const [state, formAction] = useActionState(handleCreateSession, {
+  const [state, formAction, isPending] = useActionState(handleCreateSession, {
     success: false,
     message: '',
   })
@@ -85,10 +86,18 @@ const ReservationForm = ({ mentorId }: { mentorId: string }) => {
       </div>
       <div className="sticky bottom-0 z-60 flex border-t border-gray-100 bg-white p-4">
         <button
-          className="bg-primary-500 flex-1 rounded-lg py-3 text-center font-bold"
+          className="bg-primary-500 flex-1 rounded-lg py-3 text-center font-bold disabled:opacity-50"
           type="submit"
+          disabled={isPending}
         >
-          상담 예약하기
+          {isPending ? (
+            <div className="flex items-center justify-center gap-2">
+              <Spinner />
+              예약 중...
+            </div>
+          ) : (
+            '상담 예약하기'
+          )}
         </button>
       </div>
     </form>

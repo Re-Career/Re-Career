@@ -6,7 +6,7 @@ import { IoCameraOutline } from 'react-icons/io5'
 import { User } from '@/types/user'
 import { hasProfileImage } from '@/lib/constants/images'
 import { updateProfileAction } from '@/app/actions/user/action'
-import { FixedSizeImage } from '@/components/common'
+import { FixedSizeImage, Spinner } from '@/components/common'
 import { useToast } from '@/hooks/useToast'
 
 interface ProfileEditFormProps {
@@ -17,7 +17,7 @@ const ProfileEditForm = ({ userData }: ProfileEditFormProps) => {
   const router = useRouter()
   const { showError, showSuccess } = useToast()
 
-  const [state, formAction] = useActionState(updateProfileAction, {
+  const [state, formAction, isPending] = useActionState(updateProfileAction, {
     success: false,
     message: '',
     formData: {
@@ -198,7 +198,7 @@ const ProfileEditForm = ({ userData }: ProfileEditFormProps) => {
             type="submit"
             className="bg-primary-500 flex-1 rounded-lg p-3 font-semibold disabled:opacity-50"
           >
-            저장
+            {isPending && <Spinner />} 저장
           </button>
         </div>
       </form>

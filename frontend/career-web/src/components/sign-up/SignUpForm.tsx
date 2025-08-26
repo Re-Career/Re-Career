@@ -14,6 +14,7 @@ import { deleteCookie, getCookie } from '@/app/actions/global/action'
 import { ROLE_TYPES } from '@/lib/constants/global'
 import { City, Province } from '@/types/location'
 import { useToast } from '@/hooks/useToast'
+import { Spinner } from '../common'
 
 interface SignUpFormProps {
   role: RoleType
@@ -26,7 +27,7 @@ const SignUpForm = ({ role, tags, provinces, cities }: SignUpFormProps) => {
   const router = useRouter()
   const { showError, showSuccess } = useToast()
 
-  const [state, formAction] = useActionState(signUpAction, {
+  const [state, formAction, isPending] = useActionState(signUpAction, {
     success: false,
     message: '',
     formData: { name: '', email: '' },
@@ -250,7 +251,7 @@ const SignUpForm = ({ role, tags, provinces, cities }: SignUpFormProps) => {
             type="submit"
             className="bg-primary-500 h-12 w-full max-w-[480px] min-w-20 items-center justify-center overflow-hidden rounded-3xl px-5 font-bold text-neutral-900"
           >
-            가입 완료
+            {isPending && <Spinner />} 가입 하기
           </button>
         </div>
       </footer>
