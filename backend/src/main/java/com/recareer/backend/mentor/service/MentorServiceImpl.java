@@ -36,7 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -86,7 +85,6 @@ public class MentorServiceImpl implements MentorService {
                 .user(user)
                 .position(position)
                 .company(company)
-                // region 필드 제거됨 - User 엔티티에서 Province/City로 관리
                 .description(requestDto.getDescription())
                 .introduction(requestDto.getIntroduction())
                 .experience(requestDto.getExperience())
@@ -524,7 +522,6 @@ public class MentorServiceImpl implements MentorService {
         return convertToMentorCards(recommended);
     }
 
-
     // 검색 조건에 따른 필터링 (일관된 로직)
     private List<MentorCard> getSearchedByConditions(List<Mentor> allMentors, MentorSearchRequestDto searchRequest, boolean hasKeyword, boolean hasFilters) {
         List<Mentor> searched = allMentors.stream()
@@ -642,6 +639,4 @@ public class MentorServiceImpl implements MentorService {
         // 모든 요구되는 personalityTagIds가 포함되어야 함 (AND 매칭)
         return mentorPersonalityIds.containsAll(personalityTagIds);
     }
-
-
 }

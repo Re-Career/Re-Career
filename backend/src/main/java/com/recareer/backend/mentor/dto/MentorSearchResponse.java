@@ -18,11 +18,19 @@ public class MentorSearchResponse {
     @Schema(description = "사용자 맞춤 추천 멘토 리스트", example = "[]")
     private List<MentorCard> recommendedList;
     
+    @Schema(description = "추천 멘토 개수", example = "5")
+    private int recommendedCount;
+    
     @Schema(description = "검색 조건 기반 멘토 리스트", example = "[]")
     private List<MentorCard> searchedList;
     
+    @Schema(description = "검색 결과 멘토 개수", example = "22")
+    private int searchedCount;
+    
     public static MentorSearchResponse of(List<MentorCard> recommendedList, List<MentorCard> searchedList) {
         return MentorSearchResponse.builder()
+                .recommendedCount(recommendedList.size())
+                .searchedCount(searchedList.size())
                 .recommendedList(recommendedList)
                 .searchedList(searchedList)
                 .build();
