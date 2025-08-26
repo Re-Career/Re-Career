@@ -10,6 +10,7 @@ export const getAuthMe = async (
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
+    next: { tags: ['auth', 'me'] },
   })
 }
 

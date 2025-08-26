@@ -12,7 +12,7 @@ export const getUserProfile = async (): Promise<FetchResponse<User>> => {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
-    next: { revalidate: ONE_DAY },
+    next: { revalidate: ONE_DAY, tags: ['user', 'profile'] },
   })
 }
 

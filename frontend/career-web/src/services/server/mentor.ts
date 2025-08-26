@@ -30,10 +30,13 @@ export const getFilterOptions = async (): Promise<
 }
 
 export const getMentors = async (
-  region?: string
+  provinceId?: number
 ): Promise<FetchResponse<Mentor[]>> => {
-  return await fetchUrl<Mentor[]>(`/mentors?region=${region || '서울'}`, {
-    next: { revalidate: ONE_DAY },
+  return await fetchUrl<Mentor[]>(`/mentors?provinceId=${provinceId || 1}}`, {
+    next: {
+      revalidate: ONE_DAY,
+      tags: ['mentors', 'mentor-list', `mentor-list-province-id-${provinceId}`],
+    },
   })
 }
 
@@ -56,10 +59,12 @@ export const getFilteredMentors = async ({
     }
   })
 
-  return await fetchUrl<FilteredMentors>(
-    `/mentors/search?${params.toString()}`,
-    {
-      next: { revalidate: ONE_DAY, tags: ['mentors', 'mentor-search'] },
-    }
-  )
+  const _params = params.toString()
+
+  return await fetchUrl<FilteredMentors>(`/mentors/search?${_params}`, {
+    next: {
+      revalidate: ONE_DAY,
+      tags: ['mentors', 'mentor-search', `mentor-search-${_params}`],
+    },
+  })
 }

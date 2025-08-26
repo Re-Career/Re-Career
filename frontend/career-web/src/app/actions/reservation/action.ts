@@ -2,6 +2,7 @@
 
 import { postSession } from '@/services/server/session'
 import { PostSessionResponse } from '@/types/session'
+import { revalidateTag } from 'next/cache'
 
 interface FormState {
   success: boolean
@@ -34,6 +35,8 @@ export const handleCreateSession = async (
 
     return baseResponse
   }
+
+  revalidateTag('session-list')
 
   return {
     success: true,

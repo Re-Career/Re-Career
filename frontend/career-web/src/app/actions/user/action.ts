@@ -9,7 +9,7 @@ import {
 import { getTokens } from '../auth/action'
 import z from 'zod'
 import { PutUserPayload } from '@/types/user'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 
 interface ProfileFormData {
   name: string
@@ -147,6 +147,10 @@ export const updateProfileAction = async (
       })
     }
 
+    // 캐시 무효화
+    revalidateTag('user-profile')
+    revalidatePath('/my-page')
+
     return {
       success: true,
       message: '프로필이 성공적으로 업데이트되었습니다.',
@@ -183,6 +187,7 @@ export const deleteProfileImageAction = async () => {
   const { errorMessage } = await deleteProfileImage()
 
   if (!errorMessage) {
+    revalidateTag('user-profile')
     revalidatePath('/my-page')
   }
 }
@@ -207,6 +212,7 @@ export const updatePersonalityTagsAction = async (
     })
 
     if (!errorMessage) {
+      revalidateTag('personality-tags')
       revalidatePath('/my-page')
     }
 

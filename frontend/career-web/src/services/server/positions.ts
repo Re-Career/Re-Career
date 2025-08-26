@@ -11,14 +11,16 @@ export const getTrendPositions = async (): Promise<
   FetchResponse<DefaultPosition[]>
 > => {
   return await fetchUrl<DefaultPosition[]>('/positions/trend-20', {
-    next: { revalidate: ONE_DAY },
+    next: { revalidate: ONE_DAY, tags: ['positions', 'trend'] },
   })
 }
 
 export const getPositionDetail = async (
   id: string
 ): Promise<FetchResponse<PositionDetail>> => {
-  return await fetchUrl<PositionDetail>(`/positions/${id}`)
+  return await fetchUrl<PositionDetail>(`/positions/${id}`, {
+    next: { tags: ['positions', `position-${id}`] },
+  })
 }
 
 export const getPositionsByProvince = async ({
@@ -33,6 +35,6 @@ export const getPositionsByProvince = async ({
     : `provinceId=${provinceId}`
 
   return await fetchUrl<ProvincePosition>(`/positions/by-province?${path}`, {
-    next: { revalidate: ONE_DAY },
+    next: { revalidate: ONE_DAY, tags: ['positions', 'province'] },
   })
 }

@@ -4,6 +4,6 @@ import { FetchResponse } from '@/types/global'
 
 export const getNews = async (): Promise<FetchResponse<News[]>> => {
   return await fetchUrl<News[]>('/news', {
-    next: { revalidate: 60 * 60 },
+    next: { revalidate: 60 * 60, tags: ['news'] },
   })
 }

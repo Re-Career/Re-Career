@@ -43,6 +43,7 @@ export const getSession = async (
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
+    next: { tags: ['sessions', `session-${id}`] },
   })
 }
 
@@ -70,6 +71,7 @@ export const getSessionList = async (): Promise<FetchResponse<Session[]>> => {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
+    next: { tags: ['sessions', 'session-list'] },
   })
 }
 
