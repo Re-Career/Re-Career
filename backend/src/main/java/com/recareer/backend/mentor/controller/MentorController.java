@@ -40,7 +40,6 @@ import java.util.List;
 public class MentorController {
 
     private final MentorService mentorService;
-    private final JwtTokenProvider jwtTokenProvider;
     private final AuthUtil authUtil;
 
     @PostMapping
@@ -87,7 +86,6 @@ public class MentorController {
             @RequestHeader(value = "Authorization", required = false) String accessToken,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) List<Long> positionIds,
-            @RequestParam(required = false) List<String> experiences,
             @RequestParam(required = false) List<Long> provinceIds,
             @RequestParam(required = false) List<Long> personalityTagIds) {
         
@@ -98,7 +96,7 @@ public class MentorController {
             }
             
             MentorSearchRequestDto searchRequest = new MentorSearchRequestDto(
-                keyword, positionIds, experiences, provinceIds, personalityTagIds
+                keyword, positionIds, provinceIds, personalityTagIds
             );
             MentorSearchResponse mentors = mentorService.searchMentorsWithRecommendation(searchRequest, userId);
             return ResponseEntity.ok(ApiResponse.success(mentors));
