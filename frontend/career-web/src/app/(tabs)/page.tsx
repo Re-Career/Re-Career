@@ -1,8 +1,7 @@
 import {
-  ProvincePositionList,
   TrendPositionList,
-  MentorList,
   IndustryNews,
+  RelatedLocationGroup,
 } from '@/components/home'
 import { Header, PageWithHeader } from '@/components/layout'
 import { getCookie } from '../actions/global/action'
@@ -16,8 +15,7 @@ const HomePage = async () => {
       <PageWithHeader>
         <main className="flex flex-col gap-4">
           <TrendPositionList />
-          <ProvincePositionList cachedLocation={cachedLocation} />
-          <MentorList />
+          <RelatedLocationGroup cachedLocation={cachedLocation} />
           <IndustryNews />
         </main>
       </PageWithHeader>

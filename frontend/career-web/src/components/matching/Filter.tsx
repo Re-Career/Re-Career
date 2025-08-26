@@ -18,26 +18,21 @@ const Filter = ({ initialFilterConfigs, initialMentorName }: FilterProps) => {
   const [selectedFilters, setSelectedFilters] = useState<FilterConfig[]>([])
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
-  const { data: filterOptionsResponse, isLoading: isFilterOptionsLoading } =
-    useSWR(
-      'filter-options',
-      async () => {
-        const { data } = await getFilterOptions()
-
-        return data
-      },
-      {
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-        dedupingInterval: Infinity, // 영구 저장
-      }
-    )
-
-  const filterOptions = filterOptionsResponse || []
+  const { data, isLoading: isFilterOptionsLoading } = useSWR(
+    'filter-options',
+    () => getFilterOptions(),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: Infinity, // 영구 저장
+    }
+  )
 
   const filterRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const filterOptions = data?.data || []
+
     // URL 파라미터 키를 실제 필터 키로 변환
     const transformUrlKeyToFilterKey = (urlKey: string): string => {
       if (urlKey.endsWith('Ids')) return `${urlKey.slice(0, -3)}s`
@@ -73,7 +68,7 @@ const Filter = ({ initialFilterConfigs, initialMentorName }: FilterProps) => {
 
     setSelectedFilters(initialFilters)
     setMentorName(initialMentorName)
-  }, [initialFilterConfigs, initialMentorName, filterOptions])
+  }, [initialFilterConfigs, initialMentorName, data])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -179,15 +174,17 @@ const Filter = ({ initialFilterConfigs, initialMentorName }: FilterProps) => {
           </button>
         </div>
 
-        <FilterDropdown
-          isOpen={isFilterOpen}
-          filters={filterOptions}
-          selectedFilters={selectedFilters}
-          mentorName={mentorName}
-          onFilterChange={handleFilterChange}
-          handleReset={handleReset}
-          onClose={() => setIsFilterOpen(false)}
-        />
+        {data && !data.errorMessage && (
+          <FilterDropdown
+            isOpen={isFilterOpen}
+            filters={data?.data}
+            selectedFilters={selectedFilters}
+            mentorName={mentorName}
+            onFilterChange={handleFilterChange}
+            handleReset={handleReset}
+            onClose={() => setIsFilterOpen(false)}
+          />
+        )}
       </div>
     </>
   )

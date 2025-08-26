@@ -32,7 +32,7 @@ export const getFilterOptions = async (): Promise<
 export const getMentors = async (
   provinceId?: number
 ): Promise<FetchResponse<Mentor[]>> => {
-  return await fetchUrl<Mentor[]>(`/mentors?provinceId=${provinceId || 1}}`, {
+  return await fetchUrl<Mentor[]>(`/mentors?provinceId=${provinceId || 1}`, {
     next: {
       revalidate: ONE_DAY,
       tags: ['mentors', 'mentor-list', `mentor-list-province-id-${provinceId}`],
