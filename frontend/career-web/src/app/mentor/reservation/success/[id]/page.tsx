@@ -19,7 +19,7 @@ const ReservationSuccessPage = async ({
   const { data: session, status } = await getSession(id)
 
   if (status === 401 || status === 403) {
-    return redirect('/')
+    return redirect('/login')
   }
 
   if (!session) {

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { FetchResponse } from '@/types/global'
+import { refreshAccessToken } from './server/auth'
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -10,7 +11,8 @@ export const api = axios.create({
 
 export const fetchUrl = async <T>(
   url: string,
-  init?: RequestInit
+  init?: RequestInit,
+  retry = true
 ): Promise<FetchResponse<T>> => {
   const { headers, body, ...rest } = init || {}
 
@@ -26,6 +28,29 @@ export const fetchUrl = async <T>(
     body,
     ...rest,
   })
+
+  // 401 에러 시 토큰 갱신 후 재시도
+  if (res.status === 401 && retry) {
+    const refreshResult = await refreshAccessToken()
+
+    if (refreshResult.data) {
+      // 새 토큰으로 헤더 업데이트
+      const newHeaders: HeadersInit = {
+        ...finalHeaders,
+        Authorization: `Bearer ${refreshResult.data}`,
+      }
+
+      // 재시도 (retry=false로 무한루프 방지)
+      return fetchUrl(
+        url,
+        {
+          ...init,
+          headers: newHeaders,
+        },
+        false
+      )
+    }
+  }
 
   const isSuccess = res.ok
   const data = await res.json().catch(() => {})

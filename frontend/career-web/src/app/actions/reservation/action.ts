@@ -9,6 +9,7 @@ interface FormState {
   message: string
   data?: PostSessionResponse
   errors?: Record<string, string>
+  status?: number
 }
 
 export const handleCreateSession = async (
@@ -18,29 +19,34 @@ export const handleCreateSession = async (
   const mentorId = formData.get('mentorId') as string
   const sessionTime = formData.get('sessionTime') as string
 
-  const { errorMessage, errors, data, status } = await postSession({
+  const sessionData = {
     mentorId: Number(mentorId),
     sessionTime,
-  })
+  }
 
-  if (status === 401 || errorMessage) {
-    const baseResponse: FormState = {
+  const result = await postSession(sessionData)
+
+  if (result.status === 401) {
+    return {
       success: false,
-      message: errorMessage,
+      status: result.status,
+      message: '재로그인이 필요합니다.',
     }
+  }
 
-    if (errors) {
-      baseResponse.errors = errors
+  if (result.errorMessage) {
+    return {
+      success: false,
+      message: result.errorMessage,
+      errors: result.errors,
     }
-
-    return baseResponse
   }
 
   revalidateTag('session-list')
 
   return {
     success: true,
-    data,
+    data: result.data,
     message: '상담예약에 성공했습니다.',
   }
 }
