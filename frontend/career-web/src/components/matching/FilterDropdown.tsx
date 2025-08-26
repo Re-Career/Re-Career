@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { FilterConfig } from '@/types/mentor'
 import { DefaultData } from '@/types/global'
+import { IoClose as CloseIcon } from 'react-icons/io5'
 
 interface FilterDropdownProps {
   isOpen: boolean
@@ -52,7 +53,9 @@ const FilterDropdown = ({
   return (
     <div
       className={`flex transform flex-col gap-4 overflow-hidden rounded-lg bg-white shadow-xl transition-all duration-300 ease-out ${
-        isOpen ? 'max-h-[70vh] pt-2 pb-4 opacity-100' : 'max-h-0 py-0 opacity-0'
+        isOpen
+          ? 'max-h-[calc(100vh-96px)] pt-2 pb-4 opacity-100'
+          : 'max-h-0 py-0 opacity-0'
       }`}
     >
       <div className="flex-1 space-y-4 overflow-y-auto px-4">
@@ -107,6 +110,11 @@ const FilterDropdown = ({
           적용하기
         </Link>
       </div>
+      {isOpen && (
+        <button className="fixed top-4 left-4 h-6 w-6" onClick={onClose}>
+          <CloseIcon className="h-6 w-6" />
+        </button>
+      )}
     </div>
   )
 }

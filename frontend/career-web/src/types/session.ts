@@ -19,19 +19,23 @@ export enum SessionStatus {
   COMPLETED = 'COMPLETED', // 멘토링 완료
 }
 
+export interface SessionMentor {
+  mentorId: number
+  name: string
+  position: DefaultData
+  profileImageUrl: string
+}
+
+export interface SessionMentee {
+  menteeId: number
+  name: string
+  profileImageUrl: string
+}
+
 export interface Session {
   id: number
   sessionTime: string
   status: SessionStatus
-  mentor: {
-    mentorId: number
-    name: string
-    position: DefaultData
-    profileImageUrl: string
-  }
-  mentee: {
-    menteeId: number
-    name: string
-    profileImageUrl: string
-  }
+  mentor: SessionMentor
+  mentee: SessionMentee
 }

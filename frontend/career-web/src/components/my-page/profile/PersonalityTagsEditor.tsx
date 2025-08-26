@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { PersonalityTag } from '@/types/personality-tags'
 import { updatePersonalityTagsAction } from '@/app/actions/user/action'
+import { useToast } from '@/hooks/useToast'
 
 interface PersonalityTagsEditorProps {
   currentTags: PersonalityTag[]
@@ -15,10 +16,11 @@ const PersonalityTagsEditor = ({
   onClose,
   allTags,
 }: PersonalityTagsEditorProps) => {
+  const { showError, showSuccess } = useToast()
+
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>(
     currentTags.map((tag) => tag.id)
   )
-
   const [isSaving, setIsSaving] = useState(false)
 
   const handleTagToggle = (tagId: number) => {
@@ -32,16 +34,13 @@ const PersonalityTagsEditor = ({
   const handleSave = async () => {
     setIsSaving(true)
 
-    try {
-      const result = await updatePersonalityTagsAction(selectedTagIds)
+    const result = await updatePersonalityTagsAction(selectedTagIds)
 
-      if (result.success) {
-        onClose()
-      }
-    } catch (error) {
-      console.error('Failed to update personality tags:', error)
-    } finally {
-      setIsSaving(false)
+    if (!result.success) {
+      showError(result.message)
+    } else {
+      showSuccess(result.message)
+      onClose()
     }
   }
 

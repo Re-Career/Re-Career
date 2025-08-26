@@ -4,6 +4,7 @@ import { getSession } from '@/services/server/session'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
+import { IoIosArrowForward as RightArrowIcon } from 'react-icons/io'
 
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params
@@ -44,22 +45,9 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
               <div className="flex-1 space-y-1">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-gray-900">{mentor.name}</h3>
-                  <svg
-                    className="h-5 w-5 text-gray-400 transition-colors group-hover:text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
+                  <RightArrowIcon />
                 </div>
                 <p className="text-sm text-gray-600">{mentor.position.name}</p>
-                <p className="text-xs text-blue-600">프로필 보기</p>
               </div>
             </div>
           </Link>
