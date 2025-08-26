@@ -6,6 +6,13 @@ interface FixedSizeImageProps extends ImageProps {
   divClassName?: string
 }
 
+const sizeConfig = {
+  xs: { imageSize: 24, divClass: 'w-6 h-6', rounded: 'rounded' },
+  sm: { imageSize: 56, divClass: 'w-14 h-14', rounded: 'rounded-sm' },
+  md: { imageSize: 128, divClass: 'w-32 h-32', rounded: 'rounded-md' },
+  lg: { imageSize: 160, divClass: 'w-40 h-40', rounded: 'rounded-lg' },
+} as const
+
 const FixedSizeImage = ({
   isCircle = true,
   size = 'md',
@@ -13,41 +20,15 @@ const FixedSizeImage = ({
   className,
   ...rest
 }: FixedSizeImageProps) => {
-  const imageSizes = (): { divSize: number; imageSize: number } => {
-    switch (size) {
-      case 'xs':
-        return {
-          divSize: 6,
-          imageSize: 24,
-        }
-      case 'sm':
-        return {
-          divSize: 14,
-          imageSize: 56,
-        }
-      case 'md':
-        return {
-          divSize: 32,
-          imageSize: 128,
-        }
-      case 'lg':
-        return {
-          divSize: 40,
-          imageSize: 160,
-        }
-    }
-  }
-
-  const { divSize, imageSize } = imageSizes()
+  const { imageSize, divClass, rounded } = sizeConfig[size]
+  const roundedClass = isCircle ? 'rounded-full' : rounded
 
   return (
-    <div
-      className={`w-${divSize} h-${divSize} ${divClassName ? divClassName : ''}`}
-    >
+    <div className={`${divClass} overflow-hidden ${divClassName || ''}`}>
       <Image
         width={imageSize}
         height={imageSize}
-        className={`h-full w-full object-cover object-top ${isCircle ? 'rounded-full' : `rounded-${size}`} ${className ? className : ''}`}
+        className={`h-full w-full object-cover object-top ${roundedClass} ${className || ''}`}
         {...rest}
       />
     </div>
