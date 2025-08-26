@@ -2,12 +2,20 @@ import { FixedSizeImage } from '@/components/common'
 import { Header, PageWithHeader } from '@/components/layout'
 import { getSession } from '@/services/server/session'
 import dayjs from 'dayjs'
+import { SearchParams } from 'next/dist/server/request/search-params'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { IoIosArrowForward as RightArrowIcon } from 'react-icons/io'
 
-const page = async ({ params }: { params: Promise<{ id: string }> }) => {
+const page = async ({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<SearchParams>
+}) => {
   const { id } = await params
+  const { from } = await searchParams
 
   const { data: session, status } = await getSession(id)
 
@@ -23,7 +31,11 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
   return (
     <>
-      <Header showBackButton title="상담 세부사항" />
+      <Header
+        showBackButton
+        title="상담 세부사항"
+        showHomeButton={from === 'reservation'}
+      />
       <PageWithHeader className="space-y-8 px-4">
         <div className="space-y-2">
           <h2 className="text-xl font-bold text-neutral-900">상담 날짜</h2>
