@@ -51,7 +51,7 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET}
-  access-token-validity-in-seconds: 86400 # @TODO: 30분으로 변경 (카카오 oauth 무한 요청으로 인한 문제로 24H)
+  access-token-validity-in-seconds: 1800 # 30분
   refresh-token-validity-in-seconds: 604800
 
 app:
