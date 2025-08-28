@@ -44,7 +44,8 @@ export async function handleOAuth2Redirect(
     }
 
     // 정상 로그인된 유저
-    const redirectUrl = request.cookies.get('redirectUrl')?.value || '/my-page'
+    const rawRedirectUrl = request.cookies.get('redirectUrl')?.value || '/my-page'
+    const redirectUrl = decodeURIComponent(rawRedirectUrl)
     const response = NextResponse.redirect(new URL(redirectUrl, request.url))
 
     response.cookies.set('accessToken', accessToken, {

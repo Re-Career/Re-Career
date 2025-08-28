@@ -42,7 +42,7 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET}
-  access-token-validity-in-seconds: 10800
+  access-token-validity-in-seconds: 1800 #30분
   refresh-token-validity-in-seconds: 604800
 
 cors:

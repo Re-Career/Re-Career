@@ -15,7 +15,7 @@ export const isTokenValid = (token: string): boolean => {
 
     const payload = JSON.parse(atob(parts[1])) as JWTPayload
     const currentTime = Math.floor(Date.now() / 1000)
-    const isExpired = payload.exp > currentTime
+    const isExpired = payload.exp <= currentTime
 
     // 토큰이 만료되지 않았고, 필수 필드가 있는지 확인
     return !isExpired && !!payload.sub && !!payload.role
