@@ -26,9 +26,8 @@ export async function middleware(request: NextRequest) {
   const hasPendingTokens = pendingAccessToken || pendingRefreshToken
 
   // 보호된 경로인지 확인
-  const isProtectedPath = protectedPaths.some((path) =>
-    pathname.startsWith(path)
-  )
+  const isProtectedPath =
+    pathname !== '/' && protectedPaths.some((path) => pathname.startsWith(path))
 
   // 보호된 경로일 때만 토큰 갱신 확인
   if (isProtectedPath && shouldRefreshToken(request)) {
