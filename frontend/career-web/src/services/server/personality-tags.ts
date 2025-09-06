@@ -3,5 +3,8 @@ import { fetchUrl } from '../api'
 import { FetchResponse } from '@/types/global'
 
 export const getPersonalityTags = async (): Promise<FetchResponse<PersonalityTag[]>> => {
-  return await fetchUrl<PersonalityTag[]>('/personality-tags', { cache: 'force-cache' })
+  return await fetchUrl<PersonalityTag[]>('/personality-tags', { 
+    cache: 'force-cache',
+    next: { tags: ['personality-tags'] }
+  })
 }

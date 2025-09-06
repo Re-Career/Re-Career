@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getPositionsByProvince } from '@/services/server/positions'
 import { getCities, getProvinces } from '@/services/server/locations'
-import { getKakaoAddress } from '@/app/actions/kakao/action'
+import { getKakaoAddress } from '@/services/server/kakao'
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,11 +15,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const [
-      { data: provinces },
-      { data: cities },
-      address
-    ] = await Promise.all([
+    const [{ data: provinces }, { data: cities }, address] = await Promise.all([
       getProvinces(),
       getCities(),
       getKakaoAddress(longitude, latitude),
@@ -54,20 +49,10 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 위치 기반 직업 정보 가져오기
-    const { data: positionData } = await getPositionsByProvince({
+    return NextResponse.json({
       provinceId: matchedProvince.id,
       cityId: matchedCity.id,
     })
-
-    if (!positionData) {
-      return NextResponse.json(
-        { error: '위치 기반 직업 정보를 가져올 수 없습니다' },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json(positionData)
   } catch (error) {
     console.error('Error fetching user location positions:', error)
 

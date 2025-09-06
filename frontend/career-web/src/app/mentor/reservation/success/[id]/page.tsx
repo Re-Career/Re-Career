@@ -2,6 +2,7 @@ import { Header, PageWithHeader } from '@/components/layout'
 import { getSession } from '@/services/server/session'
 import { notFound, redirect } from 'next/navigation'
 import dayjs from 'dayjs'
+import Link from 'next/link'
 
 const columns = [
   { key: 'date' as const, name: '날짜' },
@@ -19,7 +20,7 @@ const ReservationSuccessPage = async ({
   const { data: session, status } = await getSession(id)
 
   if (status === 401 || status === 403) {
-    return redirect('/')
+    return redirect('/login')
   }
 
   if (!session) {
@@ -72,6 +73,15 @@ const ReservationSuccessPage = async ({
           <h4 className="py-4 text-lg font-bold">일정변경 가능 시간 </h4>
           <p>상담 24시간전까지</p>
         </section>
+        <div className="mt-4 w-full p-4">
+          <Link
+            href={`/session/${session.id}?from=reservation`}
+            replace
+            className="bg-primary-500 block w-full rounded-lg p-4 text-center font-bold"
+          >
+            상담 세부사항 보러가기
+          </Link>
+        </div>
       </PageWithHeader>
     </>
   )

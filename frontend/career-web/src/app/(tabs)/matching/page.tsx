@@ -1,20 +1,20 @@
-import { HorizontalScroll } from '@/components/common'
+import { FixedSizeImage, HorizontalScroll } from '@/components/common'
 import { Header, PageWithHeader } from '@/components/layout'
 import Filter from '@/components/matching/Filter'
+import ReserveButton from '@/components/matching/ReserveButton'
 import { getFilteredMentors } from '@/services/server/mentor'
-import Image from 'next/image'
+import { SearchParams } from 'next/dist/server/request/search-params'
 import Link from 'next/link'
 
 const MatchingPage = async ({
   searchParams,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>
+  searchParams: Promise<SearchParams>
 }) => {
   const params = await searchParams
 
   const mentorName = (params?.mentorName as string) ?? ''
 
-  // string | string[] | undefined -> string[] 로 일관화
   const toArray = (v: string | string[] | undefined): string[] => {
     if (!v) return []
 
@@ -60,17 +60,13 @@ const MatchingPage = async ({
                 <Link
                   href={`/mentor/${mentor.id}/profile`}
                   key={mentor.id}
-                  className="flex-shrink-0 cursor-pointer rounded-lg bg-white"
+                  className="flex-shrink-0 cursor-pointer rounded-lg bg-white pt-3"
                 >
-                  <div className="mb-3 h-40 w-40">
-                    <Image
-                      src={mentor.profileImageUrl}
-                      alt={mentor.name}
-                      width={160}
-                      height={160}
-                      className="h-full w-full rounded-lg object-cover object-top"
-                    />
-                  </div>
+                  <FixedSizeImage
+                    src={mentor.profileImageUrl}
+                    alt={`recommended_mentor_image_${mentor.name}`}
+                    size="lg"
+                  />
                   <div>
                     <h3 className="mb-1 font-semibold text-gray-900">
                       {mentor.name}
@@ -97,52 +93,44 @@ const MatchingPage = async ({
             )}
           </div>
           <div className="px-4">
-            <div className="space-y-5">
+            <div className="space-y-4">
               {searchedList.length > 0 ? (
-                searchedList.map((mentor) => (
-                  <div key={`mentor_${mentor.id}`}>
-                    <div className="flex items-center gap-4">
-                      <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-full">
-                        <Image
-                          src={mentor.profileImageUrl}
-                          alt={mentor.name}
-                          width={56}
-                          height={56}
-                          className="h-full w-full object-cover object-top"
-                        />
-                      </div>
+                searchedList.map((mentor, index) => (
+                  <Link
+                    href={`/mentor/${mentor.id}/profile`}
+                    key={mentor.id}
+                    className="flex cursor-pointer gap-4 rounded bg-white px-4 py-2 shadow"
+                  >
+                    <FixedSizeImage
+                      src={mentor.profileImageUrl}
+                      alt={`mentor_image_${mentor.name}`}
+                      size="sm"
+                      priority={index < 5}
+                    />
 
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold text-gray-900">
-                              {mentor.name}
-                              <span className="ml-1 text-sm text-gray-500">
-                                {mentor.position.name}
-                              </span>
-                            </h3>
-
-                            <p className="text-xs text-gray-900">
-                              {mentor.company?.name ?? ''} • {mentor.experience}
-                              년 • {mentor.province.name}
-                            </p>
-                            <p className="text-xs text-gray-900">
-                              {mentor.personalityTags
-                                ?.map((t) => t.name)
-                                .join(', ')}
-                            </p>
-                          </div>
-
-                          <Link
-                            href={`/mentor/${mentor.id}/profile`}
-                            className="bg-primary-500 flex-shrink-0 rounded-xl px-4 py-1.5 text-sm"
-                          >
-                            1:1 예약
-                          </Link>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900">
+                            {mentor.name}
+                            <span className="ml-1 text-sm text-gray-500">
+                              {mentor.position.name}
+                            </span>
+                          </h3>
+                          <p className="text-xs text-gray-900">
+                            {mentor.company?.name ?? ''} • {mentor.experience}년
+                            • {mentor.province.name}
+                          </p>
+                          <p className="text-xs text-gray-900">
+                            {mentor.personalityTags
+                              ?.map((t) => t.name)
+                              .join(', ')}
+                          </p>
                         </div>
+                        <ReserveButton id={mentor.id} />
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))
               ) : (
                 <p>검색결과가 없습니다.🥲</p>

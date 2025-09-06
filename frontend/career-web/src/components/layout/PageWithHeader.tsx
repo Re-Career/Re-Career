@@ -8,9 +8,9 @@ const PageWithHeader = ({
   children: ReactNode
 }) => {
   return (
-    <div className={`mt-14 flex-1 ${className ? className : ''}`}>
+    <main className={`mt-14 flex-1 ${className ? className : ''}`}>
       {children}
-    </div>
+    </main>
   )
 }
 

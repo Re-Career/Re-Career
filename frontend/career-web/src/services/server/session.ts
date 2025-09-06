@@ -5,11 +5,11 @@ import {
   PostSessionPayload,
   PostSessionResponse,
   Session,
-  SessionResponse,
 } from '@/types/session'
 import { decodeJWT } from '@/lib/utils/jwt'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ko'
+import { ONE_DAY } from '@/lib/constants/global'
 
 dayjs.locale('ko')
 
@@ -39,11 +39,12 @@ export const getSession = async (
   }
 
   const role = payload.role.replace('ROLE_', '')
-  
+
   return await fetchUrl<Session>(`/sessions/${id}?role=${role}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
+    next: { tags: ['sessions', `session-${id}`] },
   })
 }
 
@@ -66,31 +67,13 @@ export const getSessionList = async (): Promise<FetchResponse<Session[]>> => {
   }
 
   const role = payload.role.replace('ROLE_', '')
-  
-  const response = await fetchUrl<SessionResponse[]>(
-    `/sessions?role=${role}`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  )
 
-  if (response.errorMessage) {
-    return { ...response, data: [] }
-  }
-
-  const _data = response.data.map((session: SessionResponse) => {
-    return {
-      id: session.sessionId,
-      sessionTime: session.sessionTime,
-      status: session.status,
-      mentor: session.mentor,
-      mentee: session.mentee,
-    }
+  return await fetchUrl<Session[]>(`/sessions?role=${role}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    next: { revalidate: ONE_DAY, tags: ['sessions', 'session-list'] },
   })
-
-  return { ...response, data: _data }
 }
 
 export const postSession = async (
@@ -101,7 +84,7 @@ export const postSession = async (
   return await fetchUrl<PostSessionResponse>('/sessions', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${accessToken}2`,
+      Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify(payload),
   })

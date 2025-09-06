@@ -1,6 +1,6 @@
 'use client'
 
-import { isWebView, sendAuthTokensToNative } from '@/utils/webview'
+import { isWebView, sendAuthTokensToNative } from '@/lib/utils/webview'
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import { useEffect, Suspense } from 'react'

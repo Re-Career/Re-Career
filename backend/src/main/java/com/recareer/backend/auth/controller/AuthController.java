@@ -35,7 +35,8 @@ public class AuthController {
         }
 
         String providerId = jwtTokenProvider.getProviderIdFromToken(token);
-        String newAccessToken = jwtTokenProvider.createAccessToken(providerId, "ROLE_USER");
+        UserInfoDto userInfo = authService.getUserInfo(providerId);
+        String newAccessToken = jwtTokenProvider.createAccessToken(providerId, userInfo.getRole().name());
 
         return ResponseEntity.ok(ApiResponse.success(newAccessToken));
     }

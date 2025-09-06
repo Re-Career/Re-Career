@@ -2,11 +2,10 @@
 
 import { useRef, useMemo } from 'react'
 import { DatePiece } from '@/types/global'
-
-import { calculateScrollPosition } from '@/utils/scroll'
+import { calculateScrollPosition } from '@/lib/utils/scroll'
+import { isToday } from '@/lib/utils/day'
 import { useScrollHandler } from '@/hooks/useScrollHandler'
 import useTimeHandler, { TimeValue } from '@/hooks/useTimeHandler'
-import { isToday } from '@/utils/day'
 
 export const ITEM_HEIGHT = 44
 export const SCROLL_DEBOUNCE_DELAY = 100

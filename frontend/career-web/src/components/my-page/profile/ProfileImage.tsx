@@ -1,10 +1,9 @@
 'use client'
 
 import { deleteProfileImageAction } from '@/app/actions/user/action'
-import { BottomSheet } from '@/components/common'
+import { BottomSheet, FixedSizeImage } from '@/components/common'
 import { hasProfileImage } from '@/lib/constants/images'
 import { User } from '@/types/user'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { IoCameraOutline as CameraIcon } from 'react-icons/io5'
@@ -46,11 +45,10 @@ const ProfileImage = ({ user }: ProfileImageProps) => {
           onClick={handleProfileImageBottomSheet}
         >
           {hasProfileImage(user.profileImageUrl) ? (
-            <Image
+            <FixedSizeImage
               src={user.profileImageUrl!}
-              alt={`my_page_image_${user.id}`}
-              fill
-              className="rounded-full object-cover"
+              alt={`user_profile_image_${user.id}`}
+              priority
             />
           ) : (
             <div className="flex h-32 w-32 items-center justify-center rounded-full bg-gray-200">

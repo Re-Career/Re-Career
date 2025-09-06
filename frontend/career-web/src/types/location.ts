@@ -7,3 +7,8 @@ export interface Province {
 export interface City extends Province {
   provinceId: number
 }
+
+export interface UserLocation {
+  provinceId: number
+  cityId?: number
+}

@@ -6,16 +6,19 @@ import CustomCalendar from './CustomCalendar'
 import CustomTimePicker from './CustomTimePicker'
 import { DatePiece, DateType } from '@/types/global'
 import { handleCreateSession } from '@/app/actions/reservation/action'
-import { isToday, convertTo24HourFormat } from '@/utils/day'
+import { isToday, convertTo24HourFormat } from '@/lib/utils/day'
 import useTimeHandler from '@/hooks/useTimeHandler'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/hooks/useToast'
+import { Spinner } from '@/components/common'
 
 const ReservationForm = ({ mentorId }: { mentorId: string }) => {
   const router = useRouter()
   const { minimumTime, isTimeBeforeMinimum } = useTimeHandler()
+  const { showError, showSuccess } = useToast()
 
-  const [state, formAction] = useActionState(handleCreateSession, {
+  const [state, formAction, isPending] = useActionState(handleCreateSession, {
     success: false,
     message: '',
   })
@@ -25,10 +28,13 @@ const ReservationForm = ({ mentorId }: { mentorId: string }) => {
       const { data } = state
 
       if (data) {
+        showSuccess('예약이 완료되었습니다')
         router.replace(`/mentor/reservation/success/${data.id}`)
       }
+    } else if (state.message) {
+      showError(state.message)
     }
-  }, [state])
+  }, [state, showError, showSuccess, router])
 
   const [date, setDate] = useState<DatePiece>(new Date())
   const [timeValue, setTimeValue] = useState(minimumTime)
@@ -53,7 +59,7 @@ const ReservationForm = ({ mentorId }: { mentorId: string }) => {
       <input
         name="sessionTime"
         value={
-          date && timeValue 
+          date && timeValue
             ? dayjs(date)
                 .hour(convertTo24HourFormat(timeValue.hour, timeValue.period))
                 .minute(timeValue.minute)
@@ -80,10 +86,18 @@ const ReservationForm = ({ mentorId }: { mentorId: string }) => {
       </div>
       <div className="sticky bottom-0 z-60 flex border-t border-gray-100 bg-white p-4">
         <button
-          className="bg-primary-500 flex-1 rounded-lg py-3 text-center font-bold"
+          className="bg-primary-500 flex-1 rounded-lg py-3 text-center font-bold disabled:opacity-50"
           type="submit"
+          disabled={isPending}
         >
-          상담 예약하기
+          {isPending ? (
+            <div className="flex items-center justify-center gap-2">
+              <Spinner />
+              예약 중...
+            </div>
+          ) : (
+            '상담 예약하기'
+          )}
         </button>
       </div>
     </form>

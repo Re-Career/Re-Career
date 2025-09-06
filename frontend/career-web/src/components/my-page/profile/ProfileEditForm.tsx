@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useActionState, useEffect } from 'react'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { IoCameraOutline } from 'react-icons/io5'
 import { User } from '@/types/user'
-import { BsExclamationCircle } from 'react-icons/bs'
 import { hasProfileImage } from '@/lib/constants/images'
 import { updateProfileAction } from '@/app/actions/user/action'
+import { FixedSizeImage, Spinner } from '@/components/common'
+import { useToast } from '@/hooks/useToast'
 
 interface ProfileEditFormProps {
   userData: User
@@ -15,10 +15,9 @@ interface ProfileEditFormProps {
 
 const ProfileEditForm = ({ userData }: ProfileEditFormProps) => {
   const router = useRouter()
-  const [profileImage, setProfileImage] = useState(userData.profileImageUrl)
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const { showError, showSuccess } = useToast()
 
-  const [state, formAction] = useActionState(updateProfileAction, {
+  const [state, formAction, isPending] = useActionState(updateProfileAction, {
     success: false,
     message: '',
     formData: {
@@ -28,6 +27,9 @@ const ProfileEditForm = ({ userData }: ProfileEditFormProps) => {
       mentorDescription: userData.mentorDescription || '',
     },
   })
+
+  const [profileImage, setProfileImage] = useState(userData.profileImageUrl)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -50,6 +52,10 @@ const ProfileEditForm = ({ userData }: ProfileEditFormProps) => {
       router.replace('/login')
     }
 
+    if (state.message) {
+      state.success ? showSuccess(state.message) : showError(state.message)
+    }
+
     if (success) {
       router.push('/my-page')
     }
@@ -62,35 +68,12 @@ const ProfileEditForm = ({ userData }: ProfileEditFormProps) => {
   return (
     <div className="p-4">
       <form action={formAction} className="space-y-6">
-        {/* 에러/성공 메시지 */}
-        {state.message && (
-          <div
-            className={`mb-4 flex gap-1 rounded-xl p-2 text-sm ${
-              state.success
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
-            }`}
-          >
-            {!state.success && (
-              <div className="flex h-5 w-5 items-center">
-                <BsExclamationCircle
-                  className="h-4 w-4 text-red-500"
-                  strokeWidth={0.3}
-                />
-              </div>
-            )}
-            <p className="leading-[20px]">{state.message}</p>
-          </div>
-        )}
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
             {hasProfileImage(profileImage) ? (
-              <Image
+              <FixedSizeImage
                 src={profileImage!}
-                alt="Profile"
-                width={128}
-                height={128}
-                className="h-32 w-32 rounded-full object-cover"
+                alt={`user_profile_${userData.id}`}
                 onError={() => setProfileImage(null)}
               />
             ) : (
@@ -215,7 +198,7 @@ const ProfileEditForm = ({ userData }: ProfileEditFormProps) => {
             type="submit"
             className="bg-primary-500 flex-1 rounded-lg p-3 font-semibold disabled:opacity-50"
           >
-            저장
+            {isPending && <Spinner />} 저장
           </button>
         </div>
       </form>
