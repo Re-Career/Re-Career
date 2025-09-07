@@ -3,6 +3,7 @@ import { IoCalendarNumberOutline as ScheduledIcon } from 'react-icons/io5'
 import { FaCheck } from 'react-icons/fa6'
 import Link from 'next/link'
 import { SessionStatus } from '@/types/session'
+import { useLoginSheet } from '@/store/useLoginSheet'
 
 const MySessionList = () => {
   const sessionList = [
@@ -19,11 +20,28 @@ const MySessionList = () => {
       description: '완료된 상담',
     },
   ]
+  const { onOpen } = useLoginSheet()
+  const handleClick = (href: string, e: React.MouseEvent) => {
+    const token =
+      typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+
+    if (!token) {
+      e.preventDefault()
+      onOpen()
+    } else {
+      window.location.href = href
+    }
+  }
 
   return (
     <section className="space-y-4">
       {sessionList.map(({ key, name, icon: Icon, description }) => (
-        <Link key={key} className="flex gap-4 px-4" href={`/sessions/${key}`}>
+        <Link
+          key={key}
+          className="flex gap-4 px-4"
+          href={`/sessions/${key}`}
+          onClick={(e) => handleClick(`/sessions/${key}`, e)}
+        >
           <div className="rounded-lg bg-gray-100 p-3">
             <Icon className="h-6 w-6" />
           </div>

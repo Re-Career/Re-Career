@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { handleOAuth2Redirect } from '@/lib/middleware/oauth'
 import { refreshTokenInMiddleware } from '@/lib/middleware/token-refresh'
 import { shouldRefreshToken } from '@/lib/utils/jwt-validator'
-import { COOKIE_OPTIONS, ROLE_TYPES } from './lib/constants/global'
+import { ROLE_TYPES } from './lib/constants/global'
 import { RoleType } from '@/types/global'
 
 // 보호된 경로 정의
@@ -40,11 +40,6 @@ export async function middleware(request: NextRequest) {
       // 토큰 갱신 실패 - 로그인 페이지로
       const response = NextResponse.redirect(new URL('/login', request.url))
 
-      response.cookies.set('redirectUrl', pathname, {
-        ...COOKIE_OPTIONS,
-        maxAge: 30 * 60,
-      })
-
       return response
     }
   }
@@ -77,11 +72,6 @@ export async function middleware(request: NextRequest) {
     case '/my-page':
       if (!accessToken) {
         const response = NextResponse.redirect(new URL('/login', request.url))
-
-        response.cookies.set('redirectUrl', pathname, {
-          ...COOKIE_OPTIONS,
-          maxAge: 30 * 60,
-        })
 
         return response
       }

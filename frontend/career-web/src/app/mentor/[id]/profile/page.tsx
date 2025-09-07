@@ -1,8 +1,8 @@
 import { FixedSizeImage } from '@/components/common'
 import { Header, PageWithHeader } from '@/components/layout'
 import { getMentor } from '@/services/server/mentor'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { useLoginSheet } from '@/store/useLoginSheet'
 
 const renderStars = (rating: number) => {
   return Array.from({ length: 5 }, (_, i) => (
@@ -25,6 +25,32 @@ const MentorProfilePage = async ({
 
   if (!mentor) {
     notFound()
+  }
+
+  // 클라이언트 컴포넌트에서만 동작하는 부분 분리
+  function ReserveButtonWithAuth() {
+    const { onOpen } = useLoginSheet()
+    const handleClick = () => {
+      const token =
+        typeof window !== 'undefined'
+          ? localStorage.getItem('accessToken')
+          : null
+
+      if (!token) {
+        onOpen()
+      } else {
+        window.location.href = `/mentor/${id}/reservation`
+      }
+    }
+
+    return (
+      <button
+        className="bg-primary-500 flex-1 rounded-lg py-3 text-center font-bold"
+        onClick={handleClick}
+      >
+        상담 예약하기
+      </button>
+    )
   }
 
   return (
@@ -158,12 +184,8 @@ const MentorProfilePage = async ({
 
         {/* 하단 상담 예약 버튼 */}
         <div className="sticky bottom-0 flex border-t border-gray-100 bg-white p-4">
-          <Link
-            className="bg-primary-500 flex-1 rounded-lg py-3 text-center font-bold"
-            href={`/mentor/${id}/reservation`}
-          >
-            상담 예약하기
-          </Link>
+          {/* <Link ...>상담 예약하기</Link> → 아래로 교체 */}
+          <ReserveButtonWithAuth />
         </div>
       </PageWithHeader>
     </>

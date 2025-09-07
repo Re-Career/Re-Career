@@ -1,9 +1,8 @@
 'use client'
 
 import React from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { GoArrowLeft } from 'react-icons/go'
-import { deleteCookie, getCookie } from '@/app/actions/global/action'
 import { GoHome as HomeIcon } from 'react-icons/go'
 import { IoClose as CloseIcon } from 'react-icons/io5'
 
@@ -27,21 +26,9 @@ const Header: React.FC<HeaderProps> = ({
   rightElement,
 }) => {
   const router = useRouter()
-  const pathname = usePathname()
 
   const defaultOnCancelPress = async () => {
-    let redirectUrl = await getCookie('redirectUrl')
-
-    if (redirectUrl) {
-      if (pathname === '/login') {
-        redirectUrl = '/'
-      }
-      await deleteCookie('redirectUrl')
-
-      router.replace(redirectUrl)
-    } else {
-      router.back()
-    }
+    router.back()
   }
 
   const handleCancelPress = customOnCancelPress || defaultOnCancelPress

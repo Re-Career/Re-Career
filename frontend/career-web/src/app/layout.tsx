@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Noto_Sans, Noto_Sans_KR } from 'next/font/google'
 import { Toaster } from 'react-hot-toast'
 import './globals.css'
+import GlobalLoginSheet from '@/components/common/GlobalLoginSheet'
 
 const notoSans = Noto_Sans({
   variable: '--font-noto-sans',
@@ -35,7 +36,7 @@ export default function RootLayout({
       >
         <div className="flex-1 bg-white">{children}</div>
         <div className="h-4 bg-white" />
-        <Toaster 
+        <Toaster
           position="top-center"
           toastOptions={{
             duration: 3000,
@@ -45,6 +46,7 @@ export default function RootLayout({
             },
           }}
         />
+        <GlobalLoginSheet />
       </body>
     </html>
   )

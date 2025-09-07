@@ -11,15 +11,12 @@ const AuthRedirectContent = () => {
 
   const accessToken = params.get('accessToken') ?? ''
   const refreshToken = params.get('refreshToken') ?? ''
-  const redirectUrl = params.get('redirectUrl') ?? '/'
 
   useEffect(() => {
     if (isWebView()) {
       sendAuthTokensToNative(accessToken, refreshToken)
     }
-
-    router.replace(redirectUrl)
-  }, [accessToken, refreshToken, redirectUrl, router])
+  }, [accessToken, refreshToken, router])
 
   return <></>
 }

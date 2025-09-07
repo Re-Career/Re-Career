@@ -10,7 +10,6 @@ import { PersonalityTag } from '@/types/personality-tags'
 import { signUpAction } from '@/app/actions/sign-up/action'
 import { isWebView, sendAuthTokensToNative } from '@/lib/utils/webview'
 import { getTokens } from '@/app/actions/auth/action'
-import { deleteCookie, getCookie } from '@/app/actions/global/action'
 import { ROLE_TYPES } from '@/lib/constants/global'
 import { City, Province } from '@/types/location'
 import { useToast } from '@/hooks/useToast'
@@ -44,17 +43,6 @@ const SignUpForm = ({ role, tags, provinces, cities }: SignUpFormProps) => {
     sendAuthTokensToNative(accessToken || '', '')
   }, [])
 
-  const checkRedirectUrl = useCallback(async () => {
-    const redirectUrl = await getCookie('redirectUrl')
-
-    if (redirectUrl) {
-      await deleteCookie('redirectUrl')
-      router.replace(redirectUrl)
-    } else {
-      router.replace('/')
-    }
-  }, [])
-
   useEffect(() => {
     const { success, status } = state
 
@@ -70,7 +58,6 @@ const SignUpForm = ({ role, tags, provinces, cities }: SignUpFormProps) => {
       if (isWebView()) {
         saveNativeAuth()
       }
-      checkRedirectUrl()
     }
 
     if (state.errors) {

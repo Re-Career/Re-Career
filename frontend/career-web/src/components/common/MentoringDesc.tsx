@@ -1,10 +1,9 @@
 import { Session, SessionStatus } from '@/types/session'
 import { isToday } from '@/lib/utils/day'
 import dayjs from 'dayjs'
-import Link from 'next/link'
-import React from 'react'
 import FixedSizeImage from './FixedSizeImage'
 import { FaRegClock as ClockIcon } from 'react-icons/fa'
+import { useLoginSheet } from '@/store/useLoginSheet'
 
 interface MentoringDescProps {
   session: Session
@@ -13,8 +12,20 @@ interface MentoringDescProps {
 
 const MentoringDesc = ({ session, priority }: MentoringDescProps) => {
   const { id, sessionTime, status, mentor } = session
-
   const todaySession = isToday(sessionTime)
+  const { onOpen } = useLoginSheet()
+
+  const handleClick = (e: React.MouseEvent) => {
+    const token =
+      typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+
+    if (!token) {
+      e.preventDefault()
+      onOpen()
+    } else {
+      window.location.href = `/session/${id}`
+    }
+  }
 
   const getStatusBadge = (status: SessionStatus) => {
     const baseClasses =
@@ -49,7 +60,7 @@ const MentoringDesc = ({ session, priority }: MentoringDescProps) => {
   }
 
   return (
-    <Link className="group block" href={`/session/${id}`}>
+    <a className="group block" href={`/session/${id}`} onClick={handleClick}>
       <div
         className={`rounded-xl p-2 shadow-sm ring-1 transition-all duration-200 hover:shadow-md ${
           todaySession
@@ -95,7 +106,7 @@ const MentoringDesc = ({ session, priority }: MentoringDescProps) => {
           </div>
         </div>
       </div>
-    </Link>
+    </a>
   )
 }
 
