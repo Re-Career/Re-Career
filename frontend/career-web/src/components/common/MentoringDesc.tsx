@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 import FixedSizeImage from './FixedSizeImage'
 import { FaRegClock as ClockIcon } from 'react-icons/fa'
 import { useLoginSheet } from '@/store/useLoginSheet'
+import { getCookieValue } from '@/utils/getCookie'
 
 interface MentoringDescProps {
   session: Session
@@ -16,8 +17,7 @@ const MentoringDesc = ({ session, priority }: MentoringDescProps) => {
   const { onOpen } = useLoginSheet()
 
   const handleClick = (e: React.MouseEvent) => {
-    const token =
-      typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+    const token = getCookieValue('accessToken')
 
     if (!token) {
       e.preventDefault()

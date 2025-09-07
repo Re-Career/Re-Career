@@ -6,6 +6,7 @@ import { BsPeople, BsPeopleFill } from 'react-icons/bs'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useLoginSheet } from '@/store/useLoginSheet'
+import { getCookieValue } from '@/utils/getCookie'
 
 const DEFAULT_TABS = [
   {
@@ -55,10 +56,7 @@ export default function Tabs() {
   const handleTabClick = (href: string, e: React.MouseEvent) => {
     // 마이페이지 탭 클릭 시에도 바텀시트가 반드시 열리도록 정확히 일치도 체크
     if (protectedPaths.some((path) => href === path || href.startsWith(path))) {
-      const token =
-        typeof window !== 'undefined'
-          ? localStorage.getItem('accessToken')
-          : null
+      const token = getCookieValue('accessToken')
 
       if (!token) {
         e.preventDefault()

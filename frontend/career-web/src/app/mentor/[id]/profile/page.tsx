@@ -3,6 +3,7 @@ import { Header, PageWithHeader } from '@/components/layout'
 import { getMentor } from '@/services/server/mentor'
 import { notFound } from 'next/navigation'
 import { useLoginSheet } from '@/store/useLoginSheet'
+import { getCookieValue } from '@/utils/getCookie'
 
 const renderStars = (rating: number) => {
   return Array.from({ length: 5 }, (_, i) => (
@@ -31,10 +32,7 @@ const MentorProfilePage = async ({
   function ReserveButtonWithAuth() {
     const { onOpen } = useLoginSheet()
     const handleClick = () => {
-      const token =
-        typeof window !== 'undefined'
-          ? localStorage.getItem('accessToken')
-          : null
+      const token = getCookieValue('accessToken')
 
       if (!token) {
         onOpen()

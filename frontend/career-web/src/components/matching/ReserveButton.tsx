@@ -1,14 +1,14 @@
 'use client'
 
 import { useLoginSheet } from '@/store/useLoginSheet'
+import { getCookieValue } from '@/utils/getCookie'
 
 const ReserveButton = ({ id }: { id: number }) => {
   const { onOpen } = useLoginSheet()
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    const token =
-      typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+    const token = getCookieValue('accessToken')
 
     if (!token) {
       onOpen()

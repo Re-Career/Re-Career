@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { GoPerson as PersonIcon } from 'react-icons/go'
 import { LuLogOut as LogoutIcon } from 'react-icons/lu'
 import { useLoginSheet } from '@/store/useLoginSheet'
+import { getCookieValue } from '@/utils/getCookie'
 
 const MyPagePage = async () => {
   const [{ data: user }, { data: tags }] = await Promise.all([
@@ -18,10 +19,7 @@ const MyPagePage = async () => {
   function SettingsLinkWithAuth() {
     const { onOpen } = useLoginSheet()
     const handleClick = (e: React.MouseEvent) => {
-      const token =
-        typeof window !== 'undefined'
-          ? localStorage.getItem('accessToken')
-          : null
+      const token = getCookieValue('accessToken')
 
       if (!token) {
         e.preventDefault()

@@ -4,6 +4,7 @@ import { FaCheck } from 'react-icons/fa6'
 import Link from 'next/link'
 import { SessionStatus } from '@/types/session'
 import { useLoginSheet } from '@/store/useLoginSheet'
+import { getCookieValue } from '@/utils/getCookie'
 
 const MySessionList = () => {
   const sessionList = [
@@ -22,8 +23,7 @@ const MySessionList = () => {
   ]
   const { onOpen } = useLoginSheet()
   const handleClick = (href: string, e: React.MouseEvent) => {
-    const token =
-      typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+    const token = getCookieValue('accessToken')
 
     if (!token) {
       e.preventDefault()

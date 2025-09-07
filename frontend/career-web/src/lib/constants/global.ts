@@ -18,7 +18,7 @@ export const ROLE_TYPES = {
 export const ONE_DAY = 24 * 60 * 60
 
 export const COOKIE_OPTIONS: Partial<ResponseCookie> = {
-  httpOnly: true,
+  httpOnly: false,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'strict',
   path: '/',
