@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import { IoCalendarNumberOutline as ScheduledIcon } from 'react-icons/io5'
 import { FaCheck } from 'react-icons/fa6'

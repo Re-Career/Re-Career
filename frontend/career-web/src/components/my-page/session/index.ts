@@ -1,1 +1,1 @@
-export { default as MySessionList } from '../session/MySessionList'
+export { default as MySessionList } from './MySessionList'

@@ -39,6 +39,7 @@ const protectedPaths = ['/my-page', 'my-page', '/settings']
 export default function Tabs() {
   const pathname = usePathname()
   const { onOpen } = useLoginSheet()
+
   const activeTab: TabsKey = useMemo(() => {
     const currentPage = pathname.split('/')[1]
 

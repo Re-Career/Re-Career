@@ -44,7 +44,9 @@ const MentorProfilePage = async ({
             {mentor.name}
           </h1>
 
-          <p className="mb-3 text-gray-600">{mentor.shortDescription}</p>
+          {mentor.shortDescription && (
+            <p className="mb-3 text-gray-600">{mentor.shortDescription}</p>
+          )}
 
           <div className="mb-2 flex items-center justify-center gap-2">
             {mentor.feedback && (
@@ -61,7 +63,7 @@ const MentorProfilePage = async ({
 
           <div className="text-sm text-gray-500">
             {mentor.company ? `${mentor.company.name} •` : ''}
-            경력 {mentor.experience}년 • {mentor.province.name}
+            경력 {mentor.experience}년 • {mentor.province?.name}
           </div>
         </div>
 

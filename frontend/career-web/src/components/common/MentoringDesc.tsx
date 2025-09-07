@@ -1,3 +1,5 @@
+'use client'
+
 import { Session, SessionStatus } from '@/types/session'
 import { isToday } from '@/lib/utils/day'
 import dayjs from 'dayjs'
@@ -5,6 +7,7 @@ import FixedSizeImage from './FixedSizeImage'
 import { FaRegClock as ClockIcon } from 'react-icons/fa'
 import { useLoginSheet } from '@/store/useLoginSheet'
 import { getCookieValue } from '@/utils/getCookie'
+import Link from 'next/link'
 
 interface MentoringDescProps {
   session: Session
@@ -60,7 +63,7 @@ const MentoringDesc = ({ session, priority }: MentoringDescProps) => {
   }
 
   return (
-    <a className="group block" href={`/session/${id}`} onClick={handleClick}>
+    <Link className="group block" href={`/session/${id}`} onClick={handleClick}>
       <div
         className={`rounded-xl p-2 shadow-sm ring-1 transition-all duration-200 hover:shadow-md ${
           todaySession
@@ -106,7 +109,7 @@ const MentoringDesc = ({ session, priority }: MentoringDescProps) => {
           </div>
         </div>
       </div>
-    </a>
+    </Link>
   )
 }
 
