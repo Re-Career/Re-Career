@@ -6,12 +6,14 @@ import { getMentors } from '@/services/server/mentor'
 import useSWR from 'swr'
 import { FixedSizeImage } from '../common'
 import { useToast } from '@/hooks/useToast'
+import { Mentor } from '@/types/mentor'
 
 interface MentorListProps {
   provinceId?: number
+  defaultMentors?: Mentor[]
 }
 
-const MentorList = ({ provinceId }: MentorListProps) => {
+const MentorList = ({ provinceId, defaultMentors }: MentorListProps) => {
   const { showError } = useToast()
 
   const { data } = useSWR(
@@ -24,13 +26,15 @@ const MentorList = ({ provinceId }: MentorListProps) => {
     }
   )
 
+  const mentors = data?.data || defaultMentors
+
   if (data?.errorMessage) {
     showError(data?.errorMessage)
 
     return <></>
   }
 
-  if (!data) {
+  if (!mentors) {
     return (
       <section className="">
         <div>
@@ -53,8 +57,6 @@ const MentorList = ({ provinceId }: MentorListProps) => {
       </section>
     )
   }
-
-  const { data: mentors } = data
 
   return (
     <section className="">

@@ -7,17 +7,23 @@ import ProvincePositionList from './ProvincePositionList'
 import MentorList from './MentorList'
 import useSWR from 'swr'
 import { getUserLocation } from '@/services/server/locations'
+import { ProvincePosition } from '@/types/position'
+import { Mentor } from '@/types/mentor'
 
 const RelatedLocationGroup = ({
   cachedLocation,
+  defaultTrendPositions,
+  defaultMentors,
 }: {
   cachedLocation?: string
+  defaultTrendPositions?: ProvincePosition
+  defaultMentors?: Mentor[]
 }) => {
   const [location, setLocation] = useState<string>('')
 
   const key = location ? location : cachedLocation
 
-  const { data, error } = useSWR(
+  const { data } = useSWR(
     key ? ['user-location-positions', key] : null,
     ([, locationData]) => getUserLocation(locationData),
     {
@@ -27,15 +33,11 @@ const RelatedLocationGroup = ({
     }
   )
 
-  const locationsIds = useMemo(() => {
-    if (error) {
-      return { provinceId: 1 }
-    }
-
+  const userLocationsInfo = useMemo(() => {
     if (data) {
       return data
     }
-  }, [data, error])
+  }, [data])
 
   useEffect(() => {
     const initializeLocation = async () => {
@@ -64,8 +66,14 @@ const RelatedLocationGroup = ({
 
   return (
     <>
-      <ProvincePositionList locationsIds={locationsIds} />
-      <MentorList provinceId={locationsIds?.provinceId} />
+      <ProvincePositionList
+        userLocationsInfo={userLocationsInfo}
+        defaultTrendPositions={defaultTrendPositions}
+      />
+      <MentorList
+        provinceId={userLocationsInfo?.provinceId}
+        defaultMentors={defaultMentors}
+      />
     </>
   )
 }
