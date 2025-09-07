@@ -85,9 +85,9 @@ Git Hook: Husky + lint-staged
 디자인: Figma
 ```
 
-## 🏗️ 시스템 아키텍처
+## 🏗️ 플로우 차트
 
-![Re:Career 시스템 아키텍처](https://github.com/user-attachments/assets/your-image-id-here)
+![Re:Career 시스템 아키텍처](https://github.com/Re-Career/Re-Career/blob/main/diagram.png?raw=true)
 
 ## 📁 프로젝트 구조
 
