@@ -1,7 +1,7 @@
 'use client'
 
 import { useLoginSheet } from '@/store/useLoginSheet'
-import { getCookieValue } from '@/utils/getCookie'
+import { getCookieValue } from '@/lib/utils/getCookie'
 import Link from 'next/link'
 import { GoPerson as PersonIcon } from 'react-icons/go'
 

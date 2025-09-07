@@ -6,7 +6,7 @@ import { BsPeople, BsPeopleFill } from 'react-icons/bs'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useLoginSheet } from '@/store/useLoginSheet'
-import { getCookieValue } from '@/utils/getCookie'
+import { getCookieValue } from '@/lib/utils/getCookie'
 
 const DEFAULT_TABS = [
   {

@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import FixedSizeImage from './FixedSizeImage'
 import { FaRegClock as ClockIcon } from 'react-icons/fa'
 import { useLoginSheet } from '@/store/useLoginSheet'
-import { getCookieValue } from '@/utils/getCookie'
+import { getCookieValue } from '@/lib/utils/getCookie'
 import Link from 'next/link'
 
 interface MentoringDescProps {

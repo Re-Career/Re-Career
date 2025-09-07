@@ -1,7 +1,7 @@
 'use client'
 
 import { useLoginSheet } from '@/store/useLoginSheet'
-import { getCookieValue } from '@/utils/getCookie'
+import { getCookieValue } from '@/lib/utils/getCookie'
 
 const ReserveButton = ({ id }: { id: number }) => {
   const { onOpen } = useLoginSheet()

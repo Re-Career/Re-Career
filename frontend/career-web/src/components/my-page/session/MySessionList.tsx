@@ -6,7 +6,7 @@ import { FaCheck } from 'react-icons/fa6'
 import Link from 'next/link'
 import { SessionStatus } from '@/types/session'
 import { useLoginSheet } from '@/store/useLoginSheet'
-import { getCookieValue } from '@/utils/getCookie'
+import { getCookieValue } from '@/lib/utils/getCookie'
 
 const MySessionList = () => {
   const sessionList = [
