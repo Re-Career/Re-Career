@@ -43,10 +43,7 @@ export async function handleOAuth2Redirect(
       return response
     }
 
-    // 정상 로그인된 유저
-    const rawRedirectUrl = request.cookies.get('redirectUrl')?.value || '/my-page'
-    const redirectUrl = decodeURIComponent(rawRedirectUrl)
-    const response = NextResponse.redirect(new URL(redirectUrl, request.url))
+    const response = NextResponse.redirect(new URL('/', request.url))
 
     response.cookies.set('accessToken', accessToken, {
       maxAge: ONE_DAY, // 1일
@@ -57,10 +54,6 @@ export async function handleOAuth2Redirect(
       maxAge: 7 * ONE_DAY, // 7일
       ...COOKIE_OPTIONS,
     })
-
-    // redirectUrl 쿠키 삭제
-    request.cookies.get('redirectUrl')?.value &&
-      response.cookies.delete('redirectUrl')
 
     return response
   } catch (error) {

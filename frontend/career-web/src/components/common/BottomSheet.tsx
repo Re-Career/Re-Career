@@ -55,7 +55,7 @@ const BottomSheet = ({
   if (!isVisible) return null
 
   return (
-    <div className="fixed inset-0 z-70 flex items-end">
+    <div className="fixed inset-0 z-100 flex items-end">
       <div
         className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ease-out ${
           isAnimating ? 'opacity-100' : 'opacity-0'

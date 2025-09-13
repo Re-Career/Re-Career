@@ -119,7 +119,7 @@ const MatchingPage = async ({
                           </h3>
                           <p className="text-xs text-gray-900">
                             {mentor.company?.name ?? ''} • {mentor.experience}년
-                            • {mentor.province.name}
+                            • {mentor.province?.name}
                           </p>
                           <p className="text-xs text-gray-900">
                             {mentor.personalityTags

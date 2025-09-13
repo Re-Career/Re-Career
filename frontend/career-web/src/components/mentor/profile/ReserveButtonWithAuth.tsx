@@ -3,11 +3,10 @@
 import { useLoginSheet } from '@/store/useLoginSheet'
 import { getCookieValue } from '@/lib/utils/getCookie'
 
-const ReserveButton = ({ id }: { id: number }) => {
+const ReserveButtonWithAuth = ({ id }: { id: string }) => {
   const { onOpen } = useLoginSheet()
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+
+  const handleClick = () => {
     const token = getCookieValue('accessToken')
 
     if (!token) {
@@ -19,12 +18,12 @@ const ReserveButton = ({ id }: { id: number }) => {
 
   return (
     <button
+      className="bg-primary-500 flex-1 rounded-lg py-3 text-center font-bold"
       onClick={handleClick}
-      className="bg-primary-500 flex-shrink-0 rounded-xl px-4 py-1.5 text-sm"
     >
-      1:1 예약
+      상담 예약하기
     </button>
   )
 }
 
-export default ReserveButton
+export default ReserveButtonWithAuth

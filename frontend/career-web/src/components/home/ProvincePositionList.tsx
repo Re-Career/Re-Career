@@ -7,16 +7,21 @@ import { UserLocation } from '@/types/location'
 import { getPositionsByProvince } from '@/services/server/positions'
 import { FixedSizeImage } from '../common'
 import { useToast } from '@/hooks/useToast'
+import { ProvincePosition } from '@/types/position'
 
 interface ProvincePositionListProps {
-  locationsIds?: UserLocation
+  userLocationsInfo?: UserLocation
+  defaultTrendPositions?: ProvincePosition
 }
 
-const ProvincePositionList = ({ locationsIds }: ProvincePositionListProps) => {
+const ProvincePositionList = ({
+  userLocationsInfo,
+  defaultTrendPositions,
+}: ProvincePositionListProps) => {
   const { showError } = useToast()
 
   const { data } = useSWR(
-    locationsIds ? ['user-location-positions', locationsIds] : null,
+    userLocationsInfo ? ['user-location-positions', userLocationsInfo] : null,
     ([, locationData]) => getPositionsByProvince(locationData),
     {
       revalidateOnFocus: false,
@@ -24,13 +29,15 @@ const ProvincePositionList = ({ locationsIds }: ProvincePositionListProps) => {
       errorRetryCount: 1,
     }
   )
+  const trendPositions = data?.data || defaultTrendPositions
 
   if (data?.errorMessage) {
     showError(data?.errorMessage)
 
     return <></>
   }
-  if (!data) {
+
+  if (!trendPositions) {
     return (
       <section>
         <div className="mx-4 mb-4 h-6 w-48 animate-pulse rounded bg-gray-200" />
@@ -49,9 +56,7 @@ const ProvincePositionList = ({ locationsIds }: ProvincePositionListProps) => {
     )
   }
 
-  const {
-    data: { city, province, positions },
-  } = data
+  const { city, province, positions } = trendPositions
 
   return (
     <section>

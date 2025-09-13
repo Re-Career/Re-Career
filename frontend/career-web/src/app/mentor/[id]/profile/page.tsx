@@ -1,8 +1,8 @@
 import { FixedSizeImage } from '@/components/common'
 import { Header, PageWithHeader } from '@/components/layout'
 import { getMentor } from '@/services/server/mentor'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import ReserveButtonWithAuth from '@/components/mentor/profile/ReserveButtonWithAuth'
 
 const renderStars = (rating: number) => {
   return Array.from({ length: 5 }, (_, i) => (
@@ -44,7 +44,9 @@ const MentorProfilePage = async ({
             {mentor.name}
           </h1>
 
-          <p className="mb-3 text-gray-600">{mentor.shortDescription}</p>
+          {mentor.shortDescription && (
+            <p className="mb-3 text-gray-600">{mentor.shortDescription}</p>
+          )}
 
           <div className="mb-2 flex items-center justify-center gap-2">
             {mentor.feedback && (
@@ -61,7 +63,7 @@ const MentorProfilePage = async ({
 
           <div className="text-sm text-gray-500">
             {mentor.company ? `${mentor.company.name} •` : ''}
-            경력 {mentor.experience}년 • {mentor.province.name}
+            경력 {mentor.experience}년 • {mentor.province?.name}
           </div>
         </div>
 
@@ -158,12 +160,7 @@ const MentorProfilePage = async ({
 
         {/* 하단 상담 예약 버튼 */}
         <div className="sticky bottom-0 flex border-t border-gray-100 bg-white p-4">
-          <Link
-            className="bg-primary-500 flex-1 rounded-lg py-3 text-center font-bold"
-            href={`/mentor/${id}/reservation`}
-          >
-            상담 예약하기
-          </Link>
+          <ReserveButtonWithAuth id={id} />
         </div>
       </PageWithHeader>
     </>
